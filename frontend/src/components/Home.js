@@ -2,19 +2,32 @@ import React from "react"
 import { useNavigate } from "react-router-dom";
 
 const Home = (props) => {
-    const { loggedIn, email } = props
+    const { loggedIn, SignIn, email } = props
     const navigate = useNavigate();
     
     const onButtonClick = () => {
-        // You'll update this function later
+      if (loggedIn) {
+          navigate('/logout');
+      } else {
+
+          navigate('/login');
+      }
     }
+    const onButtonClickSign = () => {
+      if (SignIn) {
+          navigate('/signout');
+      } else {
+          navigate('/signin');
+      }
+  }
+  
 
     return <div className="mainContainer">
         <div className={"titleContainer"}>
             <div>Welcome!</div>
         </div>
         <div>
-            This is the home page.
+            To the Home Page.
         </div>
         <div className={"buttonContainer"}>
             <input
@@ -25,9 +38,15 @@ const Home = (props) => {
             {(loggedIn ? <div>
                 Your email address is {email}
             </div> : <div/>)}
+            <input
+                className={"inputButton"}
+                type="button"
+                onClick={onButtonClickSign}
+                value={SignIn ? "Sign out" : "Sign in"} />
+            {(SignIn ? <div>
+                Your email address is {email}
+            </div> : <div/>)}
         </div>
-
-
     </div>
 }
 
