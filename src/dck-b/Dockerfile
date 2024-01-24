@@ -3,6 +3,7 @@ RUN apt update -y && apt install -y git
 
 WORKDIR /app
 RUN npm install -g npm@latest && npm i -g @nestjs/cli
-CMD ["sleep 2000"]
+# RUN chmod +x initenv.sh
+
 # ENTRYPOINT ["./initenv.sh"]
-# CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:dev"]
