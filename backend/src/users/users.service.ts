@@ -15,20 +15,23 @@ export class UsersService {
     ) {}
   
     async createUser(createUserDto: UserInfoDto): Promise<{ user: User; token: string }> {
-      const { firstName, lastName, email, password } = createUserDto;
-    
+
       const saltOrRounds = 10;
       const passworHashed = await bcrypt.hash(createUserDto.password, saltOrRounds);
     
-      const user = this.usersRepository.create({ firstName, lastName, email, password: passworHashed });
+      const user = this.usersRepository.create({ 
+            firstName: createUserDto.firstName, 
+            lastName: createUserDto.lastName, 
+            email: createUserDto.email, 
+            password: passworHashed 
+        });
+        
       const savedUser = await this.usersRepository.save(user);
-    
       if (!savedUser) {
         throw new UnauthorizedException('Failed to create user');
       }
     
       const token = await this.generateToken(savedUser);
-    
       return { user: savedUser, token };
     }
     

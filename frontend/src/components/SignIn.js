@@ -60,20 +60,16 @@ const SignIn = () => {
                     email,
                     password,
                 }),
+                credentials: 'include'
             });
-    
-            // Check if the request was successful
+            console.log(response)
             if (response.ok) {
-                // If all validation passes and registration is successful, navigate to the success page
-                navigate('/success');
+                navigate('/profile');
             } else {
-                // Handle errors
                 const errorData = await response.json();
-                // Display error messages or handle them as needed
                 console.error('Error:', errorData.message);
             }
         } catch (error) {
-            // Handle network errors
             console.error('Network error:', error);
         }
     };
