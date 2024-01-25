@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { UserInfoDto } from './DTO/UserInfoDto';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -15,27 +16,27 @@ export class UsersService {
   
     async createUser(createUserDto: UserInfoDto): Promise<{ user: User; token: string }> {
       const { firstName, lastName, email, password } = createUserDto;
-  
-      const saltOrRounds = 10
-        const passworHashed = await bcrypt.hash(createChatRoomDto.password, saltOrRounds);
-
-      const user = this.usersRepository.create({ firstName, lastName, email, password });
+    
+      const saltOrRounds = 10;
+      const passworHashed = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    
+      const user = this.usersRepository.create({ firstName, lastName, email, password: passworHashed });
       const savedUser = await this.usersRepository.save(user);
-  
+    
       if (!savedUser) {
         throw new UnauthorizedException('Failed to create user');
       }
-  
-      const token = this.generateToken(savedUser);
-  
+    
+      const token = await this.generateToken(savedUser);
+    
       return { user: savedUser, token };
     }
-  
-    private generateToken(user: User): string {
+    
+    async generateToken(user: User):Promise<any> {
       const payload = { sub: user.id, email: user.email };
       return this.jwtService.sign(payload);
     }
-
+    
     async findOneByEmail(email: string): Promise<User | undefined> {
         return this.usersRepository.findOne({
             where: {

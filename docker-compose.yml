@@ -39,6 +39,17 @@ services:
       - frontend-src:/app
     networks:
       - app-net
+  
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+     - '8080:8080'
+    depends_on:
+      - postgres_db
+    networks:
+      - app-net
 
 volumes:
   backend-src:

@@ -10,11 +10,9 @@ const Login = (props) => {
     const navigate = useNavigate();
         
     const onButtonClick = () => {
-        // Set initial error values to empty
         setEmailError("")
         setPasswordError("")
         
-        // Check if the user has entered both fields correctly
         if ("" === email) {
             setEmailError("Please enter your email")
             return

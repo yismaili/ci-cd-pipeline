@@ -11,7 +11,7 @@ const SignIn = () => {
     
     const navigate = useNavigate();
         
-    const onButtonClick = () => {
+    const onButtonClick = async () => {
         // Set initial error values to empty
         setEmailError("");
         setPasswordError("");
@@ -21,12 +21,12 @@ const SignIn = () => {
             setEmailError("Please enter your first name");
             return;
         }
-
+    
         if (lastName.trim() === "") {
             setEmailError("Please enter your last name");
             return;
         }
-
+    
         if (email.trim() === "") {
             setEmailError("Please enter your email");
             return;
@@ -47,10 +47,37 @@ const SignIn = () => {
             return;
         }
         
-        // Here you can add logic for submitting the form or authenticating the user
-        // For now, let's just navigate to a success page
-        navigate('/success');
+        try {
+            // Make a POST request to your backend API
+            const response = await fetch('http://localhost:3001/users/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                }),
+            });
+    
+            // Check if the request was successful
+            if (response.ok) {
+                // If all validation passes and registration is successful, navigate to the success page
+                navigate('/success');
+            } else {
+                // Handle errors
+                const errorData = await response.json();
+                // Display error messages or handle them as needed
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            // Handle network errors
+            console.error('Network error:', error);
+        }
     };
+    
 
     return (
         <div className="mainContainer">
