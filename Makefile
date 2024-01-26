@@ -2,6 +2,7 @@ build:
 	cd backend && npm install
 	cd frontend && npm install
 	mkdir -p db
+	touch .env
 	docker compose build
 
 up:
