@@ -10,7 +10,7 @@ export class UserPostsGateway {
   @WebSocketServer() server: Server;
   handleConnection(client: Socket) {
     try{
-      const jwtSecret = 'secret';
+      const jwtSecret = process.env.JWT_SECRET;
       const token = client.handshake.headers.authorization.split(' ')[1];
       if (!token) {
           client.emit('error', 'Authorization token missing');

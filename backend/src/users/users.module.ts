@@ -1,6 +1,6 @@
 import { Controller, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entity/user.entity';
+import { User } from './entity/user.entity';
 import { UsersService } from './users.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from './users.controller';
@@ -11,7 +11,7 @@ import { AuthService } from 'src/auth/auth.service';
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
-      secret: 'secret',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
   ],

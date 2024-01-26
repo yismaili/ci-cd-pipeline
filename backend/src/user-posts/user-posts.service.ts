@@ -4,7 +4,7 @@ import { Socket, Server} from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/user-post.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/entity/user.entity';
+import { User } from 'src/users/entity/user.entity';
 
 @Injectable()
 export class UserPostsService {
