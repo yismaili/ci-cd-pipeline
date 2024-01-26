@@ -14,7 +14,6 @@ export class UsersController {
  @UseGuards(JwtAuthGuard, JwtStrategy)
   @Get('profile')
   async getUserProfile(@Req() request: any, @Res({ passthrough: true }) response: Response) {
-    console.log(request)
     try {
       const user = request.user;
       

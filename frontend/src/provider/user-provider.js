@@ -5,7 +5,8 @@ import { api } from "../lib/api";
 
 const UserContext = createContext({
     user: null,
-    loading: false
+    loading: false,
+    refresh: () => {}
 })
 
 

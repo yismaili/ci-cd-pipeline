@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from "../provider/user-provider";
 
 const SignIn = () => {
     const [firstName, setFirstName] = useState("");
@@ -59,15 +60,14 @@ const SignIn = () => {
                     email,
                     password,
                 }),
-                credentials: 'include', // Include cookies
+                credentials: 'include'
             });
         
             console.log('Response:', response);
         
             if (response.ok) {
                 const responseData = await response.json();
-                console.log('Signup successful:', responseData);
-                navigate('/profile');
+                window.location.reload()
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
