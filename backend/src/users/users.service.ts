@@ -14,17 +14,16 @@ export class UsersService {
       private jwtService: JwtService,
     ) {}
   
-    async createUser(createUserDto: UserInfoDto): Promise<{ user: User; token: string }> {
+    async createUser(createUserDto: UserInfoDto): Promise<{ user: any; token: string }> {
 
       const userIsFound =  await this.findOneByEmail(createUserDto.email)
 
       if (userIsFound){
-        const filteredUser: User = {
+        const filteredUser= {
           id: userIsFound.id,
           firstName: userIsFound.firstName,
           lastName: userIsFound.lastName,
-          email: userIsFound.email,
-          password: ''
+          email: userIsFound.email
         };
         const token = await this.generateToken(userIsFound);
         return { user: filteredUser, token };
@@ -45,12 +44,11 @@ export class UsersService {
         throw new UnauthorizedException('Failed to create user');
       }
 
-      const filteredUser: User = {
+      const filteredUser = {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        password: ''
+        email: user.email
       };
     
       const token = await this.generateToken(savedUser);

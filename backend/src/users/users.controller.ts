@@ -4,8 +4,6 @@ import { UsersService } from './users.service';
 import { UserInfoDto } from './DTO/UserInfoDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { JwtStrategy } from 'src/auth/jwt-auth/jwt.strategy';
-import { User } from 'src/entity/user.entity';
-import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -35,7 +33,7 @@ export class UsersController {
       const { user, token } = await this.usersService.createUser(createUserDto);
 
       // response.cookie('authorization', token, {
-      //   httpOnly: true,
+      //   // httpOnly: true,
       //   maxAge: 3600 * 1000,
       //   sameSite: 'lax'
       // });

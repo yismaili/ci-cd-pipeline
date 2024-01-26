@@ -12,7 +12,7 @@ export class AuthService {
     private usersRepository: Repository<User>,
     private readonly jwtService: JwtService) {}
 
-    async login(userloginDto: UserLoginDto): Promise<{ user: User; token: string }> {
+    async login(userloginDto: UserLoginDto): Promise<{ user: any; token: string }> {
 
       const user = await this.findOneByEmail(userloginDto.email)
       if (!user) {
@@ -23,12 +23,11 @@ export class AuthService {
       if (!isMatch ) {
           throw new NotFoundException('Invalid password');
       }
-      const filteredUser: User = {
+      const filteredUser = {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        password: ''
+        email: user.email
       };
     
       const token = await this.generateToken(user);

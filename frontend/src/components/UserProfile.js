@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../UserProfile.css';
+import socketIOClient from 'socket.io-client'; 
 
 const UserProfile = ({ user }) => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
+  const socketRef = useRef(null); // Declare socketRef using useRef
+
+  useEffect(() => {
+    const token = document.cookie.split("authorization=")[1];
+    const socket = socketIOClient('http://localhost:3001',{
+      extraHeaders:  { authorization: `Bearer ${token}` }
+    });
+
+    socketRef.current = socket; // Assign socket to socketRef
+
+    socketRef.current.on('newPost', (createdPost) => {
+      setPosts(prevPosts => [...prevPosts, createdPost]);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
 
   const handlePostSubmit = () => {
     if (newPost.trim() !== '') {
-      setPosts([...posts, { id: Date.now(), content: newPost }]);
+      socketRef.current.emit('createUserPost', { post: newPost, userId: user.id });
       setNewPost('');
     }
   };
@@ -17,7 +36,7 @@ const UserProfile = ({ user }) => {
       <h2>User Profile</h2>
       <div className="user-info">
         <p>
-          <strong>Name:</strong> {user.firstName + " " + user.lastName}
+          <strong>Name:</strong> {user.firstName + ' ' + user.lastName}
         </p>
         <p>
           <strong>Email:</strong> {user.email}
@@ -42,7 +61,7 @@ const UserProfile = ({ user }) => {
         ) : (
           <ul>
             {posts.map((post) => (
-              <li key={post.id}>{post.content}</li>
+              <li key={post.id}>{post.text}</li>
             ))}
           </ul>
         )}
