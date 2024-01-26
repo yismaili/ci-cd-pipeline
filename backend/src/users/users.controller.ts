@@ -41,6 +41,7 @@ export class UsersController {
       // });
 
       response.cookie('authorization', token);
+      return user
     } catch (error) {
       throw new NotFoundException('Failed to create user');
     }

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from "../provider/user-provider";
 
 const SignIn = () => {
     const [firstName, setFirstName] = useState("");
@@ -9,8 +7,6 @@ const SignIn = () => {
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    
-    const navigate = useNavigate();
         
     const onButtonClick = async () => {
         // Set initial error values to empty
@@ -62,7 +58,7 @@ const SignIn = () => {
                 }),
                 credentials: 'include'
             });
-        
+            // window.location.reload()
             console.log('Response:', response);
         
             if (response.ok) {
