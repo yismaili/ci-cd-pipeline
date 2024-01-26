@@ -48,8 +48,7 @@ const SignIn = () => {
         }
         
         try {
-            // Make a POST request to your backend API
-            const response = await fetch('http://localhost:3001/users/signup', {
+            const response = await fetch('http://localhost:3001/users/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,10 +59,14 @@ const SignIn = () => {
                     email,
                     password,
                 }),
-                credentials: 'include'
+                credentials: 'include', // Include cookies
             });
-            console.log(response)
+        
+            console.log('Response:', response);
+        
             if (response.ok) {
+                const responseData = await response.json();
+                console.log('Signup successful:', responseData);
                 navigate('/profile');
             } else {
                 const errorData = await response.json();
@@ -72,6 +75,7 @@ const SignIn = () => {
         } catch (error) {
             console.error('Network error:', error);
         }
+        
     };
     
 

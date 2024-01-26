@@ -1,15 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entity/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserLoginDto } from './DTO/UserLoginDto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(@InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private readonly jwtService: JwtService) {}
 
-  async login(user: User): Promise<{ access_token: string }> {
-    const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+    async login(userloginDto: UserLoginDto): Promise<{ user: User; token: string }> {
+
+      const user = await this.findOneByEmail(userloginDto.email)
+      if (!user) {
+        throw new UnauthorizedException('user not found');
+      }
+      
+      const isMatch = await bcrypt.compare(userloginDto.password, user?.password);
+      if (!isMatch ) {
+          throw new NotFoundException('Invalid password');
+      }
+      const filteredUser: User = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: ''
+      };
+    
+      const token = await this.generateToken(user);
+      return { user: filteredUser, token };
+    }
+    
+    async generateToken(user: User):Promise<any> {
+      const payload = { sub: user.id, email: user.email };
+      return this.jwtService.sign(payload);
+    }
+    
+    async findOneByEmail(email: string): Promise<User | undefined> {
+        return this.usersRepository.findOne({
+            where: {
+                email: email,
+            }
+        });
+      }
 }

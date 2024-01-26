@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate} from 'react-router-dom'
 import axios from 'axios'
+import { api } from "../lib/api";
 
 const UserContext = createContext({
     user: null,
@@ -20,7 +21,7 @@ export const UserProvider = ({ children }) => {
         const fetchUser = async () => {
             try {
                 setLoading(true) 
-                const { data } = await axios.get('http://localhost:3001/user');
+                const { data } = await api.get('/users/profile');
                 if (data) setUser(data);
             } catch (e) {
                 setUser(null)
@@ -34,7 +35,6 @@ export const UserProvider = ({ children }) => {
    
     
     useEffect(() => {
-        console.log({ user })
         if (loading) return;
         if (!user && !publicRoutes.includes(location.pathname)) {
            navigate('/login') 

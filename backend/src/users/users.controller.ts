@@ -1,50 +1,49 @@
-import { Controller, Post, Body, Res, NotFoundException, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Res, NotFoundException, Get, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from './users.service';
 import { UserInfoDto } from './DTO/UserInfoDto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
+import { JwtStrategy } from 'src/auth/jwt-auth/jwt.strategy';
+import { User } from 'src/entity/user.entity';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  response: any;
+ @UseGuards(JwtAuthGuard, JwtStrategy)
   @Get('profile')
-  googlelogin(@Res() res: Response,) {
-    return res.status(HttpStatus.OK).json(this.response);
-  }
-
-  @Post('signup')
-  async signUp(@Body() createUserDto: UserInfoDto, @Res({ passthrough: true}) response: Response): Promise<any> {
+  async getUserProfile(@Req() request: any, @Res({ passthrough: true }) response: Response) {
+    console.log(request)
     try {
-      const { user, token } = await this.usersService.createUser(createUserDto);
-
-      response.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: 3600 * 1000
-      });
+      const user = request.user;
       
-      // return response.send("hi");
+      const filteredUser = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      };
+      return filteredUser;
     } catch (error) {
-      throw new NotFoundException('Failed to create user');
+      throw new NotFoundException('User not authorized');
     }
   }
 
   @Post('signin')
-  async signIn(@Body('email') email: string, @Body('password') password: string, @Res() response: Response) {
+  async signUp(@Body() createUserDto: UserInfoDto, @Res({ passthrough: true}) response: Response): Promise<any> {
     try {
-      const user = await this.usersService.findOneByEmail(email);
+      const { user, token } = await this.usersService.createUser(createUserDto);
 
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
+      // response.cookie('authorization', token, {
+      //   httpOnly: true,
+      //   maxAge: 3600 * 1000,
+      //   sameSite: 'lax'
+      // });
 
-      const token = this.usersService.generateToken(user);
-
-      response.cookie('jwt', token, { httpOnly: true });
-
-      return { message: 'User signed in successfully', user };
+      response.cookie('authorization', token);
     } catch (error) {
-      throw new NotFoundException('Failed to sign in user');
+      throw new NotFoundException('Failed to create user');
     }
   }
 }

@@ -17,13 +17,10 @@ const UserProfile = ({ user }) => {
       <h2>User Profile</h2>
       <div className="user-info">
         <p>
-          <strong>Name:</strong> {user.name}
+          <strong>Name:</strong> {user.firstName + " " + user.lastName}
         </p>
         <p>
           <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>Age:</strong> {user.age}
         </p>
       </div>
 
