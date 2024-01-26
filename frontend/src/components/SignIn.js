@@ -9,11 +9,9 @@ const SignIn = () => {
     const [passwordError, setPasswordError] = useState("");
         
     const onButtonClick = async () => {
-        // Set initial error values to empty
         setEmailError("");
         setPasswordError("");
         
-        // Check if the user has entered all fields correctly
         if (firstName.trim() === "") {
             setEmailError("Please enter your first name");
             return;

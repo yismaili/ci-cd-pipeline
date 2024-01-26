@@ -5,7 +5,7 @@ import socketIOClient from 'socket.io-client';
 const UserProfile = ({ user }) => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
-  const socketRef = useRef(null); // Declare socketRef using useRef
+  const socketRef = useRef(null); 
 
   useEffect(() => {
     const token = document.cookie.split("authorization=")[1];
@@ -13,8 +13,7 @@ const UserProfile = ({ user }) => {
       extraHeaders:  { authorization: `Bearer ${token}` }
     });
 
-    socketRef.current = socket; // Assign socket to socketRef
-
+    socketRef.current = socket; 
     socketRef.current.on('newPost', (createdPost) => {
       setPosts(prevPosts => [...prevPosts, createdPost]);
     });

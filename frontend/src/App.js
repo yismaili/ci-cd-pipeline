@@ -24,7 +24,7 @@ function App() {
 function Routing() {
   const { user, loading } = useUser();
   const [loggedIn, setLoggedIn] = useState(false);
-  const [signIn, setSignIn] = useState(false); // Fix: Renamed state variable
+  const [signIn, setSignIn] = useState(false); 
   const [userprofile, setUserProfile] = useState(false);
   const [email, setEmail] = useState("");
 
