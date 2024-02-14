@@ -14,14 +14,6 @@
 # Setup Environment
   Create a .env file in the project root directory with the following content:
 
-
-        XXXXXX
-        XXXXXX
-        XXXXXX
-        XXXXXX
-        XXXXXX
-Replace XXXXXX with appropriate configuration values as needed.
-
 # Build and Run
 Use the provided Makefile to build and run the project:
 
