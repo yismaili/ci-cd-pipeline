@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  containers:
+  - name: postgres
+    image: postgres:latest
+    ports:
+    - containerPort: 5432
+    volumeMounts:
+    - name: postgres-data
+      mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: postgres-data
+    hostPath:
+      path: /home/yoyo/Desktop/web-coding-challenge/db
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+spec:
+  containers:
+  - name: backend
+    image: localhost:5000/website:v1
+    ports:
+    - containerPort: 3001
+    volumeMounts:
+    - name: backend-src
+      mountPath: /app
+  volumes:
+  - name: backend-src
+    hostPath:
+      path: /home/yoyo/Desktop/web-coding-challenge/backend
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+spec:
+  containers:
+  - name: frontend
+    image: localhost:5000/website:v1
+    ports:
+    - containerPort: 3000
+    volumeMounts:
+    - name: frontend-src
+      mountPath: /app
+  volumes:
+  - name: frontend-src
+    hostPath:
+      path: /home/yoyo/Desktop/web-coding-challenge/frontend
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adminer
+spec:
+  containers:
+  - name: adminer
+    image: adminer
+    ports:
+    - containerPort: 8080
+  dependsOn:
+  - postgres
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer
+spec:
+  selector:
+    app: adminer
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
