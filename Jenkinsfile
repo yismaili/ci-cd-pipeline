@@ -2,21 +2,42 @@ pipeline {
     agent any
 
     stages {
-        stage('build') {
+        stage('checkout') {
             steps {
-                echo 'Build the appticaton'
+                checkout scm
             }
         }
         
-         stage('test') {
+         stage('Test') {
             steps {
-                echo 'Test the application'
+                sh 'sudo apt install npm'
+                // sh 'npm test' we have to make tests
             }
         }
         
-         stage('Deploy') {
+         stage('Build') {
             steps {
-                echo 'Deploy the application'
+                sh 'npm run build'
+            }
+        }
+
+        stage("Build Image"){
+            steps{
+                sh 'docker build -t my-app:1.0 .'
+            }
+        }
+         
+        stages {
+        stage('Example') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker_cred', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh '''
+                        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                        docker tag my-app:1.0 bashidkk/my-app:1.0
+                        docker push ashidkk/my-app:1.0
+                        docker logout 
+                    '''
+                }
             }
         }
     }
