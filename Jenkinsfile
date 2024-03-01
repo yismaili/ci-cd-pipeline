@@ -6,6 +6,7 @@ pipeline {
             steps {
                 //sh 'apt update && apt install -y npm' 
                 // sh 'npm test' 
+                sh 'hi'
             }
         }
 
