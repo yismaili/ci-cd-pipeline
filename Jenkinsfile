@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     stages {
-        stage('checkout') {
-            steps {
-                //checkout master
-                sh 'hi bro form jenkins'
-            }
-        }
+        // stage('checkout') {
+        //     steps {
+        //         //checkout master
+        //         sh 'hi bro form jenkins'
+        //     }
+        // }
         
          stage('Test') {
             steps {
