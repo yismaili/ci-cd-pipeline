@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                checkout master
+                //checkout master
+                sh 'hi bro form jenkins'
             }
         }
         
