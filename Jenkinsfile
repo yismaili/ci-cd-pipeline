@@ -14,7 +14,7 @@ pipeline {
         stage('Verify Docker Compose') {
                 steps {
                     script {
-                        sh 'docker ps'
+                        sh 'docker compose up'
                     }
                 }
         }
