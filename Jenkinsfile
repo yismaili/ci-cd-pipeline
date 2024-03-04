@@ -6,8 +6,8 @@ pipeline {
         stage('Verify Docker Compose') {
                 steps {
                     script {
-                        def dockerComposeVersion = sh(script: 'docker --version', returnStdout: true).trim()
-                        if (dockerComposeVersion.startsWith("docker ")) {
+                        def dockerComposeVersion = sh(script: 'docker compose --version', returnStdout: true).trim()
+                        if (dockerComposeVersion.startsWith("docker compose")) {
                             echo "Docker Compose is installed. Version: ${dockerComposeVersion}"
                         } else {
                             error "Docker Compose is not installed or not accessible."
