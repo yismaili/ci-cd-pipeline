@@ -7,7 +7,7 @@ pipeline {
                 steps {
                     script {
                         sh 'echo hi'
-                        sh 'mkdir db'
+                        sh 'mkdir -p db'
                     }
                 }
         }
