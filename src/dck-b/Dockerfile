@@ -6,8 +6,8 @@ WORKDIR /app
 
 RUN npm install -g npm@latest && npm i -g @nestjs/cli
 
-COPY initenv.sh /app/
-RUN chmod +x initenv.sh
-RUN ./initenv.sh
+# COPY initenv.sh /app/
+# RUN chmod +x initenv.sh
+# RUN ./initenv.sh
 
 CMD ["npm", "run", "start:dev"]
