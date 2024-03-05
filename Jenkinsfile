@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     stages {
-
         stage('Prepare') {
             steps {
                 script {
-                    sh 'echo "Preparing environment"'
+                    echo "Preparing environment"
                     sh 'mkdir -p db'
                 }
             }
@@ -20,12 +19,29 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                script {
+                    sh 'echo "for testing application"'
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
                     sh 'docker compose up -d'
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
