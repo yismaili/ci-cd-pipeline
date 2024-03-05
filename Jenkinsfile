@@ -7,6 +7,8 @@ pipeline {
                 script {
                     echo "Preparing environment"
                     sh 'mkdir -p db'
+                    sh 'cd frontend'
+                    sh 'npm install'
                 }
             }
         }
