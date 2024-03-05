@@ -3,21 +3,30 @@ pipeline {
 
     stages {
 
-        stage('Hi') {
-                steps {
-                    script {
-                        sh 'echo hi'
-                        sh 'mkdir -p db'
-                    }
+        stage('Prepare') {
+            steps {
+                script {
+                    sh 'echo "Preparing environment"'
+                    sh 'mkdir -p db'
                 }
+            }
         }
 
-        stage('Verify Docker Compose') {
-                steps {
-                    script {
-                        sh 'docker compose up'
-                    }
+        stage('Build') {
+            steps {
+                script {
+                    sh 'npm install'
+                    sh 'docker-compose build'
                 }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
         }
     }
 }
