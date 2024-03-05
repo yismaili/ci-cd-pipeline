@@ -46,21 +46,21 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: .${PWD}/backend
+      device: ./backend
 
   postgres-src:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: .${PWD}/db
+      device: ./db
 
   frontend-src:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: .${PWD}/frontend
+      device: ./frontend
 
 networks:
   app-net:
