@@ -2,12 +2,30 @@ pipeline {
     agent any
 
     stages {
-       stage('Prepare') {
-        steps {
-            script {
-                echo "Preparing environment"
-                sh 'mkdir -p db'
-                sh 'cd frontend && npm install'
+        stage('Install frontend dependencies') {
+            steps {
+                script {
+                    dir('frontend') {
+                        sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Install backend dependencies') {
+            steps {
+                script {
+                    dir('backend') {
+                        sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Prepare database') {
+            steps {
+                script {
+                    sh 'mkdir -p db'
                 }
             }
         }
