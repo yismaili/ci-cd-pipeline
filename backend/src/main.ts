@@ -12,6 +12,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
+
+
+  // hi just for testing 
   await app.listen(3001);
 }
 bootstrap();

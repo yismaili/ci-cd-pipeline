@@ -126,6 +126,19 @@ const SignIn = () => {
                     value="Sign In"
                 />
             </div>
+
+
+            <br />
+            <div className="inputContainer">
+                <input
+                    value={firstName}
+                    placeholder="just for testing ci/cd"
+                    onChange={(ev) => setFirstName(ev.target.value)}
+                    className="inputBox"
+                />
+            </div>
+            <br />
+
         </div>
     );
 };
