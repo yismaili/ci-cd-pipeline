@@ -13,8 +13,8 @@ export class UserPostsGateway {
       const jwtSecret = process.env.JWT_SECRET;
       const token = client.handshake.headers.authorization.split(' ')[1];
       if (!token) {
-          client.emit('error', 'Authorization token missing');
-          client.disconnect(true);
+          // client.emit('error', 'Authorization token missing');
+          // client.disconnect(true);
           return;
         }
         
