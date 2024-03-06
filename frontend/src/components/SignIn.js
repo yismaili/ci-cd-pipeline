@@ -128,7 +128,7 @@ const SignIn = () => {
             </div>
 
 
-            <br />
+            {/* <br />
             <div className="inputContainer">
                 <input
                     value={firstName}
@@ -137,7 +137,7 @@ const SignIn = () => {
                     className="inputBox"
                 />
             </div>
-            <br />
+            <br /> */}
 
         </div>
     );
