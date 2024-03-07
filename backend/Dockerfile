@@ -6,8 +6,14 @@ WORKDIR /app
 
 RUN npm install -g npm@latest && npm i -g @nestjs/cli
 
-# COPY initenv.sh /app/
-# RUN chmod +x initenv.sh
-# RUN ./initenv.sh
+ENV NODE_ENV development
+
+COPY package.json package-lock.json ./
+
+RUN npm install --legacy-peer-deps
+
+COPY . .
+
+EXPOSE 3001
 
 CMD ["npm", "run", "start:dev"]

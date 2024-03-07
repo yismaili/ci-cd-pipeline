@@ -15,7 +15,7 @@ services:
       - app-net
 
   backend:
-    build: ./src/dck-b
+    build: ./backend
     container_name: backend
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
       - app-net
 
   frontend:
-    build: ./src/dck-f
+    build: ./frontend
     container_name: frontend
     restart: always
     depends_on:
