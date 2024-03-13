@@ -6,7 +6,8 @@ pipeline {
             steps {
                 script {
                     dir('frontend') {
-                        sh 'npm install'
+                        //sh 'npm install'
+                        sh 'echo "hi 1"'
                     }
                 }
             }
@@ -16,7 +17,8 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                        sh 'npm install'
+                        //sh 'npm install'
+                        sh 'echo "hi 2"'
                     }
                 }
             }
