@@ -14,7 +14,7 @@ services:
       - app-net
 
   backend:
-    image: localhost:5000/backend:1.0
+    image: localhost:5000/backend:1.1
     container_name: backend
     env_file:
       - .env
@@ -27,7 +27,7 @@ services:
       - app-net
 
   frontend:
-    image: localhost:5000/frontend:1.0
+    image: localhost:5000/frontend:1.1
     container_name: frontend
     restart: always
     depends_on:
@@ -45,21 +45,21 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/test/backend
+      device: ${PWD}/backend
 
   postgres-src:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/test/postgres
+      device: ${PWD}/postgres
 
   frontend-src:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/test/frontend
+      device: ${PWD}/frontend
 
 networks:
   app-net:

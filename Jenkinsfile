@@ -27,7 +27,7 @@ pipeline {
         stage('Prepare database') {
             steps {
                 script {
-                    sh 'mkdir -p /var/jenkins_home/workspace/test/postgres'
+                    sh 'mkdir -p postgres'
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'docker compose build'
+                    sh './build.sh'
                 }
             }
         }
