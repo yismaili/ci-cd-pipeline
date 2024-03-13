@@ -39,11 +39,28 @@ services:
     networks:
       - app-net
 
-volumes:
-  postgres-src:
+vvolumes:
   backend-src:
-  frontend-src:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/jenkins_home/workspace/test/backend
 
+  postgres-src:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/jenkins_home/workspace/test/db
+
+  frontend-src:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/jenkins_home/workspace/test/frontend
+      
 networks:
   app-net:
     driver: bridge
