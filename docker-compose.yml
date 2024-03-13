@@ -52,7 +52,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/test/db
+      device: /var/jenkins_home/workspace/test/postgres
 
   frontend-src:
     driver: local
