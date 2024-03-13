@@ -39,7 +39,7 @@ services:
     networks:
       - app-net
 
-vvolumes:
+volumes:
   backend-src:
     driver: local
     driver_opts:
@@ -60,7 +60,7 @@ vvolumes:
       o: bind
       type: none
       device: /var/jenkins_home/workspace/test/frontend
-      
+
 networks:
   app-net:
     driver: bridge
