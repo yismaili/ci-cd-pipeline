@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres_:/var/lib/postgresql/data
+      - postgre:/var/lib/postgresql/data
     networks:
       - app-net
 
@@ -45,9 +45,9 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/test/backend
+      device: ./backend
 
-  postgres_:
+  postgre:
     driver: local
     driver_opts:
       o: bind
@@ -59,7 +59,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /var/jenkins_home/workspace/tes/frontend
+      device: ./frontend
 
 networks:
   app-net:
