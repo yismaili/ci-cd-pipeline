@@ -27,7 +27,7 @@ pipeline {
         stage('Prepare database') {
             steps {
                 script {
-                    sh 'mkdir -p postgres'
+                    sh 'mkdir -p db'
                 }
             }
         }

@@ -14,15 +14,15 @@ fi
 
 cd frontend
 echo "Building and pushing Docker image for frontend"
-docker build -t localhost:5000/frontend:1.1 .
-docker push localhost:5000/frontend:1.1
+docker build -t localhost:5000/frontend:2.1 .
+docker push localhost:5000/frontend:2.1
 
 cd ..
 
 cd backend
 echo "Building and pushing Docker image for backend"
-docker build -t localhost:5000/backend:1.1 .
-docker push localhost:5000/backend:1.1
+docker build -t localhost:5000/backend:2.1 .
+docker push localhost:5000/backend:2.1
 
 cd ..
 
