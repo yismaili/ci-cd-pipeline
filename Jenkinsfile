@@ -51,7 +51,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh './build.sh'
+                    sh 'echo "hi 4"'
                 }
             }
         }
