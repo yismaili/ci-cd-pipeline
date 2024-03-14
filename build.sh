@@ -9,8 +9,10 @@ docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" $DOCKER
 # Check if Docker registry is already running
 if [ ! "$(docker ps -q -f name=registry)" ]; then
     # Start local Docker registry
-    docker run -d -p 5000:5000 --restart=always --name registry registry:2
+    docker run -d -p 5000:5000 --restart=always --name registry registry:1
 fi
+
+mkdir -p postgres
 
 cd frontend
 echo "Building and pushing Docker image for frontend"

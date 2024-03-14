@@ -27,7 +27,7 @@ pipeline {
         stage('Prepare database') {
             steps {
                 script {
-                    sh 'mkdir -p db'
+                    sh 'echo "hi 3"'
                 }
             }
         }

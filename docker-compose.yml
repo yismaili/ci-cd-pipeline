@@ -52,7 +52,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ${PWD}/db
+      device: ${PWD}/postgres
 
   frontend-src:
     driver: local
