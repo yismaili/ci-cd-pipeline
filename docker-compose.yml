@@ -14,7 +14,7 @@ services:
       - app-net
 
   backend:
-    image: localhost:5000/backend:2.1
+    image: localhost:5000/backend:2.0
     container_name: backend
     env_file:
       - .env
@@ -27,7 +27,7 @@ services:
       - app-net
 
   frontend:
-    image: localhost:5000/frontend:2.1
+    image: localhost:5000/frontend:2.0
     container_name: frontend
     restart: always
     depends_on:
