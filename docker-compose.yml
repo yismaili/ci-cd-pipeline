@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres-src:/var/lib/postgresql/data
+      - postgres_:/var/lib/postgresql/data
     networks:
       - app-net
 
@@ -47,7 +47,7 @@ volumes:
       type: none
       device: ${PWD}/backend
 
-  postgres-src:
+  postgres_:
     driver: local
     driver_opts:
       o: bind
