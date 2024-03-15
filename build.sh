@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Create Docker volume for Jenkins data
+sudo docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data
+
 DOCKER_USERNAME="yismaili"
 DOCKER_PASSWORD="pass1227@"
 DOCKER_REGISTRY="https://index.docker.io/v1/"
@@ -11,9 +14,6 @@ if [ ! "$(docker ps -q -f name=registry)" ]; then
     # Start local Docker registry
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
 fi
-
-# Create Docker volume
-docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data
 
 mkdir -p postgres
 
@@ -33,6 +33,5 @@ cd ..
 
 echo "Deployment completed successfully!"
 
-# Add Docker Compose commands here
 docker compose build 
 docker compose up
