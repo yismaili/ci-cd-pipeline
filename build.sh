@@ -12,6 +12,9 @@ if [ ! "$(docker ps -q -f name=registry)" ]; then
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
 fi
 
+# Create Docker volume
+docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data
+
 mkdir -p postgres
 
 cd frontend
@@ -30,5 +33,6 @@ cd ..
 
 echo "Deployment completed successfully!"
 
-docker compose build 
-docker compose up
+# Add Docker Compose commands here
+docker-compose build 
+docker-compose up
