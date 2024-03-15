@@ -22,7 +22,7 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - ./backend:/app
+      - backend-src:/app
     networks:
       - app-net
 
@@ -35,7 +35,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - frontend-src:/app
     networks:
       - app-net
 
@@ -43,24 +43,35 @@ volumes:
   backend-src:
     driver: local
     driver_opts:
-      o: bind
       type: none
-      device: ./backend
+      device: ${PWD}/backend
 
   postgre:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./postgres
+      device: ${PWD}/postgres
 
   frontend-src:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./frontend
+      device: ${PWD}/frontend
 
 networks:
   app-net:
     driver: bridge
+
+# Create Docker volume for Jenkins data
+run_jenkins_data_volume:
+  command: sh -c 'docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data'
+  image: docker:latest
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  entrypoint: ''
+  depends_on:
+    - postgres_db
+    - backend
+    - frontend
