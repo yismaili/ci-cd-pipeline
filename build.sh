@@ -34,5 +34,5 @@ cd ..
 echo "Deployment completed successfully!"
 
 # Add Docker Compose commands here
-docker-compose build 
-docker-compose up
+docker compose build 
+docker compose up
