@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Create Docker volume for Jenkins data
-sudo docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data
-
 DOCKER_USERNAME="yismaili"
 DOCKER_PASSWORD="pass1227@"
 DOCKER_REGISTRY="https://index.docker.io/v1/"
