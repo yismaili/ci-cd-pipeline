@@ -21,8 +21,8 @@ services:
     restart: always
     ports:
       - "3001:3001"
-    volumes:
-      - backend-src:/app
+    # volumes:
+    #   - backend-src:/app
     networks:
       - app-net
 
@@ -34,8 +34,8 @@ services:
       - backend
     ports:
       - "3000:3000"
-    volumes:
-      - frontend-src:/app
+    # volumes:
+    #   - frontend-src:/app
     networks:
       - app-net
 
