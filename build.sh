@@ -16,19 +16,19 @@ mkdir -p postgres
 
 cd frontend
 echo "Building and pushing Docker image for frontend"
-docker build -t localhost:5000/frontend:3.0 .
-docker push localhost:5000/frontend:3.0
+docker build -t localhost:5000/frontend:1.2 .
+docker push localhost:5000/frontend:1.2
 
 cd ..
 
 cd backend
 echo "Building and pushing Docker image for backend"
-docker build -t localhost:5000/backend:3.0 .
-docker push localhost:5000/backend:3.0
+docker build -t localhost:5000/backend:1.2 .
+docker push localhost:5000/backend:1.2
 
 cd ..
 
 echo "Deployment completed successfully!"
 
-docker compose build 
+docker compose build -d
 docker compose up
