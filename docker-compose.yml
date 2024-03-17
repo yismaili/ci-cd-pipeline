@@ -64,14 +64,14 @@ networks:
   app-net:
     driver: bridge
 
-# Create Docker volume for Jenkins data
-run_jenkins_data_volume:
-  command: sh -c 'docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data'
-  image: docker:latest
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-  entrypoint: ''
-  depends_on:
-    - postgres_db
-    - backend
-    - frontend
+# # Create Docker volume for Jenkins data
+# run_jenkins_data_volume:
+#   command: sh -c 'docker volume create --opt type=none --opt device=/home/yoyo/Desktop/jenkins --opt o=bind jenkins-data'
+#   image: docker:latest
+#   volumes:
+#     - /var/run/docker.sock:/var/run/docker.sock
+#   entrypoint: ''
+#   depends_on:
+#     - postgres_db
+#     - backend
+#     - frontend
