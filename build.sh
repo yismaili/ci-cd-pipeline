@@ -31,4 +31,6 @@ cd ..
 echo "Deployment completed successfully!"
 
 docker compose build -d
-docker compose up
+docker compose up -d 
+sleep 200
+docker compose down 
