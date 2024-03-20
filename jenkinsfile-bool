@@ -9,8 +9,8 @@ pipeline {
         stage("Env Variables") {
             steps {
                 script {
-                    if (env.IS_BOOLEAN) {
-                        echo "You can see this message, because \"false\" String evaluates to Boolean.TRUE value"
+                    if (env.IS_BOOLEAN == true) {
+                        echo "You can see this message, because \"ture\" String evaluates to Boolean.TRUE value"
                     }
 
                     if (env.IS_BOOLEAN.toBoolean() == false) {
