@@ -1,13 +1,17 @@
 pipeline {
     agent any
     
+    environment {
+        AAA_SECRET_TEXT = credentials('secret-text')
+    }
+
     stages {
         stage('Install frontend dependencies') {
             steps {
                 script {
                     dir('frontend') {
                         //sh 'npm install'
-                        sh 'echo "hi 1"'
+                        sh 'echo "hi 1 ${AAA_SECRET_TEXT}"'
                     }
                 }
             }
