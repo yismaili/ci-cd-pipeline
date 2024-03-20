@@ -1,13 +1,17 @@
 pipeline {
     agent any
 
+    environment {
+        FOO = "bar"
+    }
+
     stages {
         stage('Install frontend dependencies') {
             steps {
                 script {
                     dir('frontend') {
                         //sh 'npm install'
-                        sh 'echo "hi 1"'
+                        sh 'echo ${env.FOO}'
                     }
                 }
             }
