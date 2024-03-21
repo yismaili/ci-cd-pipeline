@@ -20,14 +20,14 @@ pipeline {
           script {
             env.CUSTOMNAME  = env.GIT_BRANCH.split("/")[1]
             env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-            //targetFolderArray = env.GIT_BRANCH.split("/")[1]
-            // targetFolder = targetFolderArray[targetFolderArray.size()-1]
-            // currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
-            // sh '''
-            // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
-            // cat latest.txt
-            // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
-            // '''            
+            targetFolderArray = env.GIT_BRANCH.split("/")[1]
+            targetFolder = targetFolderArray[targetFolderArray.size()-1]
+            currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
+            sh '''
+            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
+            cat latest.txt
+            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
+            '''            
           }
         }
       }
