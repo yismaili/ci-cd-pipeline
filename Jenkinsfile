@@ -1,6 +1,14 @@
 pipeline {
-    agent any
-    
+    agent {
+    label 'jenkins-slave01-worker01 || jenkins-slave01-worker02'
+  }
+
+  options {
+    timeout(time: 1, unit: 'MINUTES')
+    timestamps()
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
+  }
     environment {
         AAA_SECRET_TEXT = credentials('secret-text')
     }
