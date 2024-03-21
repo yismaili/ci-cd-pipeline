@@ -8,6 +8,8 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
   }
     environment {
+        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
+        //registry="docker-registry.leyton.com:5000/erc"
         AAA_SECRET_TEXT = credentials('secret-text')
     }
 
@@ -18,6 +20,7 @@ pipeline {
                     dir('frontend') {
                         //sh 'npm install'
                         sh 'echo "hi 1 ${AAA_SECRET_TEXT}"'
+                        sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
                     }
                 }
             }
