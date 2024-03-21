@@ -8,18 +8,36 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
   }
     environment {
-        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true)
+        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         //registry="docker-registry.leyton.com:5000/erc"
         AAA_SECRET_TEXT = credentials('secret-text')
     }
 
     stages {
+
+    stage('Setup') {
+        steps {
+          script {
+            env.CUSTOMNAME  = env.GIT_BRANCH.split("/")[1]
+            env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+            targetFolderArray = env.GIT_BRANCH.split("/")[1]
+            targetFolder = targetFolderArray[targetFolderArray.size()-1]
+            currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
+            sh '''
+            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
+            cat latest.txt
+            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
+            '''            
+          }
+        }
+      }
+
         stage('Install frontend dependencies') {
             steps {
                 script {
                     dir('frontend') {
                         //sh 'npm install'
-                        sh 'echo "hi 1 ${AAA_SECRET_TEXT}"'
+                        sh 'echo "hi 1 ${env.CUSTOMNAM}"'
                         sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
                     }
                 }
