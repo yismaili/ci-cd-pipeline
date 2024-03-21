@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-    label 'jenkins-slave01-worker01 || jenkins-slave01-worker02'
-  }
+    agent any
 
   options {
     timeout(time: 1, unit: 'MINUTES')
