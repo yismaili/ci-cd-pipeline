@@ -27,6 +27,8 @@ pipeline {
             echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
             cat latest.txt
             echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
+
+            echo "${GIT_COMMIT_SHORT}.txt"
             '''            
           }
         }
