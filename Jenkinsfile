@@ -39,7 +39,7 @@ pipeline {
                 script {
                     dir('frontend') {
                         //sh 'npm install'
-                        sh 'echo "hi 1 ${env.CUSTOMNAM}"'
+                        echo "hi 1 ${env.CUSTOMNAME}"
                         sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
                     }
                 }
