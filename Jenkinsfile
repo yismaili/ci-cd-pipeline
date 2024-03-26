@@ -9,9 +9,9 @@ pipeline {
     }
 
     environment {
-        DOCKER_USERNAME = "yismaili"
-        DOCKER_PASSWORD = "pass1227@"
-        DOCKER_REGISTRY = "https://index.docker.io/v1/"
+        // DOCKER_USERNAME = "yismaili"
+        // DOCKER_PASSWORD = "pass1227@"
+        // DOCKER_REGISTRY = "https://index.docker.io/v1/"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
     }
 
@@ -37,8 +37,9 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    docker.withRegistry(DOCKER_REGISTRY, DOCKER_USERNAME, DOCKER_PASSWORD) {
+                    // docker.withRegistry(DOCKER_REGISTRY, DOCKER_USERNAME, DOCKER_PASSWORD) {
                         // No need to do anything here, as docker.withRegistry handles the login
+                        sh './build.sh'
                     }
                 }
             }
