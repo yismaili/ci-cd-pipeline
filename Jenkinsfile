@@ -40,7 +40,7 @@ pipeline {
                     dir('frontend') {
                         //sh 'npm install'
                         sh 'echo "hi 1 "'
-                        //sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
+                        sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
                     }
                 }
             }
