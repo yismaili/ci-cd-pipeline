@@ -12,7 +12,7 @@ pipeline {
         // DOCKER_USERNAME = "yismaili"
         // DOCKER_PASSWORD = "pass1227@"
         // DOCKER_REGISTRY = "https://index.docker.io/v1/"
-        registry="localhost:5000/erc"
+        registry="localhost:5000/test"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
     }
 
@@ -95,6 +95,19 @@ pipeline {
                 }
             }
         }
+
+
+    stage('Remove Unused docker image') {
+
+          steps {
+              sh '''
+              echo "Remove Unused docker image - Begin"
+              sudo docker rmi -f $(docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
+              echo "Remove Unused docker image - End"
+              '''
+            }
+    }
+
 
         stage('Deployment') {
             steps {
