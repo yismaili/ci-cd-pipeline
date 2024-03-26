@@ -12,7 +12,7 @@ pipeline {
         // DOCKER_USERNAME = "yismaili"
         // DOCKER_PASSWORD = "pass1227@"
         // DOCKER_REGISTRY = "https://index.docker.io/v1/"
-        registry="localhost:5000"
+        registry="localhost:5000/erc"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
     }
 
@@ -64,8 +64,8 @@ pipeline {
                     dir('frontend') {
                         sh '''
                         echo "Preparing Frontend"
-                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${registry}/${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        docker push ${registry}/${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                         echo "Push to Registry - End"
                         '''
                     }
