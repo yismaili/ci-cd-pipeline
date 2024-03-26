@@ -10,7 +10,6 @@ pipeline {
     environment {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         //registry="docker-registry.leyton.com:5000/erc"
-        //AAA_SECRET_TEXT = credentials('secret-text')
     }
 
     stages {
@@ -24,25 +23,31 @@ pipeline {
             targetFolder = targetFolderArray[targetFolderArray.size()-1]
             currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
             sh '''
-            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
-            cat latest.txt
-            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
+                echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
+                cat latest.txt
+                echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
 
-            echo "${GIT_COMMIT_SHORT}.txt"
+                echo "${GIT_COMMIT_SHORT}.txt"
             '''            
           }
         }
       }
 
-        stage('Install frontend dependencies') {
+        stage('Preparing Frontend') {
             steps {
                 script {
-                    dir('frontend') {
-                        //sh 'npm install'
-                        sh 'echo "hi 1 "'
-                        sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
+                    // dir('frontend') {
+                        // //sh 'npm install'
+                        // sh 'echo "hi 1 "'
+                        // sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
+                        nodejs(nodeJSInstallationName: "Node ${nodeVersion}", configId: 'npm-registry') {
+                        sh """
+                        cd frontend/
+                        set -e
+                        npm ci
+                        """
                     }
-                }
+                // }
             }
         }
 
