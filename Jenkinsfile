@@ -59,20 +59,19 @@ pipeline {
         }
 
         stage('Preparing Frontend') {
-            steps {
-                script {
-                    dir('frontend') {
-                        sh '''
-                        echo "Preparing Frontend"
-                        docker build -t localhost:5000/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        // docker push localhost:5000/frontend:1.2
-                        docker push localhost:5000/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
-                        echo "Push to Registry - End"
-                        '''
-                    }
-                }
+    steps {
+        script {
+            dir('frontend') {
+                sh '''
+                echo "Preparing Frontend"
+                docker build -t localhost:5000/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                docker push localhost:5000/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                echo "Push to Registry - End"
+                '''
             }
         }
+    }
+}
 
         stage('Preparing Backend') {
             steps {
