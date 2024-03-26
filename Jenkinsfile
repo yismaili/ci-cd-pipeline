@@ -93,8 +93,8 @@ pipeline {
             steps {
                 script {
                     // Deployment tasks
-                    sh 'docker compose build -d'
-                    sh 'docker compose up -d'
+                    sh 'docker compose build'
+                    sh 'docker compose up'
                     sleep time: 200, unit: 'SECONDS'
                     sh 'docker compose down'
                 }
