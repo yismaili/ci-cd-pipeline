@@ -12,6 +12,7 @@ pipeline {
         // DOCKER_USERNAME = "yismaili"
         // DOCKER_PASSWORD = "pass1227@"
         // DOCKER_REGISTRY = "https://index.docker.io/v1/"
+        registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
     }
 
@@ -61,9 +62,12 @@ pipeline {
             steps {
                 script {
                     dir('frontend') {
-                        sh 'echo "Preparing Frontend"'
-                        sh 'docker build -t localhost:5000/frontend:1.2 .'
-                        sh 'docker push localhost:5000/frontend:1.2'
+                        sh '
+                        echo "Preparing Frontend"
+                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        // docker push localhost:5000/frontend:1.2
+                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        echo "Push to Registry - End"'
                     }
                 }
             }
@@ -96,7 +100,6 @@ pipeline {
                     sh 'docker compose build'
                     sh 'docker compose up -d'
                     sleep time: 200, unit: 'SECONDS'
-                    //sh 'sleep 200'
                     sh 'docker compose down'
                 }
             }
