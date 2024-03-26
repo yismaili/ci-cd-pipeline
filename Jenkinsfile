@@ -62,12 +62,13 @@ pipeline {
             steps {
                 script {
                     dir('frontend') {
-                        sh '
+                        sh '''
                         echo "Preparing Frontend"
                         docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
                         // docker push localhost:5000/frontend:1.2
                         docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
-                        echo "Push to Registry - End"'
+                        echo "Push to Registry - End"
+                        '''
                     }
                 }
             }
