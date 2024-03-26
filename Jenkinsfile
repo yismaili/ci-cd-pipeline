@@ -40,7 +40,7 @@ pipeline {
                     // docker.withRegistry(DOCKER_REGISTRY, DOCKER_USERNAME, DOCKER_PASSWORD) {
                         // No need to do anything here, as docker.withRegistry handles the login
                         sh './build.sh'
-                    }
+                    // }
                 }
             }
         }
