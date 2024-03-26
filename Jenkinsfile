@@ -77,9 +77,12 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                        sh 'echo "Preparing Backend"'
-                        sh 'docker build -t localhost:5000/backend:1.2 .'
-                        sh 'docker push localhost:5000/backend:1.2'
+                       sh '''
+                        echo "Preparing Backend"
+                        docker build -t ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        docker push ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        echo "Push to Registry - End"
+                        '''
                     }
                 }
             }
