@@ -95,7 +95,7 @@ pipeline {
                     // Deployment tasks
                     sh 'docker compose build'
                     sh 'docker compose up -d'
-                    // sleep time: 200, unit: 'SECONDS'
+                    sleep time: 200, unit: 'SECONDS'
                     //sh 'sleep 200'
                     sh 'docker compose down'
                 }
