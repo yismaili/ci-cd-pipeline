@@ -36,18 +36,16 @@ pipeline {
         stage('Preparing Frontend') {
             steps {
                 script {
-                    // dir('frontend') {
+                    dir('frontend') {
                         // //sh 'npm install'
-                        // sh 'echo "hi 1 "'
+                        sh 'echo "hi 1 "'
                         // sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
-                        nodejs(nodeJSInstallationName: "Node ${nodeVersion}", configId: 'npm-registry') {
                         sh """
                         cd frontend/
                         set -e
                         npm ci
                         """
-                    }
-                // }
+                }
             }
         }
 
