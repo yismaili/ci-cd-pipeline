@@ -100,11 +100,17 @@ pipeline {
             steps {
                 sh '''
                 echo "Remove Unused docker image - Begin"
-                docker rmi -f $(docker images --filter=reference='*'${APPNAME}-fontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q)
+                images=$(docker images --filter=reference='*'${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q)
+                if [ -n "$images" ]; then
+                    docker rmi -f $images
+                else
+                    echo "No images found matching the reference pattern."
+                fi
                 echo "Remove Unused docker image - End"
                 '''
             }
         }
+
 
         stage('Deployment') {
             steps {
