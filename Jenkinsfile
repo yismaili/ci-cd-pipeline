@@ -8,8 +8,10 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
   }
     environment {
+        DOCKER_USERNAME = "yismaili"
+        DOCKER_PASSWORD = "pass1227@"
+        DOCKER_REGISTRY = "https://index.docker.io/v1/"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        //registry="docker-registry.leyton.com:5000/erc"
     }
 
     stages {
@@ -26,52 +28,51 @@ pipeline {
                 echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
                 cat latest.txt
                 echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
-
                 echo "${GIT_COMMIT_SHORT}.txt"
             '''            
           }
         }
       }
 
-        stage('Preparing Frontend') {
+      stage('Docker Login') {
             steps {
                 script {
-                    dir('frontend') {
-                        // //sh 'npm install'
-                        sh 'echo "hi 1 "'
-                        // sh 'echo "git commit tag ${GIT_COMMIT_SHORT}"'
-                        sh """
-                        cd frontend/
-                        set -e
-                        npm ci
-                        """
-                }
-            }
-        }
-
-        stage('Install backend dependencies') {
-            steps {
-                script {
-                    dir('backend') {
-                        //sh 'npm install'
-                        sh 'echo "hi 2"'
+                    docker.withRegistry(DOCKER_REGISTRY, DOCKER_USERNAME, DOCKER_PASSWORD) {
                     }
                 }
             }
         }
 
-        stage('Prepare database') {
+        stage('Start Local Docker Registry') {
             steps {
                 script {
-                    sh 'echo "hi 3"'
+                    def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
+                    if (!isRegistryRunning) {
+                        // Start local Docker registry
+                        sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+                    }
                 }
             }
         }
 
-        stage('Build') {
+        stage('Preparing Frontend') {
             steps {
                 script {
-                    sh './build.sh'
+                    dir('frontend') {
+                        sh 'echo "Preparing Frontend"'
+                        sh 'docker build -t localhost:5000/frontend:1.2 .'
+                        sh 'docker push localhost:5000/frontend:1.2'
+                }
+            }
+        }
+
+         stage('Preparing Backend') {
+            steps {
+                script {
+                    dir('backend') {
+                        sh 'echo "Preparing Backend"'
+                        sh 'docker build -t localhost:5000/backend:1.2 .'
+                        sh 'docker push localhost:5000/backend:1.2'
                 }
             }
         }
@@ -84,13 +85,18 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+       stage('Deployment') {
             steps {
                 script {
-                    sh 'echo "hi 4"'
+                    // Deployment tasks
+                    sh 'docker compose build -d'
+                    sh 'docker compose up -d'
+                    sleep time: 200, unit: 'SECONDS'
+                    sh 'docker compose down'
                 }
             }
         }
+    }
     }
 
     post {
