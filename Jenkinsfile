@@ -79,8 +79,8 @@ pipeline {
                     dir('backend') {
                        sh '''
                         echo "Preparing Backend"
-                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        docker push ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                         echo "Push to Registry - End"
                         '''
                     }
@@ -100,8 +100,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Remove Unused docker image - Begin"
-                docker images
-                images=$(docker images --filter=reference='*'${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q)
+                docker images --filter=reference='*'${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q
                 if [ -n "$images" ]; then
                     docker rmi -f $images
                 else
