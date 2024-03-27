@@ -95,21 +95,25 @@ pipeline {
                 }
             }
         }
-       stage('Remove Unused docker image') {
+
+
+        stage('Remove Unused docker image') {
             steps {
                 sh '''
                 echo "Remove Unused docker image - Begin"
-                # images=$(docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
-                # if [ -n "$images" ]; then
-                #     docker rmi -f $images
-                # else
-                #     echo "No images found matching the reference pattern."
-                # fi
-                docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q
+                // images=$(docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
+                // if [ -n "$images" ]; then
+                //     docker rmi -f $images
+                // else
+                //     echo "No images found matching the reference pattern."
+                // fi
+                docker images
                 echo "Remove Unused docker image - End"
                 '''
             }
         }
+
+
         stage('Deployment') {
             steps {
                 script {
