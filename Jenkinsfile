@@ -110,6 +110,7 @@ pipeline {
         stage('Remove Unused docker image') {
             steps {
                 script {
+                    sh 'echo "docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q"'
                     try {
                         echo "Remove Unused docker image - Begin"
                         //sh 'docker images ${registry}/${APPNAME}'
