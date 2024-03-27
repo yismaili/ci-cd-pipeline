@@ -100,6 +100,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Remove Unused docker image - Begin"
+                docker images
                 images=$(docker images --filter=reference='*'${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q)
                 if [ -n "$images" ]; then
                     docker rmi -f $images
