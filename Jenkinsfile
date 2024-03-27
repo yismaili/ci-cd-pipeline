@@ -64,8 +64,8 @@ pipeline {
                     dir('frontend') {
                         sh '''
                         echo "Preparing Frontend"
-                        docker build -t ${registry}/${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                         echo "Push to Registry - End"
                         '''
                     }
@@ -79,8 +79,8 @@ pipeline {
                     dir('backend') {
                        sh '''
                         echo "Preparing Backend"
-                        docker build -t ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                         echo "Push to Registry - End"
                         '''
                     }
@@ -112,7 +112,7 @@ pipeline {
                 script {
                     try {
                         echo "Remove Unused docker image - Begin"
-                        sh 'docker images ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'
+                        sh 'docker images ${registry}/${APPNAME}'
                         echo "Remove Unused docker image - End"
                     } catch (Exception e) {
                         echo "Error occurred while removing unused Docker images: ${e}"
