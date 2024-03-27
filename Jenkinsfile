@@ -112,7 +112,8 @@ pipeline {
 
               sh '''
               echo "Remove Unused docker image - Begin"
-              docker image rm -f $(docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
+            docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q | xargs docker image rm -f
+
               echo "Remove Unused docker image - End"
               '''
             }
