@@ -112,7 +112,7 @@ pipeline {
                 script {
                     try {
                         echo "Remove Unused docker image - Begin"
-                        sh 'docker images'
+                        sh 'docker images ${registry}/${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'
                         echo "Remove Unused docker image - End"
                     } catch (Exception e) {
                         echo "Error occurred while removing unused Docker images: ${e}"
