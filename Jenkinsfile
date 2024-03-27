@@ -99,23 +99,16 @@ pipeline {
 
         stage('Remove Unused docker image') {
             steps {
-                // sh '''
-                // echo "Remove Unused docker image - Begin"
-                // images=$(docker images --filter=reference='*'${APPNAME}-frontend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'*' -q)
-                // if [ -n "$images" ]; then
-                //     docker rmi -f $images
-                // else
-                //     echo "No images found matching the reference pattern."
-                // fi
-                // echo "Remove Unused docker image - End"
-                // '''
-
-              sh '''
-              echo "Remove Unused docker image - Begin"
-            docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q | xargs docker image rm -f
-
-              echo "Remove Unused docker image - End"
-              '''
+                sh '''
+                echo "Remove Unused docker image - Begin"
+                images=$(docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
+                if [ -n "$images" ]; then
+                    docker rmi -f $images
+                else
+                    echo "No images found matching the reference pattern."
+                fi
+                echo "Remove Unused docker image - End"
+                '''
             }
         }
 
