@@ -112,7 +112,7 @@ pipeline {
 
               sh '''
               echo "Remove Unused docker image - Begin"
-              sudo docker rmi -f $(sudo docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
+              docker rmi -f $(docker images --filter=reference="*${APPNAME}-backend:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
               echo "Remove Unused docker image - End"
               '''
             }
