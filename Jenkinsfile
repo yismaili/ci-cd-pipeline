@@ -97,19 +97,28 @@ pipeline {
         }
 
 
+        // stage('Remove Unused docker image') {
+        //     steps {
+        //         sh '''
+        //         echo "Remove Unused docker image - Begin"
+        //         docker images
+        //         echo "Remove Unused docker image - End"
+        //         '''
+        //     }
+        // }
+
         stage('Remove Unused docker image') {
             steps {
-                sh '''
-                echo "Remove Unused docker image - Begin"
-                // images=$(docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q)
-                // if [ -n "$images" ]; then
-                //     docker rmi -f $images
-                // else
-                //     echo "No images found matching the reference pattern."
-                // fi
-                docker images
-                echo "Remove Unused docker image - End"
-                '''
+                script {
+                    try {
+                        echo "Remove Unused docker image - Begin"
+                        sh 'docker images'
+                        echo "Remove Unused docker image - End"
+                    } catch (Exception e) {
+                        echo "Error occurred while removing unused Docker images: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
             }
         }
 
