@@ -81,6 +81,7 @@ pipeline {
                         echo "Preparing Backend"
                         docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
                         docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        export BACKEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                         echo "Push to Registry - End"
                         '''
                     }

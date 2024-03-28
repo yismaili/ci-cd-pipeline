@@ -27,7 +27,7 @@ services:
       - app-net
 
   frontend:
-    image: localhost:5000/frontend:1.2
+    image: ${BACKEND_IMAGE}
     container_name: frontend
     restart: always
     depends_on:
