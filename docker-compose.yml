@@ -14,7 +14,7 @@ services:
       - app-net
 
   backend:
-    image: localhost:5000/backend:1.2
+    image: ${FRONTEND_IMAGE}
     container_name: backend
     env_file:
       - .env

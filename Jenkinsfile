@@ -66,6 +66,8 @@ pipeline {
                         echo "Preparing Frontend"
                         docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
                         docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        cd ..
+                        echo "FRONTEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
                         echo "Push to Registry - End"
                         '''
                     }
