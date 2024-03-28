@@ -92,7 +92,6 @@ pipeline {
         //     }
         // }
 
-        stages {
         stage('Preparing Frontend') {
             steps {
                 script {
@@ -128,7 +127,6 @@ pipeline {
                 }
             }
         }
-    }
 
         stage('Test') {
             steps {
