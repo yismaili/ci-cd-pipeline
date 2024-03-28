@@ -178,42 +178,32 @@ pipeline {
         //     }
         // }
 
-
-
-
-
-
-
-
-
-stage('Remove Unused Docker Images') {
+        stage('Remove Unused Docker Images') {
             steps {
                 script {
-                    // Construct the image reference pattern
-                    def imageReference = "${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    // Construct the image reference patterns
+                    def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
-                    // Get the image IDs of images matching the specified reference pattern
-                    def matchedImageIds = sh(script: "docker images --filter=reference='${imageReference}' -q", returnStdout: true).trim()
+                    // Get the image IDs of images matching the specified reference patterns
+                    def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim()
+                    def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim()
 
                     // Remove the matched images
-                    if (matchedImageIds) {
-                        sh "docker rmi -f ${matchedImageIds}"
+                    if (matchedImageIdsBackend) {
+                        sh "docker rmi -f ${matchedImageIdsBackend}"
                     } else {
-                        echo "No images matching the specified pattern found."
+                        echo "No backend images matching the specified pattern found."
+                    }
+
+                    if (matchedImageIdsFrontend) {
+                        sh "docker rmi -f ${matchedImageIdsFrontend}"
+                    } else {
+                        echo "No frontend images matching the specified pattern found."
                     }
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
 
 
 
