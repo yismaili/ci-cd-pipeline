@@ -58,18 +58,54 @@ pipeline {
             }
         }
 
+        // stage('Preparing Frontend') {
+        //     steps {
+        //         script {
+        //             dir('frontend') {
+        //                 sh '''
+        //                 echo "Preparing Frontend"
+        //                 docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+        //                 docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+        //                 cd ..
+        //                 echo "FRONTEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
+        //                 echo "Push to Registry - End"
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
+
+        // stage('Preparing Backend') {
+        //     steps {
+        //         script {
+        //             dir('backend') {
+        //                sh '''
+        //                 echo "Preparing Backend"
+        //                 docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
+        //                 docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+        //                 cd ..
+        //                 echo "BACKEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
+        //                 echo "Push to Registry - End"
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
+
+        stages {
         stage('Preparing Frontend') {
             steps {
                 script {
                     dir('frontend') {
-                        sh '''
+                        def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                        sh """
                         echo "Preparing Frontend"
-                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${frontendTag} .
+                        docker push ${frontendTag}
                         cd ..
-                        echo "FRONTEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
+                        echo "FRONTEND_IMAGE=${frontendTag}" >> .env
                         echo "Push to Registry - End"
-                        '''
+                        """
                     }
                 }
             }
@@ -79,18 +115,20 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                       sh '''
+                        def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                        sh """
                         echo "Preparing Backend"
-                        docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-                        docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                        docker build -t ${backendTag} .
+                        docker push ${backendTag}
                         cd ..
-                        echo "BACKEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
+                        echo "BACKEND_IMAGE=${backendTag}" >> .env
                         echo "Push to Registry - End"
-                        '''
+                        """
                     }
                 }
             }
         }
+    }
 
         stage('Test') {
             steps {
