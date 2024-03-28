@@ -160,17 +160,17 @@ pipeline {
                 script {
                     // Get the image IDs of images matching the specified reference pattern
                     def referencePattern = "${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                    def matchedImageIds = sh(script: "sudo docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
+                    def matchedImageIds = sh(script: "docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
 
                     // Remove all images except the matched ones
-                    def allImageIds = sh(script: "sudo docker images -q", returnStdout: true).trim()
+                    def allImageIds = sh(script: "docker images -q", returnStdout: true).trim()
                     def allImageIdsList = allImageIds.tokenize()
                     def matchedImageIdsList = matchedImageIds.tokenize()
                     def imagesToRemove = allImageIdsList - matchedImageIdsList
 
                     // Remove the unused images
                     if (imagesToRemove) {
-                        sh "sudo docker rmi -f ${imagesToRemove.join(' ')}"
+                        sh "docker rmi -f ${imagesToRemove.join(' ')}"
                     } else {
                         echo "No images to remove."
                     }
