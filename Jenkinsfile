@@ -107,14 +107,41 @@ pipeline {
         //     }
         // }
 
+        // stage('Remove Unused docker image') {
+        //     steps {
+        //         script {
+        //            // sh 'echo "docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q"'
+        //             try {
+        //                 echo "Remove Unused docker image - Begin"
+        //                 //sh 'docker images ${registry}/${APPNAME}'
+        //                 sh 'docker images --filter=reference="*${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q'
+        //                 echo "Remove Unused docker image - End"
+        //             } catch (Exception e) {
+        //                 echo "Error occurred while removing unused Docker images: ${e}"
+        //                 currentBuild.result = 'FAILURE'
+        //             }
+        //         }
+        //     }
+        // }
+
         stage('Remove Unused docker image') {
             steps {
                 script {
-                   // sh 'echo "docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q"'
                     try {
                         echo "Remove Unused docker image - Begin"
-                        //sh 'docker images ${registry}/${APPNAME}'
-                        sh 'docker images --filter=reference="*${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*"'
+                        
+                        // List Docker images matching the specified reference pattern
+                        def referencePattern = "${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                        def imageIds = sh(script: "docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
+                        
+                        // If there are images matching the pattern, remove them
+                        if (imageIds) {
+                            sh "docker rmi -f ${imageIds}"
+                            echo "Removed Docker images: ${imageIds}"
+                        } else {
+                            echo "No Docker images matching the reference pattern found."
+                        }
+                        
                         echo "Remove Unused docker image - End"
                     } catch (Exception e) {
                         echo "Error occurred while removing unused Docker images: ${e}"
