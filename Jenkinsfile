@@ -190,7 +190,7 @@ stage('Remove Unused Docker Images') {
             steps {
                 script {
                     // Construct the image reference pattern
-                    def imageReference = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    def imageReference = "${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
                     // Get the image IDs of images matching the specified reference pattern
                     def matchedImageIds = sh(script: "docker images --filter=reference='${imageReference}' -q", returnStdout: true).trim()
