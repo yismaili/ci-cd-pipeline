@@ -58,40 +58,6 @@ pipeline {
             }
         }
 
-        // stage('Preparing Frontend') {
-        //     steps {
-        //         script {
-        //             dir('frontend') {
-        //                 sh '''
-        //                 echo "Preparing Frontend"
-        //                 docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-        //                 docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
-        //                 cd ..
-        //                 echo "FRONTEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
-        //                 echo "Push to Registry - End"
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-
-        // stage('Preparing Backend') {
-        //     steps {
-        //         script {
-        //             dir('backend') {
-        //                sh '''
-        //                 echo "Preparing Backend"
-        //                 docker build -t ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER} .
-        //                 docker push ${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
-        //                 cd ..
-        //                 echo "BACKEND_IMAGE=${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" >> .env
-        //                 echo "Push to Registry - End"
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-
         stage('Preparing Frontend') {
             steps {
                 script {
@@ -171,7 +137,7 @@ pipeline {
                         echo "Remove Unused docker image - Begin"
                         
                         // List Docker images matching the specified reference pattern
-                        def referencePattern = "${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                        def referencePattern = "${registry}/${APPNAME}::backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                         def imageIds = sh(script: "docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
                         
                         // If there are images matching the pattern, remove them
