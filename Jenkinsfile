@@ -103,81 +103,6 @@ pipeline {
         }
 
 
-        // stage('Remove Unused docker image') {
-        //     steps {
-        //         sh '''
-        //         echo "Remove Unused docker image - Begin"
-        //         docker images
-        //         echo "Remove Unused docker image - End"
-        //         '''
-        //     }
-        // }
-
-        // stage('Remove Unused docker image') {
-        //     steps {
-        //         script {
-        //            // sh 'echo "docker images --filter=reference="*${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q"'
-        //             try {
-        //                 echo "Remove Unused docker image - Begin"
-        //                 //sh 'docker images ${registry}/${APPNAME}'
-        //                 sh 'docker images --filter=reference="*${registry}/${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}*" -q'
-        //                 echo "Remove Unused docker image - End"
-        //             } catch (Exception e) {
-        //                 echo "Error occurred while removing unused Docker images: ${e}"
-        //                 currentBuild.result = 'FAILURE'
-        //             }
-        //         }
-        //     }
-        // }
-
-        // stage('Remove Unused docker image') {
-        //     // steps {
-        //     //     script {
-        //     //         try {
-        //     //             echo "Remove Unused docker image - Begin"
-                        
-        //     //             // List Docker images matching the specified reference pattern
-        //     //             def referencePattern = "${registry}/${APPNAME}::backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //     //             def imageIds = sh(script: "docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
-                        
-        //     //             // If there are images matching the pattern, remove them
-        //     //             if (imageIds) {
-        //     //                 sh "docker rmi -f ${imageIds}"
-        //     //                 echo "Removed Docker images: ${imageIds}"
-        //     //             } else {
-        //     //                 echo "No Docker images matching the reference pattern found."
-        //     //             }
-                        
-        //     //             echo "Remove Unused docker image - End"
-        //     //         } catch (Exception e) {
-        //     //             echo "Error occurred while removing unused Docker images: ${e}"
-        //     //             currentBuild.result = 'FAILURE'
-        //     //         }
-        //     //     }
-        //     // }
-
-        //     steps {
-        //         script {
-        //             // Get the image IDs of images matching the specified reference pattern
-        //             def referencePattern = "${APPNAME}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //             def matchedImageIds = sh(script: "docker images --filter=reference='*${referencePattern}*' -q", returnStdout: true).trim()
-
-        //             // Remove all images except the matched ones
-        //             def allImageIds = sh(script: "docker images -q", returnStdout: true).trim()
-        //             def allImageIdsList = allImageIds.tokenize()
-        //             def matchedImageIdsList = matchedImageIds.tokenize()
-        //             def imagesToRemove = allImageIdsList - matchedImageIdsList
-
-        //             // Remove the unused images
-        //             if (imagesToRemove) {
-        //                 sh "docker rmi -f ${imagesToRemove.join(' ')}"
-        //             } else {
-        //                 echo "No images to remove."
-        //             }
-        //         }
-        //     }
-        // }
-
         stage('Remove Unused Docker Images') {
             steps {
                 script {
@@ -204,10 +129,7 @@ pipeline {
                 }
             }
         }
-
-
-
-
+        
         stage('Deployment') {
             steps {
                 script {
