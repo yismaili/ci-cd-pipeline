@@ -138,7 +138,8 @@ pipeline {
                 build job: 'REV/ERC/Development/erc-deploy', propagate: false, wait: false, parameters: [[$class: 'StringParameterValue', name: 'service', value: APPNAME], [$class: 'StringParameterValue', name: 'branch', value: env.CUSTOMNAME], [$class: 'StringParameterValue', name: 'env', value: 'dev']]
 
                 build job: 'REV/ERC/Testing/erc-deploy-qa', propagate: false, wait: false, parameters: [[$class: 'StringParameterValue', name: 'service', value: APPNAME], [$class: 'StringParameterValue', name: 'branch', value: env.CUSTOMNAME], [$class: 'StringParameterValue', name: 'env', value: 'qa']]
-      }
+               }
+        }
         stage('Deployment') {
             steps {
                 script {
