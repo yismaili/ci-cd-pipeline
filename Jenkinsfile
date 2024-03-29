@@ -130,31 +130,32 @@ pipeline {
         // }
 
         stage('Remove Unused Docker Images') {
-            steps {
-                script {
-                    // Construct the image reference patterns
-                    def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                    def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+        steps {
+            script {
+                // Construct the image reference patterns
+                def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
-                    // Get the image IDs of images matching the specified reference patterns
-                    def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
-                    def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
+                // Get the image IDs of images matching the specified reference patterns
+                def matchedImageIdsBackend = sh(script: "docker images --filter=reference=\"${imageReferenceBackend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
+                def matchedImageIdsFrontend = sh(script: "docker images --filter=reference=\"${imageReferenceFrontend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
 
-                    // Remove the matched images
-                    if (matchedImageIdsBackend) {
-                        sh "docker rmi -f ${matchedImageIdsBackend}"
-                    } else {
-                        echo "No backend images matching the specified pattern found."
-                    }
+                // Remove the matched images
+                if (matchedImageIdsBackend) {
+                    sh "docker rmi -f ${matchedImageIdsBackend}"
+                } else {
+                    echo "No backend images matching the specified pattern found."
+                }
 
-                    if (matchedImageIdsFrontend) {
-                        sh "docker rmi -f ${matchedImageIdsFrontend}"
-                    } else {
-                        echo "No frontend images matching the specified pattern found."
-                    }
+                if (matchedImageIdsFrontend) {
+                    sh "docker rmi -f ${matchedImageIdsFrontend}"
+                } else {
+                    echo "No frontend images matching the specified pattern found."
                 }
             }
         }
+    }
+
 
         stage('Deployment') {
             steps {
