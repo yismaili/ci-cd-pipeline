@@ -137,17 +137,20 @@ pipeline {
             def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
             // Get the image IDs of images matching the specified reference patterns
-            def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim()
-            def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim()
+            def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
+            def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
+
+            // Get the IDs of all images
+            def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
             // Get the IDs of the last 10 images
-            def last10ImageIds = sh(script: "docker images -q | tail -n 10", returnStdout: true).trim().split()
+            def last10ImageIds = allImageIds.takeRight(10)
 
             // Remove the matched images except for the last 10
             if (matchedImageIdsBackend) {
-                matchedImageIdsBackend.removeAll(last10ImageIds)
-                if (matchedImageIdsBackend) {
-                    sh "docker rmi -f ${matchedImageIdsBackend.join(' ')}"
+                def imagesToRemoveBackend = matchedImageIdsBackend - last10ImageIds
+                if (imagesToRemoveBackend) {
+                    sh "docker rmi -f ${imagesToRemoveBackend.join(' ')}"
                 } else {
                     echo "All backend images matching the specified pattern are among the last 10 images."
                 }
@@ -156,9 +159,9 @@ pipeline {
             }
 
             if (matchedImageIdsFrontend) {
-                matchedImageIdsFrontend.removeAll(last10ImageIds)
-                if (matchedImageIdsFrontend) {
-                    sh "docker rmi -f ${matchedImageIdsFrontend.join(' ')}"
+                def imagesToRemoveFrontend = matchedImageIdsFrontend - last10ImageIds
+                if (imagesToRemoveFrontend) {
+                    sh "docker rmi -f ${imagesToRemoveFrontend.join(' ')}"
                 } else {
                     echo "All frontend images matching the specified pattern are among the last 10 images."
                 }
