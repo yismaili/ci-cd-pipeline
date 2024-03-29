@@ -102,29 +102,6 @@ pipeline {
             }
         }
 
-
-        stage('deploy') {
-            when {
-                expression { env.CUSTOMNAME == "develop"  && "${isAffiliate}" == "false" }
-            }
-            steps {
-                build job: 'REV/ERC/Development/erc-deploy', propagate: false, wait: false, parameters: [[$class: 'StringParameterValue', name: 'service', value: APPNAME], [$class: 'StringParameterValue', name: 'branch', value: env.CUSTOMNAME], [$class: 'StringParameterValue', name: 'env', value: 'dev']]
-
-                build job: 'REV/ERC/Testing/erc-deploy-qa', propagate: false, wait: false, parameters: [[$class: 'StringParameterValue', name: 'service', value: APPNAME], [$class: 'StringParameterValue', name: 'branch', value: env.CUSTOMNAME], [$class: 'StringParameterValue', name: 'env', value: 'qa']]
-               }
-        }
-        stage('Deployment') {
-            steps {
-                script {
-                    // Deployment tasks
-                    sh 'docker compose build'
-                    sh 'docker compose up -d'
-                    sleep time: 200, unit: 'SECONDS'
-                    sh 'docker compose down'
-                }
-            }
-
-        }
         stage('Remove Unused Docker Images') {
             steps {
                 script {
@@ -148,6 +125,18 @@ pipeline {
                     } else {
                         echo "No frontend images matching the specified pattern found."
                     }
+                }
+            }
+        }
+
+        stage('Deployment') {
+            steps {
+                script {
+                    // Deployment tasks
+                    sh 'docker compose build'
+                    sh 'docker compose up -d'
+                    sleep time: 200, unit: 'SECONDS'
+                    sh 'docker compose down'
                 }
             }
         }
