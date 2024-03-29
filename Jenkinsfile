@@ -137,8 +137,8 @@ pipeline {
                 def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
                 // Get the image IDs of images matching the specified reference patterns
-                def matchedImageIdsBackend = sh(script: "docker images --filter=reference=\"${imageReferenceBackend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
-                def matchedImageIdsFrontend = sh(script: "docker images --filter=reference=\"${imageReferenceFrontend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print $1}'", returnStdout: true).trim()
+                def matchedImageIdsBackend = sh(script: "docker images --filter=reference=\"${imageReferenceBackend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print \$1}'", returnStdout: true).trim()
+                def matchedImageIdsFrontend = sh(script: "docker images --filter=reference=\"${imageReferenceFrontend}\" --format '{{.ID}} {{.CreatedAt}}' | sort -k2 -r | awk 'NR>10 {print \$1}'", returnStdout: true).trim()
 
                 // Remove the matched images
                 if (matchedImageIdsBackend) {
