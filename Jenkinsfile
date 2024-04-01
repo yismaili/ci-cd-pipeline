@@ -143,7 +143,9 @@ pipeline {
                     // Get the IDs of all images
                     def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-                    echo '${allImageIds}';
+                    allImageIds.each { imageId ->
+                        println imageId
+                    }
                     // Get the IDs of the last 10 images
                     // def last10ImageIds = allImageIds.takeRight(10)
 
