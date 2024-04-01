@@ -140,11 +140,11 @@ pipeline {
             def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
             def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
 
-            // // Get the IDs of all images
-            // def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
+            // Get the IDs of all images
+            def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-            // // Get the IDs of the last 10 images
-            // def last10ImageIds = allImageIds.takeRight(10)
+            // Get the IDs of the last 10 images
+            def last10ImageIds = allImageIds.takeRight(10)
 
             // // Remove the matched images except for the last 10
             // if (matchedImageIdsBackend) {
