@@ -162,8 +162,8 @@ def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract BUILD NUMBER from each tag and sort tags based on it
         def sortedTags = imageTags.collect { tag ->
-            def buildNumber = tag =~ /.*-(\d+)$/
-            [(buildNumber ? buildNumber[0][1] as Integer : 0), tag]
+            def buildNumberMatch = tag =~ /.*-(\d+)$/
+            [(buildNumberMatch ? buildNumberMatch[0][1] as Integer : 0), tag]
         }.sort { a, b -> a[0] <=> b[0] }.collect { it[1] }
         
         // Get the tags to keep
