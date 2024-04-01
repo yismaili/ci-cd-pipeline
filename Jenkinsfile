@@ -165,22 +165,21 @@ pipeline {
                 }
             }
         }
+    }
 
-        def removeUnusedImages(matchedImages, last10ImageIds, type) {
-            if (matchedImages) {
-                def imagesToRemove = matchedImages.findAll { !(last10ImageIds.contains(it)) }
-                if (imagesToRemove) {
-                    sh "docker rmi -f ${imagesToRemove.join(' ')}"
-                    println "Removed ${type} images not among the last 10."
-                } else {
-                    println "All ${type} images matching the specified pattern are among the last 10 images."
-                }
-            } else {
-                println "No ${type} images matching the specified pattern found."
-            }
+def removeUnusedImages(matchedImages, last10ImageIds, type) {
+    if (matchedImages) {
+        def imagesToRemove = matchedImages.findAll { !(last10ImageIds.contains(it)) }
+        if (imagesToRemove) {
+            sh "docker rmi -f ${imagesToRemove.join(' ')}"
+            println "Removed ${type} images not among the last 10."
+        } else {
+            println "All ${type} images matching the specified pattern are among the last 10 images."
         }
-
-
+    } else {
+        println "No ${type} images matching the specified pattern found."
+    }
+}
 
         stage('Deployment') {
             steps {
