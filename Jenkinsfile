@@ -146,7 +146,16 @@ def removeUnusedImages(imageTags, lastN, type) {
         def tagsToKeep = creationDates.take(lastN).collect { it.tag }
         
         // Remove unused images
-        def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
+        // def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
+
+        def imagesToRemove = []
+        for (imageTag in imageTags) {
+            def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
+            if (!lastN.contains(buildNumber)) {
+                imagesToRemove.add(imageTag)
+            }
+        }
+
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
             println "Removed ${type} images not among the last ${lastN}."
@@ -157,25 +166,3 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
-
-// def removeUnusedImages(imageTags, lastN, type) {
-//     if (imageTags) {
-//         def imagesToRemove = []
-//         for (imageTag in imageTags) {
-//             def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
-//             if (!lastN.contains(buildNumber)) {
-//                 imagesToRemove.add(imageTag)
-//             }
-//         }
-
-//         if (imagesToRemove) {
-//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-//             println "Removed ${type} images not among the last ${lastN.size()} builds."
-//         } else {
-//             println "All ${type} images are among the last ${lastN.size()} builds."
-//         }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
-
