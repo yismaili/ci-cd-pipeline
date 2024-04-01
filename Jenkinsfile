@@ -129,63 +129,54 @@ pipeline {
         //     }
         // }
 
-       stage('Remove Unused Docker Images') {
+      stage('Remove Unused Docker Images') {
             steps {
                 script {
-                   def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
-// Get the image IDs of images matching the specified reference patterns
-def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
-def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
-// Get the IDs of all images
-def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
+                    // Get the image IDs of images matching the specified reference patterns
+                    def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
+                    def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
+                    // Get the IDs of all images
+                    def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-// Initialize an empty list to store creation dates
-def creationDates = []
+                    // Initialize an empty list to store creation dates
+                    def creationDates = []
 
-// Iterate over all image IDs and retrieve creation dates
-for (imageId in allImageIds) {
-    def creationDate = sh(script: "docker inspect --format='{{.Created}}' $imageId", returnStdout: true).trim()
-    creationDates.add([id: imageId, date: creationDate])
-}
+                    // Iterate over all image IDs and retrieve creation dates
+                    for (imageId in allImageIds) {
+                        def creationDate = sh(script: "docker inspect --format='{{.Created}}' $imageId", returnStdout: true).trim()
+                        creationDates.add([id: imageId, date: creationDate])
+                    }
 
-// Sort creation dates in descending order
-creationDates.sort { a, b -> b.date <=> a.date }
+                    // Sort creation dates in descending order
+                    creationDates.sort { a, b -> b.date <=> a.date }
 
-// Get the last 10 image IDs
-def last10ImageIds = creationDates.take(10).collect { it.id }
+                    // Get the last 10 image IDs
+                    def last10ImageIds = creationDates.take(10).collect { it.id }
 
-println "Last 10 image IDs:"
-println last10ImageIds.join('\n')
+                    println "Last 10 image IDs:"
+                    println last10ImageIds.join('\n')
 
-                    
-                    // Get the IDs of the last 10 images
-                    // def last10ImageIds = allImageIds.takeRight(10)
-
-                    // // Remove the matched images except for the last 10
-                    // if (matchedImageIdsBackend) {
-                    //     def imagesToRemoveBackend = matchedImageIdsBackend - last10ImageIds
-                    //     if (imagesToRemoveBackend) {
-                    //         sh "docker rmi -f ${imagesToRemoveBackend.join(' ')}"
-                    //     } else {
-                    //         echo "All backend images matching the specified pattern are among the last 10 images."
-                    //     }
-                    // } else {
-                    //     echo "No backend images matching the specified pattern found."
-                    // }
-
-                    // if (matchedImageIdsFrontend) {
-                    //     def imagesToRemoveFrontend = matchedImageIdsFrontend - last10ImageIds
-                    //     if (imagesToRemoveFrontend) {
-                    //         sh "docker rmi -f ${imagesToRemoveFrontend.join(' ')}"
-                    //     } else {
-                    //         echo "All frontend images matching the specified pattern are among the last 10 images."
-                    //     }
-                    // } else {
-                    //     echo "No frontend images matching the specified pattern found."
-                    // }
+                    // Remove the matched images except for the last 10
+                    removeUnusedImages(matchedImageIdsBackend, last10ImageIds, "backend")
+                    removeUnusedImages(matchedImageIdsFrontend, last10ImageIds, "frontend")
                 }
+            }
+        }
+
+        def removeUnusedImages(matchedImages, last10ImageIds, type) {
+            if (matchedImages) {
+                def imagesToRemove = matchedImages.findAll { !(last10ImageIds.contains(it)) }
+                if (imagesToRemove) {
+                    sh "docker rmi -f ${imagesToRemove.join(' ')}"
+                    println "Removed ${type} images not among the last 10."
+                } else {
+                    println "All ${type} images matching the specified pattern are among the last 10 images."
+                }
+            } else {
+                println "No ${type} images matching the specified pattern found."
             }
         }
 
