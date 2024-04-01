@@ -150,10 +150,11 @@ def removeUnusedImages(imageTags, lastN, type) {
 
         def imagesToRemove = []
         for (imageTag in imageTags) {
-            def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
-            if (!lastN.contains(buildNumber)) {
-                imagesToRemove.add(imageTag)
-            }
+            echo ${imageTag}
+            // def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
+            // if (!lastN.contains(buildNumber)) {
+            //     imagesToRemove.add(imageTag)
+            // }
         }
 
         if (imagesToRemove) {
