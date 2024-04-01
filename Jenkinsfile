@@ -132,8 +132,7 @@ pipeline {
        stage('Remove Unused Docker Images') {
             steps {
                 script {
-                    // Construct the image reference patterns
-                    def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                   def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                     def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
                     // Get the image IDs of images matching the specified reference patterns
@@ -142,11 +141,15 @@ pipeline {
                     // Get the IDs of all images
                     def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-                    // Get the last 10 image IDs
-                    def lastTenImageIds = allImageIds.takeRight(1)
+                    // Sort all image IDs based on creation date (latest first) and take the first 10
+                    def last10ImageIds = allImageIds.sort { a, b ->
+                        def creationDateA = sh(script: "docker inspect --format='{{.Created}}' $a", returnStdout: true).trim()
+                        def creationDateB = sh(script: "docker inspect --format='{{.Created}}' $b", returnStdout: true).trim()
+                        return creationDateB <=> creationDateA
+                    }.take(10)
 
-                    // Print the IDs of the last 10 images
-                    println lastTenImageIds
+                    println "Last 10 image IDs:"
+                    println last10ImageIds.join('\n')
 
                     
                     // Get the IDs of the last 10 images
