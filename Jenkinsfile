@@ -129,7 +129,7 @@ pipeline {
         //     }
         // }
 
-  stage('Remove Unused Docker Images') {
+       stage('Remove Unused Docker Images') {
     steps {
         script {
             // Construct the image reference patterns
@@ -140,42 +140,37 @@ pipeline {
             def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
             def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
 
-            // Get all image IDs
+            // Get the IDs of all images
             def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-            // Get the count of all images
-            def totalImageCount = allImageIds.size()
+            // Get the IDs of the last 10 images
+            def last10ImageIds = allImageIds.takeRight(10)
 
-            // Get the count of last 10 images
-            def last10ImageCount = Math.min(totalImageCount, 10)
+            // // Remove the matched images except for the last 10
+            // if (matchedImageIdsBackend) {
+            //     def imagesToRemoveBackend = matchedImageIdsBackend - last10ImageIds
+            //     if (imagesToRemoveBackend) {
+            //         sh "docker rmi -f ${imagesToRemoveBackend.join(' ')}"
+            //     } else {
+            //         echo "All backend images matching the specified pattern are among the last 10 images."
+            //     }
+            // } else {
+            //     echo "No backend images matching the specified pattern found."
+            // }
 
-            // Get the IDs of the images to keep
-            def imageIdsToKeep = allImageIds.takeLast(last10ImageCount)
-
-            // Remove the matched images except for the last 10
-            if (matchedImageIdsBackend) {
-                matchedImageIdsBackend.each { imageId ->
-                    if (!(imageIdsToKeep.contains(imageId))) {
-                        sh "docker rmi -f ${imageId}"
-                    }
-                }
-            } else {
-                echo "No backend images matching the specified pattern found."
-            }
-
-            if (matchedImageIdsFrontend) {
-                matchedImageIdsFrontend.each { imageId ->
-                    if (!(imageIdsToKeep.contains(imageId))) {
-                        sh "docker rmi -f ${imageId}"
-                    }
-                }
-            } else {
-                echo "No frontend images matching the specified pattern found."
-            }
+            // if (matchedImageIdsFrontend) {
+            //     def imagesToRemoveFrontend = matchedImageIdsFrontend - last10ImageIds
+            //     if (imagesToRemoveFrontend) {
+            //         sh "docker rmi -f ${imagesToRemoveFrontend.join(' ')}"
+            //     } else {
+            //         echo "All frontend images matching the specified pattern are among the last 10 images."
+            //     }
+            // } else {
+            //     echo "No frontend images matching the specified pattern found."
+            // }
         }
     }
 }
-
 
 
 
