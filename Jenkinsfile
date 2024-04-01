@@ -158,31 +158,24 @@ pipeline {
 //     }
 // }
 
-
-
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
-        // Get creation dates of all images
-        def creationDates = imageTags.collect { tag ->
-            def creationDate = sh(script: "docker inspect --format='{{.Created}}' $tag", returnStdout: true).trim()
-            [tag: tag, date: creationDate]
-        }
+        // Extract BUILD NUMBER from each tag and sort tags based on it
+        def sortedTags = imageTags.collect { tag ->
+            def buildNumber = tag =~ /.*-(\d+)$/
+            [(buildNumber ? buildNumber[0][1] as Integer : 0), tag]
+        }.sort { a, b -> a[0] <=> b[0] }.collect { it[1] }
         
-        // Sort creation dates by time
-        creationDates.sort { a, b -> 
-            Date.parse("yyyy-MM-dd'T'HH:mm:ssXXX", b.date) <=> Date.parse("yyyy-MM-dd'T'HH:mm:ssXXX", a.date) 
-        }
-        
-        // Get the image tags to keep
-        def tagsToKeep = creationDates.take(lastN).collect { it.tag }
+        // Get the tags to keep
+        def tagsToKeep = sortedTags.takeRight(lastN)
         
         // Remove unused images
         def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images except for the last ${lastN} by time."
+            println "Removed ${type} images not among the last ${lastN}."
         } else {
-            println "All ${type} images are among the last ${lastN} images by time."
+            println "All ${type} images are among the last ${lastN} images."
         }
     } else {
         println "No ${type} images found."
