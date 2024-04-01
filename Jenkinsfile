@@ -131,6 +131,35 @@ pipeline {
     }
 }
 
+// def removeUnusedImages(imageTags, lastN, type) {
+//     if (imageTags) {
+//         // Get creation dates of all images
+//         def creationDates = imageTags.collect { tag ->
+//             def creationDate = sh(script: "docker inspect --format='{{.Created}}' $tag", returnStdout: true).trim()
+//             [tag: tag, date: creationDate]
+//         }
+        
+//         // Sort creation dates in descending order
+//         creationDates.sort { a, b -> b.date <=> a.date }
+        
+//         // Get the image tags to keep
+//         def tagsToKeep = creationDates.take(lastN).collect { it.tag }
+        
+//         // Remove unused images
+//         def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
+//         if (imagesToRemove) {
+//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//             println "Removed ${type} images not among the last ${lastN}."
+//         } else {
+//             println "All ${type} images are among the last ${lastN} images."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
+
+
+
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Get creation dates of all images
@@ -139,8 +168,10 @@ def removeUnusedImages(imageTags, lastN, type) {
             [tag: tag, date: creationDate]
         }
         
-        // Sort creation dates in descending order
-        creationDates.sort { a, b -> b.date <=> a.date }
+        // Sort creation dates by time
+        creationDates.sort { a, b -> 
+            Date.parse("yyyy-MM-dd'T'HH:mm:ssXXX", b.date) <=> Date.parse("yyyy-MM-dd'T'HH:mm:ssXXX", a.date) 
+        }
         
         // Get the image tags to keep
         def tagsToKeep = creationDates.take(lastN).collect { it.tag }
@@ -149,9 +180,9 @@ def removeUnusedImages(imageTags, lastN, type) {
         def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images not among the last ${lastN}."
+            println "Removed ${type} images except for the last ${lastN} by time."
         } else {
-            println "All ${type} images are among the last ${lastN} images."
+            println "All ${type} images are among the last ${lastN} images by time."
         }
     } else {
         println "No ${type} images found."
