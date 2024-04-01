@@ -165,7 +165,6 @@ pipeline {
                 }
             }
         }
-    }
 
 def removeUnusedImages(matchedImages, last10ImageIds, type) {
     if (matchedImages) {
