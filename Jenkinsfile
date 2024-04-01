@@ -139,13 +139,11 @@ pipeline {
                     // Get the image IDs of images matching the specified reference patterns
                     def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
                     def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
-
-                    // Get the IDs of all images
                     // Get the IDs of all images
                     def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
                     // Get the last 10 image IDs
-                    def lastTenImageIds = allImageIds.takeRight(10)
+                    def lastTenImageIds = allImageIds.takeRight(1)
 
                     // Print the IDs of the last 10 images
                     println lastTenImageIds
