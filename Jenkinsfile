@@ -160,24 +160,22 @@ pipeline {
 
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
-        // Extract BUILD NUMBER from each tag and sort tags based on it
-        def sortedTags = imageTags.collect { tag ->
-            def buildNumberMatch = tag =~ /.*-(\d+)$/
-            [(buildNumberMatch ? buildNumberMatch[0][1] as Integer : 0), tag]
-        }.sort { a, b -> a[0] <=> b[0] }.collect { it[1] }
-        
-        // Get the tags to keep
-        def tagsToKeep = sortedTags.takeRight(lastN)
-        
-        // Remove unused images
-        def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
+        def imagesToRemove = []
+        for (imageTag in imageTags) {
+            def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
+            if (!lastN.contains(buildNumber)) {
+                imagesToRemove.add(imageTag)
+            }
+        }
+
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images not among the last ${lastN}."
+            println "Removed ${type} images not among the last ${lastN.size()} builds."
         } else {
-            println "All ${type} images are among the last ${lastN} images."
+            println "All ${type} images are among the last ${lastN.size()} builds."
         }
     } else {
         println "No ${type} images found."
     }
 }
+
