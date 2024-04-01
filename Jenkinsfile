@@ -132,14 +132,13 @@ pipeline {
        stage('Remove Unused Docker Images') {
     steps {
         script {
-            sh 'ls'
-            // // Construct the image reference patterns
-            // def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-            // def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+            // Construct the image reference patterns
+            def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+            def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
 
-            // // Get the image IDs of images matching the specified reference patterns
-            // def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
-            // def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
+            // Get the image IDs of images matching the specified reference patterns
+            def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
+            def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
 
             // // Get the IDs of all images
             // def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
