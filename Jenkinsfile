@@ -144,7 +144,7 @@ pipeline {
             def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
             // Get the IDs of the last 10 images
-            def last10ImageIds = allImageIds.takeRight(10)
+            // def last10ImageIds = allImageIds.takeRight(10)
 
             // // Remove the matched images except for the last 10
             // if (matchedImageIdsBackend) {
