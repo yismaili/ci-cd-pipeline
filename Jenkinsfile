@@ -98,29 +98,15 @@ pipeline {
         stage('Remove Unused Docker Images') {
             steps {
                 script {
-                    def imageReferenceBackend = "${registry}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                    def imageReferenceFrontend = "${registry}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-
-                    def matchedImageIdsBackend = sh(script: "docker images --filter=reference='${imageReferenceBackend}' -q", returnStdout: true).trim().split()
-                    def matchedImageIdsFrontend = sh(script: "docker images --filter=reference='${imageReferenceFrontend}' -q", returnStdout: true).trim().split()
-                    def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
-
-                    def creationDates = []
-
-                    for (imageId in allImageIds) {
-                        def creationDate = sh(script: "docker inspect --format='{{.Created}}' $imageId", returnStdout: true).trim()
-                        creationDates.add([id: imageId, date: creationDate])
-                    }
-
-                    creationDates.sort { a, b -> b.date <=> a.date }
-
-                    def last10ImageIds = creationDates.take(10).collect { it.id }
-
-                    println "Last 10 image IDs:"
-                    println last10ImageIds.join('\n')
-
-                    removeUnusedImages(matchedImageIdsBackend, last10ImageIds, "backend")
-                    removeUnusedImages(matchedImageIdsFrontend, last10ImageIds, "frontend")
+                    // Get all backend and frontend image tags
+                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
+                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
+                    
+                    // Remove unused backend images except for the last 10
+                    removeUnusedImages(backendTags, 10, "backend")
+                    
+                    // Remove unused frontend images except for the last 10
+                    removeUnusedImages(frontendTags, 10, "frontend")
                 }
             }
         }
@@ -145,16 +131,29 @@ pipeline {
     }
 }
 
-def removeUnusedImages(matchedImages, last10ImageIds, type) {
-    if (matchedImages) {
-        def imagesToRemove = matchedImages.findAll { !(last10ImageIds.contains(it)) }
+def removeUnusedImages(imageTags, lastN, type) {
+    if (imageTags) {
+        // Get creation dates of all images
+        def creationDates = imageTags.collect { tag ->
+            def creationDate = sh(script: "docker inspect --format='{{.Created}}' $tag", returnStdout: true).trim()
+            [tag: tag, date: creationDate]
+        }
+        
+        // Sort creation dates in descending order
+        creationDates.sort { a, b -> b.date <=> a.date }
+        
+        // Get the image tags to keep
+        def tagsToKeep = creationDates.take(lastN).collect { it.tag }
+        
+        // Remove unused images
+        def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images not among the last 10."
+            println "Removed ${type} images not among the last ${lastN}."
         } else {
-            println "All ${type} images matching the specified pattern are among the last 10 images."
+            println "All ${type} images are among the last ${lastN} images."
         }
     } else {
-        println "No ${type} images matching the specified pattern found."
+        println "No ${type} images found."
     }
 }
