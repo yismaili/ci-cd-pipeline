@@ -143,13 +143,19 @@ pipeline {
             // Get all image IDs
             def allImageIds = sh(script: "docker images -q", returnStdout: true).trim().split()
 
-            // Get the IDs of the last 10 images
-            def last10ImageIds = allImageIds.reverse().take(10)
+            // Get the count of all images
+            def totalImageCount = allImageIds.size()
+
+            // Get the count of last 10 images
+            def last10ImageCount = Math.min(totalImageCount, 10)
+
+            // Get the IDs of the images to keep
+            def imageIdsToKeep = allImageIds.takeLast(last10ImageCount)
 
             // Remove the matched images except for the last 10
             if (matchedImageIdsBackend) {
                 matchedImageIdsBackend.each { imageId ->
-                    if (!(last10ImageIds.contains(imageId))) {
+                    if (!(imageIdsToKeep.contains(imageId))) {
                         sh "docker rmi -f ${imageId}"
                     }
                 }
@@ -159,7 +165,7 @@ pipeline {
 
             if (matchedImageIdsFrontend) {
                 matchedImageIdsFrontend.each { imageId ->
-                    if (!(last10ImageIds.contains(imageId))) {
+                    if (!(imageIdsToKeep.contains(imageId))) {
                         sh "docker rmi -f ${imageId}"
                     }
                 }
