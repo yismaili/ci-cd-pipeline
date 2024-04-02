@@ -116,6 +116,8 @@ pipeline {
                 script {
                     sh 'docker compose build'
                     sh 'docker compose up -d'
+                    sleep time: 20, unit: 'SECONDS'
+                    sh 'docker compose down'
                 }
             }
         }
@@ -181,12 +183,14 @@ def removeUnusedImages(imageTags, lastN, type) {
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
-        if (imagesToRemove) {
-            sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images not among the last ${lastN}."
-        } else {
-            println "All ${type} images are among the last ${lastN} images."
-        }
+        println "${type}: ${tagsToKeep}"
+        
+        // if (imagesToRemove) {
+        //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
+        //     println "Removed ${type} images not among the last ${lastN}."
+        // } else {
+        //     println "All ${type} images are among the last ${lastN} images."
+        // }
     } else {
         println "No ${type} images found."
     }
