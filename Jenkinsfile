@@ -146,16 +146,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         def tagsToKeep = creationDates.take(lastN).collect { it.tag }
         
         // Remove unused images
-        // def imagesToRemove = imageTags.findAll { !(tagsToKeep.contains(it)) }
-
-        def imagesToRemove = []
-        for (imageTag in imageTags) {
-            echo ${imageTag}
-            // def buildNumber = imageTag.tokenize('-').last().tokenize('-').last()
-            // if (!lastN.contains(buildNumber)) {
-            //     imagesToRemove.add(imageTag)
-            // }
-        }
+        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
