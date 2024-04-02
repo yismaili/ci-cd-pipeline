@@ -183,8 +183,8 @@ def removeUnusedImages(imageTags, lastN, type) {
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
-        println "${type}: ${tagsToKeep}"
-        
+      //  println "${type}: ${tagsToKeep}"
+
         // if (imagesToRemove) {
         //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
         //     println "Removed ${type} images not among the last ${lastN}."
