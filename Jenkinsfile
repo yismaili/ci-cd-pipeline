@@ -182,7 +182,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
-
+        println "${tag}"
         println "${imagesToRemove}"
 
         // if (imagesToRemove) {
