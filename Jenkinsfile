@@ -145,6 +145,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         // Get the image tags to keep
         def tagsToKeep = creationDates.take(lastN).collect { it.tag }
         
+         println "Tags to keep for ${type}: ${tagsToKeep}"
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
