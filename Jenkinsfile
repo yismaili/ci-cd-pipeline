@@ -140,7 +140,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "---------${imageTags}"
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split('-')
-            def buildNumberPart = parts[1]
+            def buildNumberPart = parts[4]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
 
