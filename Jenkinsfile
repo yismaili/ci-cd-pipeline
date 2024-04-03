@@ -143,18 +143,34 @@ def removeUnusedImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
         }
 
-        // Convert buildNumbers to a regular ArrayList
-        def buildNumbersList = new ArrayList(buildNumbers)
+        // // Convert buildNumbers to a regular ArrayList
+        // def buildNumbersList = new ArrayList(buildNumbers)
 
-        // Sort build numbers in ascending order
-        buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        // // Sort build numbers in ascending order
+        // buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
 
-        // Print buildNumbers
-        println "Build numbers: ${buildNumbersList}"
+        // // Print buildNumbers
+        // println "Build numbers: ${buildNumbersList}"
 
-        // Get the image tags to keep
-        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        // // Get the image tags to keep
+        // def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
         
+
+        // Convert buildNumbers to a regular ArrayList
+def buildNumbersList = new ArrayList(buildNumbers)
+
+// Sort build numbers in ascending order
+buildNumbersList.sort({ a, b -> a.buildNumber <=> b.buildNumber } as Comparator)
+
+// Print buildNumbers
+println "Build numbers: ${buildNumbersList}"
+
+// Get the image tags to keep
+def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+
+// Rest of the code...
+
+
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
