@@ -132,7 +132,6 @@ pipeline {
         }
     }
 }
-
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -145,7 +144,10 @@ def removeUnusedImages(imageTags, lastN, type) {
 
         // Print parts for debugging
         buildNumbers.each { println it }
-        buildNumber.each { println it }
+
+        // Print buildNumber for debugging
+        buildNumbers.each { println it.buildNumber }
+
         // Convert buildNumbers to a regular ArrayList
         def buildNumbersList = new ArrayList(buildNumbers)
 
@@ -171,6 +173,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
 
 
 // def removeUnusedImages(imageTags, lastN, type) {
