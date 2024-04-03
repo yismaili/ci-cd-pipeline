@@ -133,6 +133,7 @@ pipeline {
     }
 }
 
+
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -144,7 +145,7 @@ def removeUnusedImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
 
             // Print buildNumberPart for debugging
-            //buildNumberPart.each { println it }
+            println "buildNumberPart: $buildNumberPart"
         }
 
         // Print parts for debugging
@@ -178,6 +179,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
 
 
 
