@@ -192,6 +192,7 @@ def removeUnusedImages(imageTags, lastN, type) {
             def buildNumberPart = parts[4]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
+            println "buildNumberPart: $buildNumberPart"
         }
 
         // Convert buildNumbers to a regular ArrayList
