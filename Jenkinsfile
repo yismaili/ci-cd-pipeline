@@ -136,6 +136,7 @@ pipeline {
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
+        println "---------${imageTags}"
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split('-')
             def buildNumberPart = parts[1]
@@ -143,7 +144,7 @@ def removeUnusedImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
 
             // Print buildNumberPart for debugging
-            buildNumberPart.each { println it }
+            //buildNumberPart.each { println it }
         }
 
         // Print parts for debugging
