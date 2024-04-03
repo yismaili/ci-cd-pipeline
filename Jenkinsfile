@@ -145,7 +145,7 @@ def removeUnusedImages(imageTags, lastN, type) {
 
         // Print parts for debugging
         buildNumbers.each { println it }
-
+        buildNumber.each { println it }
         // Convert buildNumbers to a regular ArrayList
         def buildNumbersList = new ArrayList(buildNumbers)
 
