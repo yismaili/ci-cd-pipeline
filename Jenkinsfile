@@ -132,6 +132,7 @@ pipeline {
         }
     }
 }
+
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -148,17 +149,19 @@ def removeUnusedImages(imageTags, lastN, type) {
         // Print buildNumber for debugging
         buildNumbers.each { println it.buildNumber }
 
+        parts.each {println it}
+
         // Convert buildNumbers to a regular ArrayList
         def buildNumbersList = new ArrayList(buildNumbers)
 
         // Sort build numbers in ascending order
-        buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        def sortedBuildNumbersList = buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
 
         // Print buildNumbers
-        println "Build numbers: ${buildNumbersList}"
+        println "Build numbers: ${sortedBuildNumbersList}"
 
         // Get the image tags to keep
-        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        def tagsToKeep = sortedBuildNumbersList.takeRight(lastN).collect { it.tag }
         
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
@@ -173,6 +176,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
 
 
 
