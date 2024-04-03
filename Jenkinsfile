@@ -180,6 +180,7 @@ pipeline {
 //     }
 // }
 
+
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -193,8 +194,17 @@ def removeUnusedImages(imageTags, lastN, type) {
         // Convert buildNumbers to a regular ArrayList
         def buildNumbersList = new ArrayList(buildNumbers)
 
-        // Sort build numbers in ascending order
-        buildNumbersList = buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        // Use bubble sort algorithm to sort build numbers in ascending order
+        for (int i = 0; i < buildNumbersList.size() - 1; i++) {
+            for (int j = 0; j < buildNumbersList.size() - i - 1; j++) {
+                if (buildNumbersList[j].buildNumber > buildNumbersList[j + 1].buildNumber) {
+                    // Swap elements
+                    def temp = buildNumbersList[j]
+                    buildNumbersList[j] = buildNumbersList[j + 1]
+                    buildNumbersList[j + 1] = temp
+                }
+            }
+        }
 
         // Print buildNumbers
         println "Build numbers: ${buildNumbersList}"
@@ -215,7 +225,6 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
-
 
 
 
