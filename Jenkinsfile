@@ -160,9 +160,9 @@ def removeUnusedImages(imageTags, lastN, type) {
 
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-           // println "Removed ${type} images except for the last ${lastN}."
+            println "Removed ${type} images except for the last ${lastN}."
         } else {
-           // println "All ${type} images are among the last ${lastN} images."
+            println "All ${type} images are among the last ${lastN} images."
         }
     } else {
         println "No ${type} images found."
