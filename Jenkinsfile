@@ -180,10 +180,6 @@ pipeline {
 //     }
 // }
 
-
-
-
-
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -198,7 +194,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         def buildNumbersList = new ArrayList(buildNumbers)
 
         // Sort build numbers in ascending order
-        buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        buildNumbersList = buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
 
         // Print buildNumbers
         println "Build numbers: ${buildNumbersList}"
@@ -219,3 +215,42 @@ def removeUnusedImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
+
+
+
+// def removeUnusedImages(imageTags, lastN, type) {
+//     if (imageTags) {
+//         // Extract build numbers from image tags
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split('-')
+//             def buildNumberPart = parts[4]
+//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+//             [tag: tag, buildNumber: buildNumber]
+//         }
+
+//         // Convert buildNumbers to a regular ArrayList
+//         def buildNumbersList = new ArrayList(buildNumbers)
+
+//         // Sort build numbers in ascending order
+//         buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+
+//         // Print buildNumbers
+//         println "Build numbers: ${buildNumbersList}"
+
+//         // Get the image tags to keep
+//         def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        
+//         // Remove unused images
+//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+
+//         if (imagesToRemove) {
+//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//             println "Removed ${type} images except for the last ${lastN}."
+//         } else {
+//             println "All ${type} images are among the last ${lastN} images."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
