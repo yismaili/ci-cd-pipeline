@@ -141,7 +141,9 @@ def removeUnusedImages(imageTags, lastN, type) {
             def buildNumberPart = parts[1]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
-            buildNumberPar.each { println it }
+
+            // Print buildNumberPart for debugging
+            buildNumberPart.each { println it }
         }
 
         // Print parts for debugging
