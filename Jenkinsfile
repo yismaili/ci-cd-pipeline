@@ -111,42 +111,16 @@ pipeline {
             }
         }
 
-        // stage('Deployment') {
-        //     steps {
-        //         script {
-        //             sh 'docker compose build'
-        //             sh 'docker compose up -d'
-        //             sleep time: 20, unit: 'SECONDS'
-        //             sh 'docker compose down'
-        //         }
-        //     }
-        // }
         stage('Deployment') {
-        steps {
-            script {
-                def stackName = "${APPNAME}"
-                def frontendServiceName = "${stackName}_frontend"
-                def backendServiceName = "${stackName}_backend"
-                
-                // Build the Docker Compose file
-                sh 'docker compose build'
-
-                // Deploy the stack
-                sh "docker stack deploy -c docker-compose.yml ${stackName}"
-
-                // // Wait for services to be up
-                // sleep time: 20, unit: 'SECONDS'
-
-                // // Check the status of services
-                // def frontendStatus = sh "docker service ps --format '{{.Name}}: {{.CurrentState}}' ${frontendServiceName}", returnStdout: true
-                // def backendStatus = sh "docker service ps --format '{{.Name}}: {{.CurrentState}}' ${backendServiceName}", returnStdout: true
-
-                // // Print service statuses
-                // println "Frontend Service Status:\n${frontendStatus}"
-                // println "Backend Service Status:\n${backendStatus}"
+            steps {
+                script {
+                    sh 'docker compose build'
+                    sh 'docker compose up -d'
+                    sleep time: 20, unit: 'SECONDS'
+                    sh 'docker compose down'
+                }
             }
         }
-}
 
     }
 
