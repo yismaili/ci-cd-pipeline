@@ -129,7 +129,7 @@ pipeline {
                 def backendServiceName = "${stackName}_backend"
                 
                 // Build the Docker Compose file
-                sh 'docker-compose build'
+                sh 'docker compose build'
 
                 // Deploy the stack
                 sh "docker stack deploy -c docker-compose.yml ${stackName}"
