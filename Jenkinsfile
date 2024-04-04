@@ -111,16 +111,43 @@ pipeline {
             }
         }
 
+        // stage('Deployment') {
+        //     steps {
+        //         script {
+        //             sh 'docker compose build'
+        //             sh 'docker compose up -d'
+        //             sleep time: 20, unit: 'SECONDS'
+        //             sh 'docker compose down'
+        //         }
+        //     }
+        // }
         stage('Deployment') {
-            steps {
-                script {
-                    sh 'docker compose build'
-                    sh 'docker compose up -d'
-                    sleep time: 20, unit: 'SECONDS'
-                    sh 'docker compose down'
-                }
+        steps {
+            script {
+                def stackName = "${APPNAME}"
+                def frontendServiceName = "${stackName}_frontend"
+                def backendServiceName = "${stackName}_backend"
+                
+                // Build the Docker Compose file
+                sh 'docker-compose build'
+
+                // Deploy the stack
+                sh "docker stack deploy -c docker-compose.yml ${stackName}"
+
+                // Wait for services to be up
+                sleep time: 20, unit: 'SECONDS'
+
+                // Check the status of services
+                def frontendStatus = sh "docker service ps --format '{{.Name}}: {{.CurrentState}}' ${frontendServiceName}", returnStdout: true
+                def backendStatus = sh "docker service ps --format '{{.Name}}: {{.CurrentState}}' ${backendServiceName}", returnStdout: true
+
+                // Print service statuses
+                println "Frontend Service Status:\n${frontendStatus}"
+                println "Backend Service Status:\n${backendStatus}"
             }
         }
+}
+
     }
 
     post {
@@ -132,53 +159,6 @@ pipeline {
         }
     }
 }
-
-
-// def removeUnusedImages(imageTags, lastN, type) {
-//     if (imageTags) {
-//         // Extract build numbers from image tags
-//         println "---------${imageTags}"
-//         def buildNumbers = imageTags.collect { tag ->
-//             def parts = tag.split('-')
-//             def buildNumberPart = parts[4]
-//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-//             [tag: tag, buildNumber: buildNumber]
-
-//             // Print buildNumberPart for debugging
-//             println "buildNumberPart: $buildNumberPart"
-//         }
-
-//         // Print parts for debugging
-//         buildNumbers.each { println it }
-
-//         // Print buildNumber for debugging
-//         buildNumbers.each { println it.buildNumber }
-
-//         // Convert buildNumbers to a regular ArrayList
-//         def buildNumbersList = new ArrayList(buildNumbers)
-
-//         // Sort build numbers in ascending order
-//         def sortedBuildNumbersList = buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
-
-//         // Print buildNumbers
-//         println "Build numbers: ${sortedBuildNumbersList}"
-
-//         // Get the image tags to keep
-//         def tagsToKeep = sortedBuildNumbersList.takeRight(lastN).collect { it.tag }
-        
-//         // Remove unused images
-//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
-
-//         if (imagesToRemove) {
-//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-//             println "Removed ${type} images except for the last ${lastN}."
-//         } else {
-//             println "All ${type} images are among the last ${lastN} images."
-//         }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
 
 
 def removeUnusedImages(imageTags, lastN, type) {
@@ -207,7 +187,7 @@ def removeUnusedImages(imageTags, lastN, type) {
         }
 
         // Print buildNumbers
-        println "Build numbers: ${buildNumbersList}"
+       // println "Build numbers: ${buildNumbersList}"
 
         // Get the image tags to keep
         def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
