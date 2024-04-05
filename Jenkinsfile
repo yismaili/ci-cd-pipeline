@@ -100,6 +100,7 @@ pipeline {
             steps {
                   dir('frontend') {
                     sh '''
+                        mkdir dist
                         tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
                     '''
                   }
@@ -111,6 +112,7 @@ pipeline {
             steps {
                     dir('backend') {
                         sh '''
+                            mkdir dist
                             tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
                         '''
                     }
