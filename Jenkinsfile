@@ -149,20 +149,20 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-            deleteDir() /* clean up our workspace */
+           // deleteDir() /* clean up our workspace */
         }
         success {
             echo 'I succeeded!'
-            updateGitlabCommitStatus name: 'build', state: 'success'
+           // updateGitlabCommitStatus name: 'build', state: 'success'
         }
         unstable {
             echo 'I am unstable :/'
-            updateGitlabCommitStatus name: 'build', state: 'failed'
+           // updateGitlabCommitStatus name: 'build', state: 'failed'
 
         }
         failure {
             echo 'I failed :('
-            updateGitlabCommitStatus name: 'build', state: 'failed'
+          //  updateGitlabCommitStatus name: 'build', state: 'failed'
 
         }
     }
