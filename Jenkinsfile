@@ -95,6 +95,28 @@ pipeline {
             }
         }
 
+        stage('Establish a backup Frontend') {
+    
+            steps {
+                  dir('frontend') {
+                    sh '''
+                        tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
+                    '''
+                  }
+            }
+        }
+
+        stage('Establish a backup Backend') {
+            
+            steps {
+                    dir('backend') {
+                        sh '''
+                            tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
+                        '''
+                    }
+                }
+        }
+
         stage('Remove Unused Docker Images') {
             steps {
                 script {
@@ -102,10 +124,8 @@ pipeline {
                     def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
                     def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
                     
-                    // Remove unused backend images except for the last 10
+                    // remove unused images except for the last 10
                     removeUnusedImages(backendTags, 10, "backend")
-                    
-                    // Remove unused frontend images except for the last 10
                     removeUnusedImages(frontendTags, 10, "frontend")
                 }
             }
@@ -125,11 +145,23 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'One way or another, I have finished'
+            //deleteDir() /* clean up our workspace */
+        }
         success {
-            echo 'Pipeline succeeded!'
+            echo 'I succeeded!'
+            updateGitlabCommitStatus name: 'build', state: 'success'
+        }
+        unstable {
+            echo 'I am unstable :/'
+            updateGitlabCommitStatus name: 'build', state: 'failed'
+
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'I failed :('
+            updateGitlabCommitStatus name: 'build', state: 'failed'
+
         }
     }
 }
