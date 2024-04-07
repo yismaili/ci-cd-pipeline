@@ -101,8 +101,8 @@ pipeline {
                 dir('frontend') {
                     script {
                         sh '''
-                            mkdir -p ../backup/frontend
-                            tar czvf ../backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .                            '''
+                            mkdir -p ${HOME}/backup/frontend
+                            tar czvf ${HOME}/backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .                            '''
                     }
                 }
             }
@@ -113,8 +113,8 @@ pipeline {
                 dir('backend') {
                     script {
                         sh '''
-                            mkdir -p ../backup/backend
-                            tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
+                            mkdir -p ${HOME}/backup/backend
+                            tar czvf ${HOME}/backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
                         '''
                     }
                 }
