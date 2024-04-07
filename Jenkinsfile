@@ -96,39 +96,32 @@ pipeline {
             }
         }
 
-        pipeline {
-            agent any
-            
-            stages {
-                stage('Establish a backup Frontend') {
-                    steps {
-                        dir('frontend') {
-                            script {
-                                sh '''
-                                    mkdir -p ../backup/frontend
-                                    tar czvf ../backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
-                                '''
-                            }
-                        }
-                    }
-                }
-
-                stage('Establish a backup Backend') {
-                    steps {
-                        dir('backend') {
-                            script {
-                                sh '''
-                                    mkdir -p ../backup/backend
-                                    tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
-                                '''
-                            }
+            stage('Establish a backup Frontend') {
+                steps {
+                    dir('frontend') {
+                        script {
+                            sh '''
+                                mkdir -p ../backup/frontend
+                                tar czvf ../backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
+                            '''
                         }
                     }
                 }
             }
-        }
 
-
+            stage('Establish a backup Backend') {
+                steps {
+                    dir('backend') {
+                        script {
+                            sh '''
+                                mkdir -p ../backup/backend
+                                tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
+                            '''
+                        }
+                    }
+                }
+            }
+            
         stage('Remove Unused Docker Images') {
             steps {
                 script {
