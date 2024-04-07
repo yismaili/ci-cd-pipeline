@@ -97,24 +97,26 @@ pipeline {
         }
 
         stage('Establish a backup Frontend') {
-    
             steps {
-                  dir('frontend') {
-                    sh '''
-                        mkdir -p dist
-                        tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
-                    '''
-                  }
+                dir('frontend') {
+                    script {
+                        sh '''
+                            mkdir -p ../backup/frontend
+                            tar czvf ../backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
+                        '''
+                    }
+                }
             }
-        }
+          }
+
 
         stage('Establish a backup Backend') {
             
             steps {
                     dir('backend') {
                         sh '''
-                            mkdir -p dist
-                            tar czvf ${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
+                            mkdir -p ../backup/backend
+                            tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
                         '''
                     }
                 }
