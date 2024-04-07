@@ -114,7 +114,7 @@ pipeline {
                     script {
                         sh '''
                             mkdir -p ../backup/backend
-                            tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz dist
+                            tar czvf ../backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
                         '''
                     }
                 }
