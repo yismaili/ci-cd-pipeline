@@ -11,6 +11,7 @@ pipeline {
     environment {
         registry="localhost:5000/test"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
+        status="cd"
     }
 
     stages {
@@ -22,12 +23,12 @@ pipeline {
                     targetFolderArray = env.GIT_BRANCH.split("/")
                     targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                     currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
-                    sh '''
-                        echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
-                        cat latest.txt
-                        echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
-                        echo "${GIT_COMMIT_SHORT}.txt"
-                    '''            
+                    // sh '''
+                    //     echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
+                    //     cat latest.txt
+                    //     echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
+                    //     echo "${GIT_COMMIT_SHORT}.txt"
+                    // '''            
                 }
             }
         }
@@ -136,10 +137,12 @@ pipeline {
         stage('Deployment') {
             steps {
                 script {
-                    sh 'docker compose build'
-                    sh 'docker compose up -d'
-                    sleep time: 20, unit: 'SECONDS'
-                    sh 'docker compose down'
+                    if (status == 'cd'){
+                        sh 'docker compose build'
+                        sh 'docker compose up -d'
+                        sleep time: 20, unit: 'SECONDS'
+                        sh 'docker compose down'
+                    }
                 }
             }
         }
@@ -156,11 +159,9 @@ pipeline {
         }
         unstable {
             echo 'I am unstable :/'
-
         }
         failure {
             echo 'I failed :('
-
         }
     }
 }
