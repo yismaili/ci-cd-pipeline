@@ -153,16 +153,13 @@ pipeline {
         }
         success {
             echo 'I succeeded!'
-            updateGitlabCommitStatus name: 'build', state: 'success'
         }
         unstable {
             echo 'I am unstable :/'
-            updateGitlabCommitStatus name: 'build', state: 'failed'
 
         }
         failure {
             echo 'I failed :('
-            updateGitlabCommitStatus name: 'build', state: 'failed'
 
         }
     }
