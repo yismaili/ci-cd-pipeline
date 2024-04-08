@@ -122,18 +122,21 @@ pipeline {
         }
 
         stage('Remove Unused Docker Images') {
-            steps {
-                script {
-                    // Get all backend and frontend image tags
-                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
-                    
-                    // remove unused images except for the last 10
-                    removeUnusedImages(backendTags, 10, "backend")
-                    removeUnusedImages(frontendTags, 10, "frontend")
-                }
-            }
+    steps {
+        script {
+            // Define the number of images to keep
+            def keepCount = 10
+            
+            // Get all images for backend and frontend
+            def backendImages = docker.images().filter { it.image.contains("${registry}/${APPNAME}:backend-") }.sort { it.created }
+            def frontendImages = docker.images().filter { it.image.contains("${registry}/${APPNAME}:frontend-") }.sort { it.created }
+
+            // Remove all but the last 'keepCount' images for backend and frontend
+            removeUnusedImages(backendImages.drop(keepCount), "backend")
+            removeUnusedImages(frontendImages.drop(keepCount), "frontend")
         }
+    }
+}
 
         stage('Deployment') {
             steps {
