@@ -128,7 +128,7 @@ const SignIn = () => {
             </div>
 
 
-            {/* <br />
+            <br />
             <div className="inputContainer">
                 <input
                     value={firstName}
@@ -136,7 +136,7 @@ const SignIn = () => {
                     onChange={(ev) => setFirstName(ev.target.value)}
                     className="inputBox"
                 />
-            </div> */}
+            </div>
             <br />
 
         </div>
