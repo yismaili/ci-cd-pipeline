@@ -12,6 +12,6 @@ docker login --username "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" $DOCKER
 if docker ps -a --format '{{.Names}}' | grep -q "^registry$"; then
     echo "Docker registry container 'registry' already exists."
 else
-    docker rm registry
+    # docker rm registry
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
 fi
