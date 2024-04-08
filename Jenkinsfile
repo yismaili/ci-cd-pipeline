@@ -9,7 +9,7 @@ pipeline {
     }
 
     environment {
-        registry="localhost:5000/test"
+        registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="CD"
     }
@@ -122,23 +122,18 @@ pipeline {
         }
 
         stage('Remove Unused Docker Images') {
-    steps {
-        script {
-            // Get all backend and frontend image tags
-            def backendTags = docker.image("localhost:5000/test/ci-cd").inside {
-                sh(returnStdout: true, script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep ':backend-'").trim().split('\n')
+            steps {
+                script {
+                    // Get all backend and frontend image tags
+                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
+                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
+                    
+                    // remove unused images except for the last 10
+                    removeUnusedImages(backendTags, 10, "backend")
+                    removeUnusedImages(frontendTags, 10, "frontend")
+                }
             }
-            def frontendTags = docker.image("localhost:5000/test/ci-cd").inside {
-                sh(returnStdout: true, script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep ':frontend-'").trim().split('\n')
-            }
-            
-            // remove unused images except for the last 10
-            removeUnusedImages(backendTags, 10, "backend")
-            removeUnusedImages(frontendTags, 10, "frontend")
         }
-    }
-}
-
 
         stage('Deployment') {
             steps {
