@@ -131,7 +131,7 @@ pipeline {
                     // remove unused images except for the last 10
                     // removeUnusedImages(backendTags, 10, "backend")
                     // removeUnusedImages(frontendTags, 10, "frontend")
-                    sh 'echo"hi"'
+                    sh 'echo "hi"'
                 }
             }
         }
