@@ -141,7 +141,7 @@ pipeline {
                     if (env.STATUS == 'CD'){
                         sh 'docker compose build'
                         sh 'docker compose up -d'
-                        sleep time: 20, unit: 'SECONDS'
+                       // sleep time: 20, unit: 'SECONDS'
                         sh 'docker compose down'
                     }
                 }
