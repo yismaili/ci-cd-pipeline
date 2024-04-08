@@ -11,7 +11,7 @@ pipeline {
     environment {
         registry="localhost:5000/test"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        status="ci"
+        env.STATUS="CI"
     }
 
     stages {
@@ -138,7 +138,7 @@ pipeline {
         stage('Deployment') {
             steps {
                 script {
-                    if (status == 'cd'){
+                    if (env.STATUS == 'CD'){
                         sh 'docker compose build'
                         sh 'docker compose up -d'
                         sleep time: 20, unit: 'SECONDS'
