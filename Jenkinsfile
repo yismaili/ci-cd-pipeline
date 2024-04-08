@@ -47,13 +47,10 @@ pipeline {
                     def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
                     if (!isRegistryRunning) {
                         sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-                    } else {
-                        echo 'Docker registry container "registry" is already running.'
                     }
                 }
             }
         }
-
 
         stage('Preparing Frontend') {
             steps {
