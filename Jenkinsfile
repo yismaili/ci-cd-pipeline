@@ -11,7 +11,7 @@ pipeline {
     environment {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS="CD"
+        STATUS="CI"
     }
 
     stages {
@@ -125,8 +125,8 @@ pipeline {
             steps {
                 script {
                     // Get all backend and frontend image tags
-                    // def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-                    // def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
+                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
+                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
                     
                     // remove unused images except for the last 10
                     // removeUnusedImages(backendTags, 10, "backend")
