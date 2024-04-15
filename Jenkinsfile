@@ -169,6 +169,50 @@ pipeline {
 }
 
 
+// def removeUnusedImages(imageTags, lastN, type) {
+//     if (imageTags) {
+//         // Extract build numbers from image tags
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split('-')
+//             def buildNumberPart = parts[4]
+//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+//             [tag: tag, buildNumber: buildNumber]
+//         }
+
+//         // Convert buildNumbers to a regular ArrayList
+//         def buildNumbersList = new ArrayList(buildNumbers)
+
+//         // Use bubble sort algorithm to sort build numbers in ascending order
+//         for (int i = 0; i < buildNumbersList.size() - 1; i++) {
+//             for (int j = 0; j < buildNumbersList.size() - i - 1; j++) {
+//                 if (buildNumbersList[j].buildNumber > buildNumbersList[j + 1].buildNumber) {
+//                     // Swap elements
+//                     def temp = buildNumbersList[j]
+//                     buildNumbersList[j] = buildNumbersList[j + 1]
+//                     buildNumbersList[j + 1] = temp
+//                 }
+//             }
+//         }
+
+//         // Print buildNumbers
+//        // println "Build numbers: ${buildNumbersList}"
+
+//         // Get the image tags to keep
+//         def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        
+//         // Remove unused images
+//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+
+//         if (imagesToRemove) {
+//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//             println "Removed ${type} images except for the last ${lastN}."
+//         } else {
+//             println "All ${type} images are among the last ${lastN} images."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
 def removeUnusedImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
@@ -179,27 +223,12 @@ def removeUnusedImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
         }
 
-        // Convert buildNumbers to a regular ArrayList
-        def buildNumbersList = new ArrayList(buildNumbers)
-
-        // Use bubble sort algorithm to sort build numbers in ascending order
-        for (int i = 0; i < buildNumbersList.size() - 1; i++) {
-            for (int j = 0; j < buildNumbersList.size() - i - 1; j++) {
-                if (buildNumbersList[j].buildNumber > buildNumbersList[j + 1].buildNumber) {
-                    // Swap elements
-                    def temp = buildNumbersList[j]
-                    buildNumbersList[j] = buildNumbersList[j + 1]
-                    buildNumbersList[j + 1] = temp
-                }
-            }
-        }
-
-        // Print buildNumbers
-       // println "Build numbers: ${buildNumbersList}"
+        // Sort buildNumbers by buildNumber
+        def sortedBuildNumbers = buildNumbers.sort { it.buildNumber }
 
         // Get the image tags to keep
-        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
-        
+        def tagsToKeep = sortedBuildNumbers[-lastN..-1].collect { it.tag }
+
         // Remove unused images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
