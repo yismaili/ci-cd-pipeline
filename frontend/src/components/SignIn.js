@@ -129,6 +129,19 @@ const SignIn = () => {
             
             <br />
 
+
+            <div className="inputContainer">
+                <input
+                    className="inputButton"
+                    type="button"
+                    onClick={onButtonClick}
+                    value="push test"
+                />
+            </div>
+            
+            <br />
+
+
         </div>
     );
 };
