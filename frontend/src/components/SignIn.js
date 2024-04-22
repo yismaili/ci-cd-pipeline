@@ -126,15 +126,6 @@ const SignIn = () => {
                     value="Sign In"
                 />
             </div>
-
-            <div className="inputContainer">
-                <input
-                    className="inputButton"
-                    type="button"
-                    onClick={onButtonClick}
-                    value="PULL"
-                />
-            </div>
             
             <br />
 
