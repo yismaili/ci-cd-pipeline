@@ -1,0 +1,36 @@
+- name: Configuration and Provisioning of the VM with Ansible
+  hosts: all
+  gather_facts: no
+  vars:
+    ansible_ssh_user: server2
+  tasks:
+    - name: Install Docker and Docker Compose
+      become: yes
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker.io
+        - docker-compose
+
+    - name: Configure Docker logging
+      become: yes
+      lineinfile:
+        path: /etc/docker/daemon.json
+        line: '{"log-driver": "json-file", "log-opts": {"max-size": "100m"}}'
+        create: yes
+
+    - name: Set up a Cronjob for Docker cleanup
+      become: yes
+      copy:
+        content: |
+          0 3 * * * /usr/bin/docker system prune -af
+        dest: /etc/cron.d/docker_cleanup
+        mode: '0644'
+
+    - name: Add user to Docker group
+      become: yes
+      user:
+        name: "{{ ansible_ssh_user }}"
+        groups: docker
+        append: yes
