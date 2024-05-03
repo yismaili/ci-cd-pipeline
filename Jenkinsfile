@@ -36,8 +36,7 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    // sh './build.sh'
-                    sh 'echo"hi"'
+                    sh './build.sh'
                 }
             }
         }
