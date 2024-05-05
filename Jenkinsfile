@@ -102,7 +102,8 @@ pipeline {
                     script {
                         sh '''
                             mkdir -p ${HOME}/backup/frontend
-                            tar czvf ${HOME}/backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .                            '''
+                            tar czvf ${HOME}/backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz . 
+                        '''
                     }
                 }
             }
@@ -140,8 +141,8 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                        sh 'docker compose build'
-                        sh 'docker compose up -d'
+                        sh 'docker-compose build'
+                        sh 'docker-compose up -d'
                        // sleep time: 20, unit: 'SECONDS'
                         //sh 'docker compose down'
                     }
