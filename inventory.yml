@@ -1,6 +1,6 @@
 all:
   hosts:
     your_host_name:
-      ansible_host: 192.168.11.101
+      ansible_host: 192.168.11.102
       ansible_user: yoyo
 
