@@ -5,6 +5,12 @@
   vars:
     ansible_ssh_user: yoyo
   tasks:
+    - name: Install Ansible
+      become: yes
+      apt:
+        name: ansible
+        state: present
+
     - name: Install Docker and Docker Compose
       become: yes
       apt:
@@ -36,36 +42,45 @@
         groups: docker
         append: yes
 
-    - name: Install Java
-      become: yes
-      apt:
-        name: openjdk-11-jdk
-        state: present
+   - name: Transfer files to the target host
+    become: yes
+    copy:
+      src: /path/to/ci-cd/*  # Path to the directory containing the files on the Ansible control node
+      dest: /home/yoyo/  # Destination path on the target host
+      mode: '0644'  # Permissions for the transferred files
+      recursive: yes  # Ensure copying of subdirectories and their contents
 
-    - name: Update apt cache
-      become: yes
-      apt:
-        update_cache: yes
 
-    - name: Download Jenkins Debian repository key
-      become: yes
-      shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+    # - name: Install Java
+    #   become: yes
+    #   apt:
+    #     name: openjdk-11-jdk
+    #     state: present
 
-    - name: Import Jenkins GPG key
-      become: yes
-      apt_key:
-        id: 5BA31D57EF5975CA
-        keyserver: keyserver.ubuntu.com
-        state: present
+    # - name: Update apt cache
+    #   become: yes
+    #   apt:
+    #     update_cache: yes
 
-    - name: Add Jenkins Debian repository
-      become: yes
-      apt_repository:
-        repo: deb https://pkg.jenkins.io/debian-stable binary/
-        state: present
+    # - name: Download Jenkins Debian repository key
+    #   become: yes
+    #   shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
 
-    - name: Update apt and install Jenkins
-      become: yes
-      apt:
-        name: jenkins
-        state: present
+    # - name: Import Jenkins GPG key
+    #   become: yes
+    #   apt_key:
+    #     id: 5BA31D57EF5975CA
+    #     keyserver: keyserver.ubuntu.com
+    #     state: present
+
+    # - name: Add Jenkins Debian repository
+    #   become: yes
+    #   apt_repository:
+    #     repo: deb https://pkg.jenkins.io/debian-stable binary/
+    #     state: present
+
+    # - name: Update apt and install Jenkins
+    #   become: yes
+    #   apt:
+    #     name: jenkins
+    #     state: present

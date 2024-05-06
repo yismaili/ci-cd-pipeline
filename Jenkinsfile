@@ -141,10 +141,11 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                        sh 'docker-compose build'
-                        sh 'docker-compose up -d'
+                        // sh 'docker-compose build'
+                        // sh 'docker-compose up -d'
                        // sleep time: 20, unit: 'SECONDS'
                         //sh 'docker compose down'
+                        sh './deployment.sh'
                     }
                 }
             }
