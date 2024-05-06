@@ -5,11 +5,11 @@
   vars:
     ansible_ssh_user: yoyo
   tasks:
-    - name: Install Ansible
-      become: yes
-      apt:
-        name: ansible
-        state: present
+    # - name: Install Ansible
+    #   become: yes
+    #   apt:
+    #     name: ansible
+    #     state: present
 
     - name: Install Docker and Docker Compose
       become: yes
