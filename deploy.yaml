@@ -1,6 +1,6 @@
 ---
 - name: Configuration and Provisioning of the VM with Ansible
-  hosts: 192.168.100.74
+  hosts: all
   gather_facts: no
   vars:
     ansible_ssh_user: yoyo
