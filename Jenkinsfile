@@ -145,7 +145,9 @@ pipeline {
                         // sh 'docker-compose up -d'
                        // sleep time: 20, unit: 'SECONDS'
                         //sh 'docker compose down'
-                        sh './deployment.sh'
+                    withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
+                        sh 'ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=$BECOME_PASSWORD'
+                    }
                     }
                 }
             }
