@@ -141,10 +141,6 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                        // sh 'docker-compose build'
-                        // sh 'docker-compose up -d'
-                       // sleep time: 20, unit: 'SECONDS'
-                        //sh 'docker compose down'
                     withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
                         sh 'ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=$BECOME_PASSWORD'
                     }

@@ -1,6 +1,6 @@
 ---
 - name: Configuration and Provisioning of the VM with Ansible
-  hosts: all
+  hosts: 192.168.100.74
   gather_facts: no
   vars:
     ansible_ssh_user: yoyo
@@ -10,7 +10,16 @@
     #   apt:
     #     name: ansible
     #     state: present
-
+    - name: Add SSH key
+      lineinfile:
+        path: ~/.ssh/authorized_keys
+        create: yes
+        state: present
+        line: "{{ lookup('file', '/home/yoyo/.ssh/id_ansible.pub') }}"
+      connection: local
+      become: yes
+      become_user: yoyo
+      become_method: yoyo
     - name: Install Docker and Docker Compose
       become: yes
       apt:
