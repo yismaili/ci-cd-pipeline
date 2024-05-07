@@ -5,11 +5,6 @@
   vars:
     ansible_ssh_user: yoyo
   tasks:
-    # - name: Install Ansible
-    #   become: yes
-    #   apt:
-    #     name: ansible
-    #     state: present
     - name: Install Docker and Docker Compose
       become: yes
       apt:
@@ -40,7 +35,7 @@
         name: "{{ ansible_ssh_user }}"
         groups: docker
         append: yes
-    
+
     - name: Transfer files to the target host
       become: yes
       synchronize:
@@ -49,47 +44,14 @@
         copy_links: yes  # Copy symbolic links as links
       delegate_to: localhost  # Perform file permission changes on the Ansible controller
       run_once: yes  # Execute the task only once
-      post_tasks:
-        - name: Set file permissions
-          file:
-            path: /home/yoyo/{{ item }}
-            mode: '0644'
-          with_items:
-            - deploy.yaml
-            - build.sh
-        # Add more files as needed
+      register: sync_result
 
-
-    # - name: Install Java
-    #   become: yes
-    #   apt:
-    #     name: openjdk-11-jdk
-    #     state: present
-
-    # - name: Update apt cache
-    #   become: yes
-    #   apt:
-    #     update_cache: yes
-
-    # - name: Download Jenkins Debian repository key
-    #   become: yes
-    #   shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-
-    # - name: Import Jenkins GPG key
-    #   become: yes
-    #   apt_key:
-    #     id: 5BA31D57EF5975CA
-    #     keyserver: keyserver.ubuntu.com
-    #     state: present
-
-    # - name: Add Jenkins Debian repository
-    #   become: yes
-    #   apt_repository:
-    #     repo: deb https://pkg.jenkins.io/debian-stable binary/
-    #     state: present
-
-    # - name: Update apt and install Jenkins
-    #   become: yes
-    #   apt:
-    #     name: jenkins
-    #     state: present
+    - name: Set file permissions
+      become: yes
+      file:
+        path: "/home/yoyo/{{ item }}"
+        mode: '0644'
+      with_items:
+        - deploy.yaml
+        - build.sh
+      when: sync_result.changed
