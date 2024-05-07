@@ -44,7 +44,7 @@
     - name: Transfer files to the target host
       become: yes
       copy:
-        src: /home/yoyo/ci-cd/*
+        src: ./*
         dest: /home/yoyo/
         mode: '0644'
         recursive: yes
