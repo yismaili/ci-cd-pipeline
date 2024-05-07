@@ -42,16 +42,4 @@
         src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
         copy_links: yes  # Copy symbolic links as links
-      delegate_to: localhost  # Perform file permission changes on the Ansible controller
-      run_once: yes  # Execute the task only once
-      register: sync_result
-
-    - name: Set file permissions
-      become: yes
-      file:
-        path: "/home/yoyo/{{ item }}"
-        mode: '0644'
-      with_items:
-        - deploy.yaml
-        - build.sh
-      when: sync_result.changed
+     
