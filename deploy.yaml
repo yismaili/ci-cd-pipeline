@@ -45,7 +45,7 @@
     - name: Transfer files to the target host
       become: yes
       copy:
-        src: /path/to/ci-cd/*  # Path to the directory containing the files on the Ansible control node
+        src: ./ci-cd/*  # Path to the directory containing the files on the Ansible control node
         dest: /home/yoyo/  # Destination path on the target host
         mode: '0644'  # Permissions for the transferred files
         recursive: yes  # Ensure copying of subdirectories and their contents
