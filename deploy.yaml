@@ -41,14 +41,13 @@
         groups: docker
         append: yes
         
-    - name: Transfer files to the target host
+   - name: Transfer files to the target host
       become: yes
-      copy:
-        src: ./*
+      synchronize:
+        src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
         mode: '0644'
-        recursive: yes
-        remote_src: yes  # This option tells Ansible to look for the files on the remote server
+        copy_links: yes  # Copy symbolic links as links
 
 
     # - name: Install Java
