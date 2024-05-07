@@ -49,7 +49,6 @@
         mode: '0644'  # Permissions for the transferred files
         recursive: yes  # Ensure copying of subdirectories and their contents
 
-
     # - name: Install Java
     #   become: yes
     #   apt:
