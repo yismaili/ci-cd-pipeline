@@ -52,8 +52,18 @@
       synchronize:
         src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
-        perms: '0644'
         copy_links: yes  # Copy symbolic links as links
+      delegate_to: localhost  # Perform file permission changes on the Ansible controller
+      run_once: yes  # Execute the task only once
+      post_tasks:
+        - name: Set file permissions
+          file:
+            path: /home/yoyo/{{ item }}
+            mode: '0644'
+          with_items:
+            - deploy.yaml
+            - build.sh
+        # Add more files as needed
 
 
     # - name: Install Java
