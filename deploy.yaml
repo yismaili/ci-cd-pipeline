@@ -40,12 +40,19 @@
         name: "{{ ansible_ssh_user }}"
         groups: docker
         append: yes
+    # - name: Transfer files to the target host
+    #   become: yes
+    #   synchronize:
+    #     src: /home/yoyo/ci-cd/
+    #     dest: /home/yoyo/
+    #     mode: '0644'
+    #     copy_links: yes  # Copy symbolic links as links
     - name: Transfer files to the target host
       become: yes
       synchronize:
         src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
-        mode: '0644'
+        perms: '0644'
         copy_links: yes  # Copy symbolic links as links
 
 
