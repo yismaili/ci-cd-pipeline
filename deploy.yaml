@@ -36,10 +36,14 @@
         groups: docker
         append: yes
 
-    - name: Transfer files to the target host
+    - name: Create a directory for application
       become: yes
-      copy:
-        src: /home/yoyo/ci-cd/
-        dest: /home/yoyo/
-        remote_src: yes
-      become_user: "{{ ansible_ssh_user }}"
+      file:
+        path: /srv/app
+        state: directory
+
+    - name: Clone React application repository
+      become: yes
+      git:
+        repo: https://github.com/yismaili/ci-cd
+        dest: /srv/app
