@@ -12,6 +12,7 @@ pipeline {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="CD"
+        BECOME_PASSWORD="yoyo"
     }
 
     stages {
@@ -141,9 +142,9 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                    withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
-                        sh 'ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=$BECOME_PASSWORD'
-                    }
+                    //withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
+                        sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=${env.BECOME_PASSWORD}"
+                    //}
                     }
                 }
             }
