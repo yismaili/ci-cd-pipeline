@@ -4,6 +4,8 @@
   gather_facts: no
   vars:
     ansible_ssh_user: yoyo
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+
   tasks:
     - name: Install Docker and Docker Compose
       become: yes
