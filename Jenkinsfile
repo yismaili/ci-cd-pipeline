@@ -138,16 +138,29 @@ pipeline {
             }
         }
 
+        // stage('Deployment') {
+        //     steps {
+        //         script {
+        //             if (env.STATUS == 'CD'){
+        //                 sh "echo"${env.BECOME_PASSWORD}""
+        //                 sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass="${env.BECOME_PASSWORD}""
+        //             }
+        //         }
+        //     }
+        // }
+
         stage('Deployment') {
-            steps {
-                script {
-                    if (env.STATUS == 'CD'){
-                        sh "echo"${env.BECOME_PASSWORD}""
-                        sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass="${env.BECOME_PASSWORD}""
-                    }
+        steps {
+            script {
+                if (env.STATUS == 'CD') {
+                    // Print the BECOME_PASSWORD for debugging
+                    sh "echo ${env.BECOME_PASSWORD}"
+                    // Execute ansible-playbook command with extra-vars to pass BECOME_PASSWORD
+                    sh "ansible-playbook -i inventory.yml deploy.yaml --extra-vars 'ansible_become_pass=${env.BECOME_PASSWORD}'"
                 }
             }
         }
+     }
 
 
         // stage('Deployment') {
