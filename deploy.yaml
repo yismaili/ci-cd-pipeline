@@ -38,5 +38,8 @@
 
     - name: Transfer files to the target host
       become: yes
-      shell: cp -r {{ ansible_env.HOME }}/ci-cd/* /home/yoyo/
+      copy:
+        src: /home/yoyo/ci-cd/
+        dest: /home/yoyo/
+        remote_src: yes
       become_user: "{{ ansible_ssh_user }}"
