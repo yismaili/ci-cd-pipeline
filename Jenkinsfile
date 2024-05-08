@@ -142,7 +142,8 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                        sh "ansible-playbook -i inventory.yml deploy.yaml --extra-vars 'become_pass=${env.BECOME_PASSWORD}'"
+                        sh "echo"${env.BECOME_PASSWORD}""
+                        sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass="${env.BECOME_PASSWORD}""
                     }
                 }
             }
