@@ -36,10 +36,14 @@
         groups: docker
         append: yes
 
-    - name: Transfer files to the target host
-      become: yes
-      copy:
-        src: *
-        dest: /home/yoyo/
-        remote_src: yes
-      become_user: "{{ ansible_ssh_user }}"
+    # - name: Transfer files to the target host
+    #   become: yes
+    #   copy:
+    #     src: /home/yoyo/ci-cd/*
+    #     dest: /home/yoyo/
+    #     remote_src: yes
+    #   become_user: "{{ ansible_ssh_user }}"
+  - name: Transfer files to the target host
+    become: yes
+    shell: cp -r /home/yoyo/ci-cd/* /home/yoyo/
+    become_user: "{{ ansible_ssh_user }}"
