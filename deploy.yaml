@@ -39,11 +39,11 @@
     - name: Create a directory for application
       become: yes
       file:
-        path: /srv/app
+        path: /home/yoyo/app
         state: directory
 
     - name: Clone React application repository
       become: yes
       git:
         repo: https://github.com/yismaili/ci-cd
-        dest: /srv/app
+        dest: /home/yoyo/app
