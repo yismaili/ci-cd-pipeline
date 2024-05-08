@@ -142,13 +142,24 @@ pipeline {
             steps {
                 script {
                     if (env.STATUS == 'CD'){
-                    //withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
-                        sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=${env.BECOME_PASSWORD}"
-                    //}
+                        sh "ansible-playbook -i inventory.yml deploy.yaml --extra-vars 'become_pass=${env.BECOME_PASSWORD}'"
                     }
                 }
             }
         }
+
+
+        // stage('Deployment') {
+        //     steps {
+        //         script {
+        //             if (env.STATUS == 'CD'){
+        //             //withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
+        //                 sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=${env.BECOME_PASSWORD}"
+        //             //}
+        //             }
+        //         }
+        //     }
+        // }
 
     }
 
