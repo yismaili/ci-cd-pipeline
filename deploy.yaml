@@ -38,11 +38,8 @@
 
     - name: Transfer files to the target host
       become: yes
-      synchronize:
+      copy:
         src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
-        copy_links: yes  # Copy symbolic links as links
+        remote_src: yes
       become_user: "{{ ansible_ssh_user }}"
-      become_method: sudo
-      vars:
-        ansible_ssh_user: yoyo
