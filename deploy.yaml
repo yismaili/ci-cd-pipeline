@@ -42,4 +42,7 @@
         src: /home/yoyo/ci-cd/
         dest: /home/yoyo/
         copy_links: yes  # Copy symbolic links as links
-     
+      become_user: "{{ ansible_ssh_user }}"
+      become_method: sudo
+      vars:
+        ansible_ssh_user: yoyo
