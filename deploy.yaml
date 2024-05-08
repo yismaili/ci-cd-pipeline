@@ -39,7 +39,7 @@
     - name: Transfer files to the target host
       become: yes
       copy:
-        src: "{{ item }}"
+        src: "${PWD}"
         dest: /home/yoyo/
         remote_src: yes
       become_user: "{{ ansible_ssh_user }}"
