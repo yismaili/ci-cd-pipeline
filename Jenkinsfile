@@ -137,49 +137,24 @@ pipeline {
             }
         }
 
-        // stage('Deployment') {
-        //     steps {
-        //         script {
-        //             if (env.STATUS == 'CD'){
-        //                 sh "echo"${env.BECOME_PASSWORD}""
-        //                 sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass="${env.BECOME_PASSWORD}""
-        //             }
-        //         }
-        //     }
-        // }
-
         stage('Deployment') {
-        steps {
-            script {
-                if (env.STATUS == 'CD') {
-                    // Print the BECOME_PASSWORD for debugging
-                    // sh "echo ${env.BECOME_PASSWORD}"
-                    // Execute ansible-playbook command with extra-vars to pass BECOME_PASSWORD
-                    sh "ansible-playbook -i inventory.yml deploy.yaml --extra-vars ansible_become_pass"
+            steps {
+                script {
+                    if (env.STATUS == 'CD'){
+                    withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
+                        sh 'ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=$BECOME_PASSWORD'
+                    }
+                    }
                 }
             }
         }
-     }
-
-
-        // stage('Deployment') {
-        //     steps {
-        //         script {
-        //             if (env.STATUS == 'CD'){
-        //             //withCredentials([usernamePassword(credentialsId: 'ANSIBLE_become_pass', passwordVariable: 'BECOME_PASSWORD')]) {
-        //                 sh "ansible-playbook -i inventory.yml deploy.yaml --ask-become-pass=${env.BECOME_PASSWORD}"
-        //             //}
-        //             }
-        //         }
-        //     }
-        // }
 
     }
 
     post {
         always {
             echo 'One way or another, I have finished'
-            deleteDir() /* clean up our workspace */
+           // deleteDir() /* clean up our workspace */
         }
         success {
             echo 'I succeeded!'
