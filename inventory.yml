@@ -2,5 +2,4 @@ all:
   hosts:
     yoyo-host:
       ansible_host: 192.168.100.74
-      ansible_user: yoyo
-      ansible_ssh_pass: yoyo
+      ansible_user: root
