@@ -153,7 +153,7 @@ pipeline {
         steps {
             script {
                 if (env.STATUS == 'CD') {
-                    sh 'ansible-playbook -i inventory.yml deploy.yaml --extra-vars "ansible_become_pass=yoyo" -vvv'
+                    sh 'ansible-playbook -i inventory.yml deploy.yaml'
                 }
             }
         }
