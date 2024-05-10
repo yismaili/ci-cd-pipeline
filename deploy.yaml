@@ -3,7 +3,6 @@
   hosts: all
   gather_facts: no
   vars:
-    ansible_ssh_user: yoyo
     docker_registry: "http://192.168.100.75:5000" 
 
   tasks:
@@ -53,8 +52,8 @@
       become: yes
       shell: |
         cd /home/yoyo/app
-        docker build -t {{ docker_registry }}/react-app:latest .
-        docker login -u your_username -p your_password {{ docker_registry }}
-        docker push {{ docker_registry }}/react-app:latest
+        docker build -t {{ docker_registry }}/ci-cd:latest .
+        docker login -u yismaili -p pass1227@ {{ docker_registry }}
+        docker push {{ docker_registry }}/ci-cd:latest
       environment:
         DOCKER_CLI_ASK_PASS: "true"
