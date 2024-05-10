@@ -48,12 +48,12 @@
       git:
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
-    - name: Build and push Docker image for React application
-      become: yes
-      shell: |
-        cd /home/yoyo/app
-        docker build -t {{ docker_registry }}/ci-cd:latest .
-        docker login -u yismaili -p pass1227@ {{ docker_registry }}
-        docker push {{ docker_registry }}/ci-cd:latest
-      environment:
-        DOCKER_CLI_ASK_PASS: "true"
+   - name: Build and push Docker image for application
+    become: yes
+    shell: |
+      cd /home/yoyo/app
+      docker build -t {{ docker_registry }}/ci-cd:latest .
+      echo "pass1227@" | docker login -u yismaili --password-stdin {{ docker_registry }}
+      docker push {{ docker_registry }}/ci-cd:latest
+    environment:
+      DOCKER_CLI_ASK_PASS: "true"
