@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: no
   vars:
-    ansible_ssh_user: jenkins
+    ansible_ssh_user: yoyo
 
   tasks:
     - name: Install Docker and Docker Compose
