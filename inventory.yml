@@ -1,5 +1,5 @@
 all:
   hosts:
     yoyo-host:
-      ansible_host: 192.168.100.74
+      ansible_host: 192.168.100.76
       ansible_user: root
