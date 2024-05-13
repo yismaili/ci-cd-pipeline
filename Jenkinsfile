@@ -12,7 +12,6 @@ pipeline {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="CD"
-        BECOME_PASSWORD="yoyo"
     }
 
     stages {
