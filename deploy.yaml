@@ -96,6 +96,12 @@
           services:
             backend:
               image: 192.168.100.75:5000/ci-cd:latest
+              environment:
+                - JWT_SECRET=secrete
+                - HOST=postgres
+                - USERNAME=postgres
+                - PASSWORD=pass1337
+                - DATABASE=MYDB
               ports:
                 - "8000:8000"
               depends_on:
@@ -107,8 +113,8 @@
             db:
               image: postgres:latest
               environment:
-                POSTGRES_USER: postgres
-                POSTGRES_PASSWORD: example
+                - POSTGRES_PASSWORD=pass1337
+                - POSTGRES_DB=MYDB
               ports:
                 - "5432:5432"
 
