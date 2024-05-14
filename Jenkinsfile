@@ -29,12 +29,6 @@ pipeline {
                     //     echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
                     //     echo "${GIT_COMMIT_SHORT}.txt"
                     // '''            
-                    // You can directly assign environment variables
-                    sh """
-                        export BUILD_NUMBER=${env.BUILD_NUMBER}
-                        export GIT_COMMIT_SHORT=${env.GIT_COMMIT_SHORT}
-                        """
-
                 }
             }
         }
