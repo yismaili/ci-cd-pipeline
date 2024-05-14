@@ -89,25 +89,25 @@ pipeline {
         }
 
 
-        stage('Pull Images on Target Host') {
-            steps {
-                script {
-                    // Pull frontend and backend images from the registry on the target host
-                    sh "docker pull ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                    sh "docker pull ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                }
-            }
-        }
+        // stage('Pull Images on Target Host') {
+        //     steps {
+        //         script {
+        //             // Pull frontend and backend images from the registry on the target host
+        //             sh "docker pull ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+        //             sh "docker pull ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+        //         }
+        //     }
+        // }
 
-        stage('Deploy on Target Host') {
-            steps {
-                script {
-                    // Deploy frontend and backend containers on the target host
-                    sh "docker run -d --name frontend ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                    sh "docker run -d --name backend ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                }
-            }
-        }
+        // stage('Deploy on Target Host') {
+        //     steps {
+        //         script {
+        //             // Deploy frontend and backend containers on the target host
+        //             sh "docker run -d --name frontend ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+        //             sh "docker run -d --name backend ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+        //         }
+        //     }
+        // }
 
 
 

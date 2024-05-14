@@ -49,14 +49,8 @@
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
 
-    - name: Pull Docker images from local registry
-      become: yes
+    - name: Pull Docker images
       docker_image:
-        name: "{{ item }}"
+        name: "{{ docker_registry }}/ci-cd:frontend-{{ GIT_COMMIT_SHORT }}-{{ BUILD_NUMBER }}"
         source: pull
-      loop:
-        - "{{ docker_registry }}/ci-cd/backend-175b6fe-22"
-        - "{{ docker_registry }}/ci-cd/backend-33feb82-11"
-        - "{{ docker_registry }}/ci-cd/frontend-175b6fe-22"
-        - "{{ docker_registry }}/ci-cd/frontend-33feb82-11"
 
