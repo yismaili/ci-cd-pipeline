@@ -100,3 +100,34 @@
         path: /tmp/{{ item.split('/')[-1] }}.tar
         state: absent
       loop: "{{ docker_images }}"
+
+    - name: Create a docker-compose.yml file
+      become: yes
+      copy:
+        dest: /home/yoyo/app/docker-compose.yml
+        content: |
+          version: '3'
+          services:
+            backend:
+              image: localhost:5000/ci-cd/backend-3152c39-34
+              ports:
+                - "8000:8000"
+              depends_on:
+                - db
+            frontend:
+              image: localhost:5000/ci-cd/frontend-3152c39-34
+              ports:
+                - "3000:3000"
+            db:
+              image: postgres:latest
+              environment:
+                POSTGRES_USER: postgres
+                POSTGRES_PASSWORD: example
+              ports:
+                - "5432:5432"
+
+    - name: Run Docker Compose
+      become: yes
+      command: docker-compose up -d
+      args:
+        chdir: /home/yoyo/app
