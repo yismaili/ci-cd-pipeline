@@ -93,8 +93,8 @@ pipeline {
             steps {
                 script {
                     // Pull frontend and backend images from the registry on the target host
-                    sh "ssh root@192.168.100.75 'docker pull ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
-                    sh "ssh root@192.168.100.75 'docker pull ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
+                    sh "docker pull ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    sh "docker pull ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                 }
             }
         }
@@ -103,13 +103,13 @@ pipeline {
             steps {
                 script {
                     // Deploy frontend and backend containers on the target host
-                    sh "ssh root@192.168.100.75 'docker run -d --name frontend ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
-                    sh "ssh root@192.168.100.75 'docker run -d --name backend ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
+                    sh "docker run -d --name frontend ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                    sh "docker run -d --name backend ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                 }
             }
         }
 
-        
+
 
         stage('Test') {
             steps {
