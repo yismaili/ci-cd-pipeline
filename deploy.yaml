@@ -3,7 +3,16 @@
   hosts: all
   gather_facts: no
   vars:
-    docker_registry: "192.168.100.75:5000" 
+    docker_registry: "192.168.100.75:5000"
+    docker_images:
+      - "localhost:5000/ci-cd/backend-3152c39-34"
+      - "localhost:5000/ci-cd/backend-3152c39-35"
+      - "localhost:5000/ci-cd/backend-558219d-33"
+      - "localhost:5000/ci-cd/frontend-3152c39-34"
+      - "localhost:5000/ci-cd/frontend-3152c39-35"
+      - "localhost:5000/ci-cd/frontend-558219d-33"
+      - "postgres:latest"
+      - "registry:2"
 
   tasks:
     - name: Install Docker and Docker Compose
@@ -54,9 +63,40 @@
       docker_image:
         name: "{{ item }}"
         source: pull
-      loop:
-        - "{{ docker_registry }}/ci-cd/backend-175b6fe-22"
-        - "{{ docker_registry }}/ci-cd/backend-33feb82-11"
-        - "{{ docker_registry }}/ci-cd/frontend-175b6fe-22"
-        - "{{ docker_registry }}/ci-cd/frontend-33feb82-11"
+      loop: "{{ docker_images }}"
+      when: "'docker' in group_names"
 
+- name: Transfer Docker images from vm1 to vm2
+  hosts: vm1
+  gather_facts: no
+  tasks:
+    - name: Save Docker images to tar files
+      become: yes
+      command: docker save -o /tmp/{{ item.split('/')[-1] }}.tar {{ item }}
+      loop: "{{ docker_images }}"
+      args:
+        creates: /tmp/{{ item.split('/')[-1] }}.tar
+
+    - name: Transfer Docker image tar files to vm2
+      become: yes
+      copy:
+        src: /tmp/{{ item.split('/')[-1] }}.tar
+        dest: /tmp/{{ item.split('/')[-1] }}.tar
+      loop: "{{ docker_images }}"
+      delegate_to: vm2
+
+- name: Load Docker images on vm2
+  hosts: vm2
+  gather_facts: no
+  tasks:
+    - name: Load Docker images from tar files
+      become: yes
+      command: docker load -i /tmp/{{ item.split('/')[-1] }}.tar
+      loop: "{{ docker_images }}"
+
+    - name: Clean up tar files on vm2
+      become: yes
+      file:
+        path: /tmp/{{ item.split('/')[-1] }}.tar
+        state: absent
+      loop: "{{ docker_images }}"
