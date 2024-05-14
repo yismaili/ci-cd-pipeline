@@ -29,6 +29,11 @@ pipeline {
                     //     echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
                     //     echo "${GIT_COMMIT_SHORT}.txt"
                     // '''            
+                    // You can directly assign environment variables
+            env.APPNAME = env.APPNAME
+            env.CUSTOMNAME = env.CUSTOMNAME
+            env.BUILD_NUMBER = env.BUILD_NUMBER
+            env.GIT_COMMIT_SHORT = env.GIT_COMMIT_SHORT
                 }
             }
         }
