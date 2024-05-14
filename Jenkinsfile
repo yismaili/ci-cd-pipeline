@@ -137,6 +137,14 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                script {
+                    sh 'docker-compose build'
+                }
+            }
+        }
+
         stage('Deployment') {
         steps {
             script {
