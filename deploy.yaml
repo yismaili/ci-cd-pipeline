@@ -49,13 +49,14 @@
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
 
-    - name: Pull backend Docker image
-      docker_image:
-        name: "{{ docker_registry }}/ci-cd:backend-a7de1d6-43"
-        source: pull
+    - name: Build Docker containers
+      become: yes
+      docker_compose:
+        project_src: /home/yoyo/app
+        state: present
 
-    - name: Pull frontend Docker image
-      docker_image:
-        name: "{{ docker_registry }}/ci-cd:frontend-a7de1d6-43"
-        source: pull
-
+    - name: Start Docker containers
+      become: yes
+      docker_compose:
+        project_src: /home/yoyo/app
+        state: started
