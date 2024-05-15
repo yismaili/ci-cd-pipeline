@@ -3,9 +3,12 @@
   gather_facts: no
   vars:
     docker_registry: "192.168.100.75:5000"
+    app_user: "yoyo"
+    app_repo: "https://github.com/yismaili/ci-cd"
+    app_dir: "/home/yoyo/app"
 
   tasks:
-    - name: Install Docker and Docker Compose
+    - name: Install required packages
       become: yes
       apt:
         name:
@@ -26,21 +29,15 @@
             }
           }
         mode: '0644'
-
-    - name: Restart Docker to apply logging configuration
-      become: yes
-      systemd:
-        name: docker
-        state: restarted
-        enabled: yes
+      notify: Restart Docker
 
     - name: Set up a Cron job for Docker cleanup
       become: yes
-      copy:
-        content: |
-          0 3 * * * /usr/bin/docker system prune -af
-        dest: /etc/cron.d/docker_cleanup
-        mode: '0644'
+      cron:
+        name: "Docker Cleanup"
+        minute: "0"
+        hour: "3"
+        job: "/usr/bin/docker system prune -af"
 
     - name: Add user to Docker group
       become: yes
@@ -52,24 +49,24 @@
     - name: Create a directory for the application
       become: yes
       file:
-        path: /home/yoyo/app
+        path: "{{ app_dir }}"
         state: directory
-        owner: yoyo
-        group: yoyo
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
         mode: '0755'
 
     - name: Clone application repository
       become: yes
       git:
-        repo: https://github.com/yismaili/ci-cd
-        dest: /home/yoyo/app
+        repo: "{{ app_repo }}"
+        dest: "{{ app_dir }}"
         version: master
 
     - name: Build backend Docker image
       become: yes
       docker_image:
         build:
-          path: /home/yoyo/app/backend
+          path: "{{ app_dir }}/backend"
         name: backend
         tag: latest
 
@@ -77,7 +74,7 @@
       become: yes
       docker_image:
         build:
-          path: /home/yoyo/app/frontend
+          path: "{{ app_dir }}/frontend"
         name: frontend
         tag: latest
 
@@ -103,6 +100,13 @@
         depends_on:
           - backend
 
+  handlers:
+    - name: Restart Docker
+      become: yes
+      systemd:
+        name: docker
+        state: restarted
+        enabled: yes
 
     # - name: Pull backend Docker image
     #   docker_image:
