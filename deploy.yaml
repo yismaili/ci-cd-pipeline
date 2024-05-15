@@ -6,7 +6,7 @@
     app_user: "yoyo"
     app_repo: "https://github.com/yismaili/ci-cd"
     app_dir: "/home/yoyo/app"
-    postgres_env_file: "./.env"
+    postgres_env_file: ".env"
 
   tasks:
     - name: Install required packages
