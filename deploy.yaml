@@ -1,24 +1,18 @@
-
 ---
 - name: Configuration and Provisioning of the VM with Ansible
   hosts: all
   gather_facts: no
   vars:
-    docker_registry: "192.168.100.75:5000" 
-    volumes:
-      backend-src: "/home/yoyo/app/backend"
-      postgre: "/home/yoyo/app/postgres"
-      frontend-src: "/home/yoyo/app/frontend"
+    docker_registry: "192.168.100.75:5000"
 
   tasks:
     - name: Install Docker and Docker Compose
       become: yes
       apt:
-        name: "{{ item }}"
+        name:
+          - docker.io
+          - docker-compose
         state: present
-      loop:
-        - docker.io
-        - docker-compose
 
     - name: Configure Docker logging
       become: yes
@@ -42,7 +36,7 @@
         groups: docker
         append: yes
 
-    - name: Create a directory for application
+    - name: Create a directory for the application
       become: yes
       file:
         path: /home/yoyo/app
@@ -54,18 +48,25 @@
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
 
-    - name: Create directories for volumes
-      file:
-        path: "{{ item.value }}"
-        state: directory
-      loop: "{{ volumes | dict2items }}"
-
-    # - name: Copy Docker Compose file
-    #   copy:
-    #     src: "{{ playbook_dir }}/docker-compose.yml"
-    #     dest: "/home/{{ ansible_ssh_user }}/docker-compose.yml"
-
-    - name: Run Docker Compose
-      command: docker-compose up -d
+    - name: Build backend Docker image
+      become: yes
+      command: docker build -t backend:latest /home/yoyo/app/backend
       args:
-        chdir: "{{ ansible_user_dir }}"
+        chdir: /home/yoyo/app
+
+    - name: Build frontend Docker image
+      become: yes
+      command: docker build -t frontend:latest /home/yoyo/app/frontend
+      args:
+        chdir: /home/yoyo/app
+
+    # - name: Pull backend Docker image
+    #   docker_image:
+    #     name: "{{ docker_registry }}/ci-cd:backend-a7de1d6-43"
+    #     source: pull
+
+    # - name: Pull frontend Docker image
+    #   docker_image:
+    #     name: "{{ docker_registry }}/ci-cd:frontend-a7de1d6-43"
+    #     source: pull
+
