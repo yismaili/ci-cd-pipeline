@@ -14,6 +14,7 @@
         name:
           - docker.io
           - docker-compose
+          - git
         state: present
         update_cache: yes
 
@@ -54,6 +55,10 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: '0755'
+
+    - name: Configure Git to mark the app directory as safe
+      become: yes
+      command: git config --global --add safe.directory "{{ app_dir }}"
 
     - name: Clone application repository
       become: yes
@@ -107,6 +112,7 @@
         name: docker
         state: restarted
         enabled: yes
+
 
     # - name: Pull backend Docker image
     #   docker_image:
