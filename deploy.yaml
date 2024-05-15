@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: no
   vars:
-    docker_registry: "192.168.100.75:5000" 
+    docker_registry: "192.168.100.75:5000"
 
   tasks:
     - name: Install Docker and Docker Compose
@@ -37,7 +37,7 @@
         groups: docker
         append: yes
 
-    - name: Create a directory for application
+    - name: Create a directory for the application
       become: yes
       file:
         path: /home/yoyo/app
@@ -49,14 +49,23 @@
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
 
-    - name: Build Docker containers
-      become: yes
-      docker_compose:
-        project_src: /home/yoyo/app
-        state: present
+    - name: Create directories for volumes
+      file:
+        path: "{{ item.value.driver_opts.device }}"
+        state: directory
+      loop: "{{ volumes | dict2items }}"
+      vars:
+        volumes:
+          backend-src: "/home/yoyo/app/backend"
+          postgre: "/home/yoyo/app/postgres"
+          frontend-src: "/home/yoyo/app/frontend"
 
-    - name: Start Docker containers
-      become: yes
-      docker_compose:
-        project_src: /home/yoyo/app
-        state: started
+    - name: Copy Docker Compose file
+      copy:
+        src: "{{ playbook_dir }}/docker-compose.yml"
+        dest: "{{ ansible_user_dir }}/docker-compose.yml"
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: "{{ ansible_user_dir }}"
