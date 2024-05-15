@@ -63,7 +63,7 @@
     - name: Copy Docker Compose file
       copy:
         src: "{{ playbook_dir }}/docker-compose.yml"
-        dest: "{{ ansible_user_dir }}/docker-compose.yml"
+        dest: "/home/{{ ansible_ssh_user }}/docker-compose.yml"
 
     - name: Run Docker Compose
       command: docker-compose up -d
