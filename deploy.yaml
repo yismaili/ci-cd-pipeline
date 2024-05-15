@@ -1,4 +1,3 @@
----
 - name: Configuration and Provisioning of the VM with Ansible
   hosts: all
   gather_facts: no
@@ -13,15 +12,29 @@
           - docker.io
           - docker-compose
         state: present
+        update_cache: yes
 
     - name: Configure Docker logging
       become: yes
-      lineinfile:
-        path: /etc/docker/daemon.json
-        line: '{"log-driver": "json-file", "log-opts": {"max-size": "100m"}}'
-        create: yes
+      copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            }
+          }
+        mode: '0644'
 
-    - name: Set up a Cronjob for Docker cleanup
+    - name: Restart Docker to apply logging configuration
+      become: yes
+      systemd:
+        name: docker
+        state: restarted
+        enabled: yes
+
+    - name: Set up a Cron job for Docker cleanup
       become: yes
       copy:
         content: |
@@ -32,7 +45,7 @@
     - name: Add user to Docker group
       become: yes
       user:
-        name: "{{ ansible_ssh_user }}"
+        name: "{{ ansible_user }}"
         groups: docker
         append: yes
 
@@ -41,24 +54,32 @@
       file:
         path: /home/yoyo/app
         state: directory
+        owner: yoyo
+        group: yoyo
+        mode: '0755'
 
     - name: Clone application repository
       become: yes
       git:
         repo: https://github.com/yismaili/ci-cd
         dest: /home/yoyo/app
+        version: master
 
     - name: Build backend Docker image
       become: yes
-      command: docker build -t backend:latest /home/yoyo/app/backend
-      args:
-        chdir: /home/yoyo/app
+      docker_image:
+        build:
+          path: /home/yoyo/app/backend
+        name: backend
+        tag: latest
 
     - name: Build frontend Docker image
       become: yes
-      command: docker build -t frontend:latest /home/yoyo/app/frontend
-      args:
-        chdir: /home/yoyo/app
+      docker_image:
+        build:
+          path: /home/yoyo/app/frontend
+        name: frontend
+        tag: latest
 
     - name: Run backend Docker container
       become: yes
