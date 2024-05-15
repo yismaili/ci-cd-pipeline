@@ -93,6 +93,15 @@
         ports:
           - "3001:3001"
 
+    - name: Wait for backend service to be ready
+      become: yes
+      wait_for:
+        host: "localhost"
+        port: 3001
+        delay: 10
+        timeout: 300
+        state: started
+
     - name: Run frontend Docker container
       become: yes
       docker_container:
@@ -102,8 +111,6 @@
         restart_policy: always
         ports:
           - "3000:3000"
-        depends_on:
-          - backend
 
   handlers:
     - name: Restart Docker
@@ -112,6 +119,7 @@
         name: docker
         state: restarted
         enabled: yes
+
 
 
     # - name: Pull backend Docker image
