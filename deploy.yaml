@@ -60,6 +60,29 @@
       args:
         chdir: /home/yoyo/app
 
+    - name: Run backend Docker container
+      become: yes
+      docker_container:
+        name: backend
+        image: backend:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "3001:3001"
+
+    - name: Run frontend Docker container
+      become: yes
+      docker_container:
+        name: frontend
+        image: frontend:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "3000:3000"
+        depends_on:
+          - backend
+
+
     # - name: Pull backend Docker image
     #   docker_image:
     #     name: "{{ docker_registry }}/ci-cd:backend-a7de1d6-43"
