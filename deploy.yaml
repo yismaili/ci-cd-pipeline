@@ -1,9 +1,14 @@
+
 ---
 - name: Configuration and Provisioning of the VM with Ansible
   hosts: all
   gather_facts: no
   vars:
-    docker_registry: "192.168.100.75:5000"
+    docker_registry: "192.168.100.75:5000" 
+    volumes:
+      backend-src: "/home/yoyo/app/backend"
+      postgre: "/home/yoyo/app/postgres"
+      frontend-src: "/home/yoyo/app/frontend"
 
   tasks:
     - name: Install Docker and Docker Compose
@@ -37,7 +42,7 @@
         groups: docker
         append: yes
 
-    - name: Create a directory for the application
+    - name: Create a directory for application
       become: yes
       file:
         path: /home/yoyo/app
@@ -51,14 +56,9 @@
 
     - name: Create directories for volumes
       file:
-        path: "{{ item.value.driver_opts.device }}"
+        path: "{{ item.value }}"
         state: directory
       loop: "{{ volumes | dict2items }}"
-      vars:
-        volumes:
-          backend-src: "/home/yoyo/app/backend"
-          postgre: "/home/yoyo/app/postgres"
-          frontend-src: "/home/yoyo/app/frontend"
 
     - name: Copy Docker Compose file
       copy:
