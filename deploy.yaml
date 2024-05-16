@@ -67,69 +67,10 @@
         dest: "{{ app_dir }}"
         version: master
 
-    - name: Build backend Docker image
+    - name: Run Docker Compose for building images and running containers
       become: yes
-      docker_image:
-        build:
-          path: "{{ app_dir }}/backend"
-        name: backend
-        tag: latest
+      command: docker-compose up -d
+      args:
+        chdir: "{{ app_dir }}/deploy/"
 
-    - name: Build frontend Docker image
-      become: yes
-      docker_image:
-        build:
-          path: "{{ app_dir }}/frontend"
-        name: frontend
-        tag: latest
-
-    - name: Run backend Docker container
-      become: yes
-      docker_container:
-        name: backend
-        image: backend:latest
-        state: started
-        restart_policy: always
-        ports:
-          - "3001:3001"
-
-    - name: Wait for backend service to be ready
-      become: yes
-      wait_for:
-        host: "localhost"
-        port: 3001
-        delay: 10
-        timeout: 300
-        state: started
-
-    - name: Run frontend Docker container
-      become: yes
-      docker_container:
-        name: frontend
-        image: frontend:latest
-        state: started
-        restart_policy: always
-        ports:
-          - "3000:3000"
-    
-
-  handlers:
-    - name: Restart Docker
-      become: yes
-      systemd:
-        name: docker
-        state: restarted
-        enabled: yes
-
-
-
-    # - name: Pull backend Docker image
-    #   docker_image:
-    #     name: "{{ docker_registry }}/ci-cd:backend-a7de1d6-43"
-    #     source: pull
-
-    # - name: Pull frontend Docker image
-    #   docker_image:
-    #     name: "{{ docker_registry }}/ci-cd:frontend-a7de1d6-43"
-    #     source: pull
 
