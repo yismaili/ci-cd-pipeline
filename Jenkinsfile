@@ -15,11 +15,10 @@ pipeline {
     }
 
     stages {
-        
+
         stage('Checkout') {
             steps {
-                // Checkout the source code from Git repository
-                git url: 'https://your-git-repo-url.git', branch: 'main'
+                git url: 'https://github.com/yismaili/ci-cd', branch: 'master'
             }
         }
 
