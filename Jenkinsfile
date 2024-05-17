@@ -66,7 +66,8 @@ pipeline {
                         echo "Push to Registry - End"
                         """
                     }
-                }
+
+
             }
         }
 
