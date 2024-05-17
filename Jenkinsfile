@@ -267,15 +267,19 @@ pipeline {
         stage('Setup') {
             steps {
                 script {
-                    env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${env.GIT_COMMIT}", returnStdout: true).trim()
-                    env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                    env.APPNAME = sh(script: 'basename -s .git ${env.GIT_URL}', returnStdout: true).trim()
-                    targetFolderArray = env.GIT_BRANCH.split("/")
-                    targetFolder = targetFolderArray[-1]
-                    currentBuild.displayName = "${CUSTOMNAME}/${GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                    def gitCommitShort = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    if (gitCommitShort) {
+                        env.GIT_COMMIT_SHORT = gitCommitShort
+                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        env.APPNAME = sh(script: 'basename -s .git ${env.GIT_URL}', returnStdout: true).trim()
+                        currentBuild.displayName = "${env.CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                    } else {
+                        error "Failed to retrieve Git commit short hash."
+                    }
                 }
             }
         }
+
 
         stage('Docker Login') {
             steps {
