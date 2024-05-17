@@ -160,9 +160,8 @@ pipeline {
                     def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
                     
                     // remove unused images except for the last 10
-                    // removeUnusedImages(backendTags, 10, "backend")
-                    // removeUnusedImages(frontendTags, 10, "frontend")
-                    sh 'echo "hi"'
+                    removeUnusedImages(backendTags, 10, "backend")
+                    removeUnusedImages(frontendTags, 10, "frontend")
                 }
             }
         }
