@@ -152,19 +152,46 @@ pipeline {
             }
         }
 
-        stage('Remove Unused Docker Images') {
-            steps {
-                script {
-                    // Get all backend and frontend image tags
-                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
+        // stage('Remove Unused Docker Images') {
+        //     steps {
+        //         script {
+        //             // Get all backend and frontend image tags
+        //             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
+        //             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
                     
-                    // remove unused images except for the last 10
-                    removeUnusedImages(backendTags, 10, "backend")
-                    removeUnusedImages(frontendTags, 10, "frontend")
-                }
+        //             // remove unused images except for the last 10
+        //             removeUnusedImages(backendTags, 10, "backend")
+        //             removeUnusedImages(frontendTags, 10, "frontend")
+        //         }
+        //     }
+        // }
+
+        stage('Remove Unused Docker Images') {
+    steps {
+        script {
+            // Fetch the list of all images
+            def allImages = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}'", returnStdout: true).trim().split('\n')
+            
+            // Define the current build's frontend and backend images
+            def currentFrontendImage = "localhost:5000/ci-cd:frontend-${env.GIT_COMMIT_SHORT}"
+            def currentBackendImage = "localhost:5000/ci-cd:backend-${env.GIT_COMMIT_SHORT}"
+            
+            // Identify images to be removed
+            def imagesToRemove = allImages.findAll { image ->
+                image.startsWith("localhost:5000/ci-cd:backend-") && image != currentBackendImage ||
+                image.startsWith("localhost:5000/ci-cd:frontend-") && image != currentFrontendImage
             }
+            
+            // Remove identified images
+            imagesToRemove.each { image ->
+                sh "docker rmi -f ${image}"
+            }
+            
+            echo "Removed the following unused images: ${imagesToRemove.join(', ')}"
         }
+    }
+}
+
 
         stage('Build') {
             steps {
@@ -206,7 +233,6 @@ pipeline {
 
 
 def removeUnusedImages(imageTags, lastN, type) {
-        println"hiiiiiy"
     if (imageTags) {
         // Extract build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
@@ -232,20 +258,20 @@ def removeUnusedImages(imageTags, lastN, type) {
         }
 
         // Print buildNumbers
-        println "Build numbers: ${buildNumbersList}"
+       // println "Build numbers: ${buildNumbersList}"
 
         // Get the image tags to keep
-        // def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
         
-        // // Remove unused images
-        // def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+        // Remove unused images
+        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
-        // if (imagesToRemove) {
-        //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
-        //     println "Removed ${type} images except for the last ${lastN}."
-        // } else {
-        //     println "All ${type} images are among the last ${lastN} images."
-        // }
+        if (imagesToRemove) {
+            sh "docker rmi -f ${imagesToRemove.join(' ')}"
+            println "Removed ${type} images except for the last ${lastN}."
+        } else {
+            println "All ${type} images are among the last ${lastN} images."
+        }
     } else {
         println "No ${type} images found."
     }
