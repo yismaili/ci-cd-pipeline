@@ -173,8 +173,8 @@ pipeline {
                         def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n')
                         def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n')
                         
-                        removeOldImages(backendTags, 10, "backend")
-                        removeOldImages(frontendTags, 10, "frontend")
+                        removeOldImages(backendTags, 3, "backend")
+                        removeOldImages(frontendTags, 3, "frontend")
 
                     } catch (Exception e) {
                         println "Error during image cleanup: ${e.message}"
