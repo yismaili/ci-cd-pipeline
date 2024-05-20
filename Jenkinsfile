@@ -267,30 +267,63 @@ pipeline {
 //     }
 // }
 
+// def removeOldImages(imageTags, lastN, type) {
+//     if (imageTags) {
+//         if (imageTags) {
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split(':')
+//            // println "Parts: ${parts}" // Print parts
+//             def tagWithoutRepo = parts[2]
+//             //println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
+//             def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
+//            // println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
+//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+//            // println "Build Number: ${buildNumber}" // Print buildNumber
+//             [tag: tag, buildNumber: buildNumber]
+//         }
+//         }
+
+
+//         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+//         println "Sorted build numbers for ${type}: ${buildNumbers}"
+
+//         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
+
+//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+
+//         if (imagesToRemove) {
+//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//             println "Removed old ${type} images, keeping the last ${lastN}."
+//         } else {
+//             println "All ${type} images are among the last ${lastN} images."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
+
+
 def removeOldImages(imageTags, lastN, type) {
     if (imageTags) {
-        if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
-           // println "Parts: ${parts}" // Print parts
-            def tagWithoutRepo = parts[2]
-            //println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
-            def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
-           // println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
+            def tagWithoutRepo = parts[1]
+            def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-           // println "Build Number: ${buildNumber}" // Print buildNumber
             [tag: tag, buildNumber: buildNumber]
         }
-        }
 
-         println "Build numbers for ${type}: ${buildNumbers}"
+        println "Build numbers for ${type}: ${buildNumbers}"
 
+        // Ensure buildNumbers is sorted before accessing it
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
         println "Sorted build numbers for ${type}: ${buildNumbers}"
 
+        // Ensure buildNumbers is defined before accessing it
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         println "Tags to keep for ${type}: ${tagsToKeep}"
 
+        // Ensure buildNumbers is defined before accessing it
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
         println "Images to remove for ${type}: ${imagesToRemove}"
 
