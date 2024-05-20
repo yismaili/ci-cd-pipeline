@@ -272,7 +272,7 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
             def tagWithoutRepo = parts[1]
-            def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
+            def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
         }
