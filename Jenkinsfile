@@ -276,8 +276,11 @@ def removeOldImages(imageTags, lastN, type) {
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
         }
+         println "Build numbers for 1 ${type}: ${buildNumbers}"
 
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+
+         println "Build numbers for 2 ${type}: ${buildNumbers}"
 
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         
