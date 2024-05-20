@@ -281,7 +281,7 @@ def removeOldImages(imageTags, lastN, type) {
             println "Build Number: ${buildNumber}" // Print buildNumber
             [tag: tag, buildNumber: buildNumber]
         }
-
+        }
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
 
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
