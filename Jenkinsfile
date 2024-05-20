@@ -274,32 +274,29 @@ pipeline {
 //     }
 // }
 
-def removeUnusedImages(imageTags, lastN, type) {
+def removeOldImages(imageTags, lastN, type) {
     if (imageTags) {
         // Extract build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
-            def parts = tag.split(':') // Split by ':' instead of '-'
-            def tagWithoutRepo = parts[1] // Get the tag without repository
-            def buildNumberPart = tagWithoutRepo.tokenize('-')[1] // Extract build number from the tag
+            def parts = tag.split(':')
+            def tagWithoutRepo = parts[1]
+            def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
         }
 
-        // Convert buildNumbers to a regular ArrayList
-        def buildNumbersList = new ArrayList(buildNumbers)
-
-        // Sort build numbers in ascending order
-        buildNumbersList.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        // Sort build numbers in descending order
+        buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
 
         // Get the image tags to keep
-        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         
-        // Remove unused images
+        // Remove old images
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images except for the last ${lastN}."
+            println "Removed old ${type} images, keeping the last ${lastN}."
         } else {
             println "All ${type} images are among the last ${lastN} images."
         }
