@@ -269,18 +269,20 @@ pipeline {
 
 def removeOldImages(imageTags, lastN, type) {
     if (imageTags) {
+        if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
+            println "Parts: ${parts}" // Print parts
             def tagWithoutRepo = parts[1]
-            def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
+            println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
+            def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
+            println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+            println "Build Number: ${buildNumber}" // Print buildNumber
             [tag: tag, buildNumber: buildNumber]
         }
-         println "Build numbers for 1 ${type}: ${buildNumbers}"
 
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-
-         println "Build numbers for 2 ${type}: ${buildNumbers}"
 
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         
