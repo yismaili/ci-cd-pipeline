@@ -178,18 +178,18 @@ pipeline {
                         println "Backend Images: ${backendTags}"
                         println "Frontend Images: ${frontendTags}"
 
-                        // Function to remove unused images
-                        def removeUnusedImages = { tags, keepCount, label ->
-                            if (tags.size() > keepCount) {
-                                def imagesToRemove = tags.take(tags.size() - keepCount)
-                                imagesToRemove.each { tag ->
-                                    sh "docker rmi ${tag}"
-                                    println "Removed ${label} image: ${tag}"
-                                }
-                            } else {
-                                println "No ${label} images to remove."
-                            }
-                        }
+                        // // Function to remove unused images
+                        // def removeUnusedImages = { tags, keepCount, label ->
+                        //     if (tags.size() > keepCount) {
+                        //         def imagesToRemove = tags.take(tags.size() - keepCount)
+                        //         imagesToRemove.each { tag ->
+                        //             sh "docker rmi ${tag}"
+                        //             println "Removed ${label} image: ${tag}"
+                        //         }
+                        //     } else {
+                        //         println "No ${label} images to remove."
+                        //     }
+                        // }
 
                         // Remove unused backend and frontend images
                         // removeUnusedImages(backendTags, 10, "backend")
