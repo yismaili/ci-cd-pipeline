@@ -272,18 +272,18 @@ def removeOldImages(imageTags, lastN, type) {
         if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
-            println "Parts: ${parts}" // Print parts
+           // println "Parts: ${parts}" // Print parts
             def tagWithoutRepo = parts[2]
-            println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
+            //println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
             def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
-            println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
+           // println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-            println "Build Number: ${buildNumber}" // Print buildNumber
+           // println "Build Number: ${buildNumber}" // Print buildNumber
             [tag: tag, buildNumber: buildNumber]
         }
         }
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-
+        println "Build Numbers: ${buildNumbers}"
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
