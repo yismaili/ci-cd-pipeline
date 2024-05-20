@@ -214,6 +214,7 @@ def removeUnusedImages(imageTags, lastN, type) {
             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
             [tag: tag, buildNumber: buildNumber]
         }
+        println"hiiiiiy"
 
         // Convert buildNumbers to a regular ArrayList
         def buildNumbersList = new ArrayList(buildNumbers)
