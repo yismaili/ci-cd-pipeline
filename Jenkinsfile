@@ -282,11 +282,17 @@ def removeOldImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
         }
         }
+
+         println "Build numbers for ${type}: ${buildNumbers}"
+
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-        println "Build Numbers: ${buildNumbers}"
+        println "Sorted build numbers for ${type}: ${buildNumbers}"
+
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
-        
+        println "Tags to keep for ${type}: ${tagsToKeep}"
+
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+        println "Images to remove for ${type}: ${imagesToRemove}"
 
         if (imagesToRemove) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
