@@ -185,7 +185,6 @@ pipeline {
                 }
             }
         }
-    }
 
 
         stage('Build') {
