@@ -231,20 +231,20 @@ def removeUnusedImages(imageTags, lastN, type) {
         }
 
         // Print buildNumbers
-       // println "Build numbers: ${buildNumbersList}"
+        println "Build numbers: ${buildNumbersList}"
 
         // Get the image tags to keep
-        def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
+        // def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
         
-        // Remove unused images
-        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+        // // Remove unused images
+        // def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
-        if (imagesToRemove) {
-            sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed ${type} images except for the last ${lastN}."
-        } else {
-            println "All ${type} images are among the last ${lastN} images."
-        }
+        // if (imagesToRemove) {
+        //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
+        //     println "Removed ${type} images except for the last ${lastN}."
+        // } else {
+        //     println "All ${type} images are among the last ${lastN} images."
+        // }
     } else {
         println "No ${type} images found."
     }
