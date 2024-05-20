@@ -152,63 +152,19 @@ pipeline {
             }
         }
 
-        // stage('Remove Unused Docker Images') {
-        //     steps {
-        //         script {
-        //             // Get all backend and frontend image tags
-        //             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-        //             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
-                    
-        //             println "back////// ${backendTags}"
-        //             println "front////// ${frontendTags}"
-        //             // removeUnusedImages(backendTags, 10, "backend")
-        //             // removeUnusedImages(frontendTags, 10, "frontend")
-        //         }
-        //     }
-        // }
-
-         stage('Remove Unused Docker Images') {
+        stage('Remove Unused Docker Images') {
             steps {
                 script {
-                    try {
-                        // Fetch all backend and frontend image tags
-                        def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-                        def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
-                        
-                        println "Backend Images: ${backendTags}"
-                        println "Frontend Images: ${frontendTags}"
-
-                        // // Function to remove unused images
-                        // def removeUnusedImages = { tags, keepCount, label ->
-                        //     if (tags.size() > keepCount) {
-                        //         def imagesToRemove = tags.take(tags.size() - keepCount)
-                        //         imagesToRemove.each { tag ->
-                        //             sh "docker rmi ${tag}"
-                        //             println "Removed ${label} image: ${tag}"
-                        //         }
-                        //     } else {
-                        //         println "No ${label} images to remove."
-                        //     }
-                        // }
-
-                        // Remove unused backend and frontend images
-                        // removeUnusedImages(backendTags, 10, "backend")
-                        // removeUnusedImages(frontendTags, 10, "frontend")
-
-                    } catch (Exception e) {
-                        println "Error during image cleanup: ${e.message}"
-                    }
+                    // Get all backend and frontend image tags
+                    def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
+                    def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
+                    
+                    // remove unused images except for the last 10
+                    removeUnusedImages(backendTags, 10, "backend")
+                    removeUnusedImages(frontendTags, 10, "frontend")
                 }
             }
         }
-
-
-
-
-
-
-
-
 
         stage('Build') {
             steps {
