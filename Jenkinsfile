@@ -261,11 +261,11 @@ def removeOldImages(imageTags, lastN, type) {
 
         // Manual sorting algorithm for buildNumbers in descending order
         def sortedBuildNumbers = buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-       // println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
+        println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
 
         // Take the top N build numbers
         def tagsToKeep = sortedBuildNumbers.take(lastN).collect { it.tag }
-        //println "Tags to keep for ${type}: ${tagsToKeep}"
+        println "Tags to keep for ${type}: ${tagsToKeep}"
 
         // Find images to remove
         def imagesToRemove = imageTags.findAll { tag -> !tagsToKeep.contains(tag) }
