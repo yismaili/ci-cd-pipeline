@@ -241,15 +241,14 @@ pipeline {
 //         println "No ${type} images found."
 //     }
 // }
-
 def removeOldImages(imageTags, lastN, type) {
     if (imageTags && imageTags.size() > 0) {
         // Collect build numbers along with tags
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
             if (parts.size() > 1) {
-                def tagWithoutRepo = parts[1]
-                def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
+                def tagWithoutRepo = parts[2]
+                def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
                 def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
                 return [tag: tag, buildNumber: buildNumber]
             } else {
@@ -281,5 +280,45 @@ def removeOldImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
+// def removeOldImages(imageTags, lastN, type) {
+//     if (imageTags && imageTags.size() > 0) {
+//         // Collect build numbers along with tags
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split(':')
+//             if (parts.size() > 1) {
+//                 def tagWithoutRepo = parts[2]
+//                 def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
+//                 def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+//                 return [tag: tag, buildNumber: buildNumber]
+//             } else {
+//                 return [tag: tag, buildNumber: null]
+//             }
+//         }.findAll { it.buildNumber != null } // Filter out entries with null build numbers
+
+//        // println "Build numbers for ${type}: ${buildNumbers}"
+
+//         // Manual sorting algorithm for buildNumbers in descending order
+//         def sortedBuildNumbers = buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+//         println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
+
+//         // Take the top N build numbers
+//         def tagsToKeep = sortedBuildNumbers.take(lastN).collect { it.tag }
+//         println "Tags to keep for ${type}: ${tagsToKeep}"
+
+//         // Find images to remove
+//         def imagesToRemove = imageTags.findAll { tag -> !tagsToKeep.contains(tag) }
+//         println "Images to remove for ${type}: ${imagesToRemove}"
+
+//         if (imagesToRemove && imagesToRemove.size() > 0) {
+//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//            // println "Removed old ${type} images, keeping the last ${lastN} by build number."
+//         } else {
+//            // println "All ${type} images are among the last ${lastN} images by build number."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
 
 
