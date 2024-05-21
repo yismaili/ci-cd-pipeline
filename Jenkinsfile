@@ -257,15 +257,15 @@ def removeOldImages(imageTags, lastN, type) {
             }
         }.findAll { it.buildNumber != null } // Filter out entries with null build numbers
 
-        println "Build numbers for ${type}: ${buildNumbers}"
+       // println "Build numbers for ${type}: ${buildNumbers}"
 
         // Manual sorting algorithm for buildNumbers in descending order
         def sortedBuildNumbers = buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-        println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
+       // println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
 
         // Take the top N build numbers
         def tagsToKeep = sortedBuildNumbers.take(lastN).collect { it.tag }
-        println "Tags to keep for ${type}: ${tagsToKeep}"
+        //println "Tags to keep for ${type}: ${tagsToKeep}"
 
         // Find images to remove
         def imagesToRemove = imageTags.findAll { tag -> !tagsToKeep.contains(tag) }
@@ -273,9 +273,9 @@ def removeOldImages(imageTags, lastN, type) {
 
         if (imagesToRemove && imagesToRemove.size() > 0) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed old ${type} images, keeping the last ${lastN} by build number."
+           // println "Removed old ${type} images, keeping the last ${lastN} by build number."
         } else {
-            println "All ${type} images are among the last ${lastN} images by build number."
+           // println "All ${type} images are among the last ${lastN} images by build number."
         }
     } else {
         println "No ${type} images found."
