@@ -248,8 +248,8 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
             if (parts.size() > 1) {
-                def tagWithoutRepo = parts[1]
-                def buildNumberPart = tagWithoutRepo.tokenize('-')[1]
+                def tagWithoutRepo = parts[2]
+                def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
                 def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
                 return [tag: tag, buildNumber: buildNumber]
             } else {
@@ -259,12 +259,12 @@ def removeOldImages(imageTags, lastN, type) {
 
         println "Build numbers for ${type}: ${buildNumbers}"
 
-        // Sort build numbers in descending order using an explicit comparator
-        buildNumbers = buildNumbers.sort(false) { a, b -> b.buildNumber <=> a.buildNumber }
-        println "Sorted build numbers for ${type}: ${buildNumbers}"
+        // Manual sorting algorithm for buildNumbers in descending order
+        def sortedBuildNumbers = buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+        println "Sorted build numbers for ${type}: ${sortedBuildNumbers}"
 
         // Take the top N build numbers
-        def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
+        def tagsToKeep = sortedBuildNumbers.take(lastN).collect { it.tag }
         println "Tags to keep for ${type}: ${tagsToKeep}"
 
         // Find images to remove
@@ -281,4 +281,5 @@ def removeOldImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
 
