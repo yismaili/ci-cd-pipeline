@@ -152,20 +152,6 @@ pipeline {
             }
         }
 
-        // stage('Remove Unused Docker Images') {
-        //     steps {
-        //         script {
-        //             // Get all backend and frontend image tags
-        //             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-'", returnStdout: true).trim().split('\n')
-        //             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-'", returnStdout: true).trim().split('\n')
-                    
-        //             // remove unused images except for the last 10
-        //             removeUnusedImages(backendTags, 10, "backend")
-        //             removeUnusedImages(frontendTags, 10, "frontend")
-        //         }
-        //     }
-        // }
-
         stage('Remove Unused Docker Images') {
             steps {
                 script {
@@ -221,75 +207,29 @@ pipeline {
     }
 }
 
-
-// def removeUnusedImages(imageTags, lastN, type) {
-//     if (imageTags) {
-//         // Extract build numbers from image tags
-//         def buildNumbers = imageTags.collect { tag ->
-//             def parts = tag.split('-')
-//             def buildNumberPart = parts[4]
-//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-//             [tag: tag, buildNumber: buildNumber]
-//         }
-
-//         // Convert buildNumbers to a regular ArrayList
-//         def buildNumbersList = new ArrayList(buildNumbers)
-
-//         // Use bubble sort algorithm to sort build numbers in ascending order
-//         for (int i = 0; i < buildNumbersList.size() - 1; i++) {
-//             for (int j = 0; j < buildNumbersList.size() - i - 1; j++) {
-//                 if (buildNumbersList[j].buildNumber > buildNumbersList[j + 1].buildNumber) {
-//                     // Swap elements
-//                     def temp = buildNumbersList[j]
-//                     buildNumbersList[j] = buildNumbersList[j + 1]
-//                     buildNumbersList[j + 1] = temp
-//                 }
-//             }
-//         }
-
-//         // Print buildNumbers
-//        // println "Build numbers: ${buildNumbersList}"
-
-//         // Get the image tags to keep
-//         def tagsToKeep = buildNumbersList.takeRight(lastN).collect { it.tag }
-        
-//         // Remove unused images
-//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
-
-//         if (imagesToRemove) {
-//             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-//             println "Removed ${type} images except for the last ${lastN}."
-//         } else {
-//             println "All ${type} images are among the last ${lastN} images."
-//         }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
-
 // def removeOldImages(imageTags, lastN, type) {
 //     if (imageTags) {
-//         if (imageTags) {
 //         def buildNumbers = imageTags.collect { tag ->
 //             def parts = tag.split(':')
-//            // println "Parts: ${parts}" // Print parts
 //             def tagWithoutRepo = parts[2]
-//             //println "Tag without Repo: ${tagWithoutRepo}" // Print tagWithoutRepo
 //             def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
-//            // println "Build Number Part: ${buildNumberPart}" // Print buildNumberPart
 //             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-//            // println "Build Number: ${buildNumber}" // Print buildNumber
 //             [tag: tag, buildNumber: buildNumber]
 //         }
-//         }
 
+//         println "Build numbers for ${type}: ${buildNumbers}"
 
+//         // Ensure buildNumbers is sorted before accessing it
 //         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
 //         println "Sorted build numbers for ${type}: ${buildNumbers}"
 
+//         // Ensure buildNumbers is defined before accessing it
 //         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
+//         println "Tags to keep for ${type}: ${tagsToKeep}"
 
+//         // Ensure buildNumbers is defined before accessing it
 //         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+//         println "Images to remove for ${type}: ${imagesToRemove}"
 
 //         if (imagesToRemove) {
 //             sh "docker rmi -f ${imagesToRemove.join(' ')}"
@@ -304,34 +244,39 @@ pipeline {
 
 
 def removeOldImages(imageTags, lastN, type) {
-    if (imageTags) {
+    if (imageTags && imageTags.size() > 0) {
+        // Collect build numbers along with tags
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
-            def tagWithoutRepo = parts[2]
-            def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
-            def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-            [tag: tag, buildNumber: buildNumber]
-        }
+            if (parts.size() > 1) {
+                def tagWithoutRepo = parts[2]
+                def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
+                def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+                return [tag: tag, buildNumber: buildNumber]
+            } else {
+                return [tag: tag, buildNumber: null]
+            }
+        }.findAll { it.buildNumber != null } // Filter out entries with null build numbers
 
         println "Build numbers for ${type}: ${buildNumbers}"
 
-        // Ensure buildNumbers is sorted before accessing it
+        // Sort build numbers in descending order
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
         println "Sorted build numbers for ${type}: ${buildNumbers}"
 
-        // Ensure buildNumbers is defined before accessing it
+        // Take the top N build numbers
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
         println "Tags to keep for ${type}: ${tagsToKeep}"
 
-        // Ensure buildNumbers is defined before accessing it
-        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+        // Find images to remove
+        def imagesToRemove = imageTags.findAll { tag -> !tagsToKeep.contains(tag) }
         println "Images to remove for ${type}: ${imagesToRemove}"
 
-        if (imagesToRemove) {
+        if (imagesToRemove && imagesToRemove.size() > 0) {
             sh "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Removed old ${type} images, keeping the last ${lastN}."
+            println "Removed old ${type} images, keeping the last ${lastN} by build number."
         } else {
-            println "All ${type} images are among the last ${lastN} images."
+            println "All ${type} images are among the last ${lastN} images by build number."
         }
     } else {
         println "No ${type} images found."
