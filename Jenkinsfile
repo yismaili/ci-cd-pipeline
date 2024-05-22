@@ -229,7 +229,7 @@ def removeOldImages(imageTags, lastN, type) {
         println "Build numbers for ${type}: ${buildNumbers}"
 
         // Take the latest lastN build numbers
-        def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
+        def tagsToKeep = buildNumbers.take(1).collect { it.tag }
 
         // Find images to remove
         def imagesToRemove = imageTags.findAll { tag -> (tagsToKeep.contains(tag)) }
