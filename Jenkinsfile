@@ -208,50 +208,7 @@ pipeline {
 }
 
 
-// def removeOldImages(imageTags, lastN, type) {
-//     if (imageTags) {
-//         def buildNumbers = imageTags.collect { tag ->
-//             def parts = tag.split(':')
-//             def tagWithoutRepo = parts[2]
-//             def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
-//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
-//             [tag: tag, buildNumber: buildNumber]
-//         }
-
-//         // Perform a stable sort based on buildNumber
-//         buildNumbers.sort { a, b -> 
-//             if (a.buildNumber == b.buildNumber) {
-//                 a.tag <=> b.tag // Secondary sorting by tag to make it stable
-//             } else {
-//                 a.buildNumber <=> b.buildNumber
-//             }
-//         }
-//         println "Build numbers for ${type}: ${buildNumbers}"
-
-//         // Take the latest lastN build numbers
-//         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
-
-//         // Find images to remove
-//         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
-
-//         // if (imagesToRemove) {
-//         //     // Remove old images
-//         //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
-//         //     println "Removed old ${type} images, keeping the last ${lastN}."
-//         // } else {
-//         //     println "All ${type} images are among the last ${lastN} images."
-//         // }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
-
-
 def removeOldImages(imageTags, lastN, type) {
-    if (!imageTags instanceof List || lastN <= 0) {
-        throw new IllegalArgumentException("Invalid arguments: imageTags must be a list and lastN must be a positive integer.")
-    }
-
     if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
@@ -278,12 +235,9 @@ def removeOldImages(imageTags, lastN, type) {
         def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
         if (imagesToRemove) {
-            try {
-                sh "docker image prune -f" // More efficient removal of unused images
-                println "Removed old ${type} images, keeping the last ${lastN}."
-            } catch (Exception e) {
-                println "Error removing images: ${e.message}"
-            }
+            // Remove old images
+            sh "docker rmi -f ${imagesToRemove.join(' ')}"
+            println "Removed old ${type} images, keeping the last ${lastN}."
         } else {
             println "All ${type} images are among the last ${lastN} images."
         }
@@ -291,3 +245,4 @@ def removeOldImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
