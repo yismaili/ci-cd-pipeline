@@ -152,12 +152,33 @@ pipeline {
             }
         }
 
-        stage('Remove Unused Docker Images') {
+        // stage('Remove Unused Docker Images') {
+        //     steps {
+        //         script {
+        //             try {
+        //                 def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n')
+        //                 def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n')
+                        
+        //                 removeOldImages(backendTags, 3, "backend")
+        //                 removeOldImages(frontendTags, 3, "frontend")
+
+        //             } catch (Exception e) {
+        //                 println "Error during image cleanup: ${e.message}"
+        //             }
+        //         }
+        //     }
+        // }
+
+stage('Remove Unused Docker Images') {
             steps {
                 script {
                     try {
-                        def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n')
-                        def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n')
+                        // Retrieve all backend and frontend image tags
+                        def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                        def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+
+                        println "Backend Tags: ${backendTags}"
+                        println "Frontend Tags: ${frontendTags}"
                         
                         removeOldImages(backendTags, 3, "backend")
                         removeOldImages(frontendTags, 3, "frontend")
@@ -206,6 +227,51 @@ pipeline {
         }
     }
 }
+// def removeOldImages(imageTags, lastN, type) {
+//     println "Input imageTags: ${imageTags}"
+//     println "Input lastN: ${lastN}"
+//     println "Input type: ${type}"
+
+//     if (imageTags) {
+//         // Extract build numbers from image tags
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split(':')
+//             println "Tag parts: ${parts}"
+//             def tagWithoutRepo = parts[2] // Adjust if needed
+//             println "Tag without repo: ${tagWithoutRepo}"
+//             def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
+//             println "Build number part: ${buildNumberPart}"
+//             def buildNumber = buildNumberPart?.toInteger()
+//             println "Build number: ${buildNumber}"
+//             [tag: tag, buildNumber: buildNumber]
+//         }.findAll { it.buildNumber != null } // Remove entries with null build numbers
+
+//         println "Build numbers list: ${buildNumbers}"
+
+//         // Sort by build number in ascending order
+//         buildNumbers.sort { it.buildNumber }
+
+//         println "Sorted build numbers for ${type}: ${buildNumbers}"
+
+//         // Determine images to remove (all except the last N)
+//         def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
+
+//         println "Images to remove: ${imagesToRemove}"
+
+//         if (imagesToRemove) {
+//             // Remove old images
+//             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
+//             println "Docker remove command: ${command}"
+//             sh command
+//             println "Removed old ${type} images, keeping the last ${lastN}."
+//         } else {
+//             println "All ${type} images are among the last ${lastN} images."
+//         }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
+
 def removeOldImages(imageTags, lastN, type) {
     println "Input imageTags: ${imageTags}"
     println "Input lastN: ${lastN}"
@@ -216,7 +282,7 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
             println "Tag parts: ${parts}"
-            def tagWithoutRepo = parts[2] // Adjust if needed
+            def tagWithoutRepo = parts[1] // Adjust if needed
             println "Tag without repo: ${tagWithoutRepo}"
             def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
             println "Build number part: ${buildNumberPart}"
@@ -250,8 +316,6 @@ def removeOldImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
-
-
 
 // def removeOldImages(imageTags, lastN, type) {
 //     if (imageTags) {
