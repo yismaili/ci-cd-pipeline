@@ -254,8 +254,8 @@ def removeOldImages(tags, keepCount, type) {
 
     // Sort tags based on timestamp suffix (assuming they follow a format that allows chronological sorting)
     def sortedTags = tags.findAll { it }.sort { a, b -> 
-        def aTag = a.split('-')[-1]
-        def bTag = b.split('-')[-1]
+        def aTag = a.split('-')[-2]
+        def bTag = b.split('-')[-2]
         return aTag <=> bTag
     }
 
