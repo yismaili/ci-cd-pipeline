@@ -221,7 +221,7 @@ def removeOldImages(imageTags, lastN, type) {
 
         // Ensure buildNumbers is sorted before accessing it
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-        println "Sorted build numbers for ${type}: ${buildNumbers}"
+        println "--${buildNumbers}--"
 
         // Ensure buildNumbers is defined before accessing it
         // def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
