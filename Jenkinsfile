@@ -207,27 +207,41 @@ pipeline {
     }
 }
 def removeOldImages(imageTags, lastN, type) {
+    println "Input imageTags: ${imageTags}"
+    println "Input lastN: ${lastN}"
+    println "Input type: ${type}"
+
     if (imageTags) {
         // Extract build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
-            def tagWithoutRepo = parts[1] // Assuming the build number is in the second part
+            println "Tag parts: ${parts}"
+            def tagWithoutRepo = parts[2] // Adjust if needed
+            println "Tag without repo: ${tagWithoutRepo}"
             def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
+            println "Build number part: ${buildNumberPart}"
             def buildNumber = buildNumberPart?.toInteger()
+            println "Build number: ${buildNumber}"
             [tag: tag, buildNumber: buildNumber]
         }.findAll { it.buildNumber != null } // Remove entries with null build numbers
+
+        println "Build numbers list: ${buildNumbers}"
 
         // Sort by build number in ascending order
         buildNumbers.sort { it.buildNumber }
 
-        println "Build numbers for ${type}: ${buildNumbers}"
+        println "Sorted build numbers for ${type}: ${buildNumbers}"
 
         // Determine images to remove (all except the last N)
         def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
+        println "Images to remove: ${imagesToRemove}"
+
         if (imagesToRemove) {
             // Remove old images
-            sh "docker rmi -f ${imagesToRemove.join(' ')}"
+            def command = "docker rmi -f ${imagesToRemove.join(' ')}"
+            println "Docker remove command: ${command}"
+            sh command
             println "Removed old ${type} images, keeping the last ${lastN}."
         } else {
             println "All ${type} images are among the last ${lastN} images."
@@ -236,6 +250,7 @@ def removeOldImages(imageTags, lastN, type) {
         println "No ${type} images found."
     }
 }
+
 
 
 // def removeOldImages(imageTags, lastN, type) {
