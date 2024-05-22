@@ -247,8 +247,6 @@ pipeline {
 // }
 
 def removeOldImages(tags, keepCount, type) {
-    tags = tags.findAll { it } // Filter out empty strings
-
     if (tags.size() <= keepCount) {
         println "No ${type} images to remove, only ${tags.size()} images found."
         return
@@ -256,7 +254,8 @@ def removeOldImages(tags, keepCount, type) {
 
     // Sort tags based on the sequence number at the end of the tag
     def sortedTags = tags.sort { tag -> 
-        tag.split('-')[-1].toInteger()
+        def seq = tag.split('-').last().toInteger()
+        return seq
     }
 
     println "Sorted ${type.capitalize()} Tags: ${sortedTags}"
