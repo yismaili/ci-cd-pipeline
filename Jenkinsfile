@@ -252,12 +252,14 @@ def removeOldImages(tags, keepCount, type) {
         return
     }
 
-    // Sort tags based on timestamp suffix (assuming they follow a format that allows chronological sorting)
+    // Sort tags based on the sequence number at the end of the tag
     def sortedTags = tags.findAll { it }.sort { a, b -> 
-        def aTag = a.split('-')[-2]
-        def bTag = b.split('-')[-2]
-        return aTag <=> bTag
+        def aSeq = a.split('-')[-1].toInteger()
+        def bSeq = b.split('-')[-1].toInteger()
+        return aSeq <=> bSeq
     }
+
+    println "Sorted ${type.capitalize()} Tags: ${sortedTags}"
 
     def tagsToRemove = sortedTags.take(sortedTags.size() - keepCount)
 
