@@ -294,9 +294,9 @@ def removeOldImages(imageTags, lastN, type) {
         println "Build numbers list: ${buildNumbers}"
 
         // // Sort by build number in ascending order
-        // buildNumbers.sort { it.buildNumber }
+         buildNumbers.sort { it.buildNumber }
 
-        // println "Sorted build numbers for ${type}: ${buildNumbers}"
+         println "Sorted build numbers ${buildNumbers}"
 
         // // Determine images to remove (all except the last N)
         // def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
