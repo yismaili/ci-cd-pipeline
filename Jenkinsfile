@@ -232,7 +232,7 @@ def removeOldImages(imageTags, lastN, type) {
         def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
 
         // Find images to remove
-        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+        def imagesToRemove = imageTags.findAll { tag -> (tagsToKeep.contains(tag)) }
 
         if (imagesToRemove) {
             // Remove old images
