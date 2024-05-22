@@ -247,23 +247,32 @@ pipeline {
 // }
 
 def removeOldImages(tags, keepCount, type) {
+    tags = tags.findAll { it } // Filter out empty strings
     if (tags.size() <= keepCount) {
         println "No ${type} images to remove, only ${tags.size()} images found."
         return
     }
 
-    // Sort tags based on the sequence number at the end of the tag
-    def sortedTags = tags.sort { tag -> 
-        def seq = tag.split('-').last().toInteger()
-        return seq
+    // Extract build numbers and sort based on them
+    def sortedTags = tags.sort { a, b ->
+        def aBuildNumber = extractBuildNumber(a)
+        def bBuildNumber = extractBuildNumber(b)
+        return aBuildNumber <=> bBuildNumber
     }
-
-    println "Sorted ${type.capitalize()} Tags: ${sortedTags}"
 
     def tagsToRemove = sortedTags.take(sortedTags.size() - keepCount)
 
     tagsToRemove.each { tag ->
         sh "docker rmi ${tag}"
         println "Removed ${type} image: ${tag}"
+    }
+}
+
+def extractBuildNumber(tag) {
+    def matcher = tag =~ /.*-(\d+)$/
+    if (matcher.matches()) {
+        return matcher[0][1].toInteger()
+    } else {
+        throw new IllegalArgumentException("Tag ${tag} does not contain a valid build number")
     }
 }
