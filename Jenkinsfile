@@ -207,6 +207,7 @@ pipeline {
     }
 }
 
+
 def removeOldImages(imageTags, lastN, type) {
     if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
@@ -217,30 +218,64 @@ def removeOldImages(imageTags, lastN, type) {
             [tag: tag, buildNumber: buildNumber]
         }
 
-       // println "Build numbers for ${type}: ${buildNumbers}"
-
-        // Ensure buildNumbers is sorted before accessing it
+        // Sort build numbers in descending order
         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
-        println "--${buildNumbers}--"
+        println "Build numbers for ${type}: ${buildNumbers}"
 
-        // Ensure buildNumbers is defined before accessing it
-        // def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
-        // println "Tags to keep for ${type}: ${tagsToKeep}"
+        // Take the latest lastN build numbers
+        def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
 
-        // Ensure buildNumbers is defined before accessing it
-        // def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
-        // println "Images to remove for ${type}: ${imagesToRemove}"
+        // Find images to remove
+        def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
 
-        // if (imagesToRemove) {
-        //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
-        //     println "Removed old ${type} images, keeping the last ${lastN}."
-        // } else {
-        //     println "All ${type} images are among the last ${lastN} images."
-        // }
+        if (imagesToRemove) {
+            // Remove old images
+            sh "docker rmi -f ${imagesToRemove.join(' ')}"
+            println "Removed old ${type} images, keeping the last ${lastN}."
+        } else {
+            println "All ${type} images are among the last ${lastN} images."
+        }
     } else {
         println "No ${type} images found."
     }
 }
+
+
+
+// def removeOldImages(imageTags, lastN, type) {
+//     if (imageTags) {
+//         def buildNumbers = imageTags.collect { tag ->
+//             def parts = tag.split(':')
+//             def tagWithoutRepo = parts[2]
+//             def buildNumberPart = tagWithoutRepo.tokenize('-')[2]
+//             def buildNumber = buildNumberPart.isNumber() ? buildNumberPart.toInteger() : null
+//             [tag: tag, buildNumber: buildNumber]
+//         }
+
+//        // println "Build numbers for ${type}: ${buildNumbers}"
+
+//         // Ensure buildNumbers is sorted before accessing it
+//         buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+//         println "--${buildNumbers}--"
+
+//         // Ensure buildNumbers is defined before accessing it
+//         // def tagsToKeep = buildNumbers.take(lastN).collect { it.tag }
+//         // println "Tags to keep for ${type}: ${tagsToKeep}"
+
+//         // Ensure buildNumbers is defined before accessing it
+//         // def imagesToRemove = imageTags.findAll { tag -> !(tagsToKeep.contains(tag)) }
+//         // println "Images to remove for ${type}: ${imagesToRemove}"
+
+//         // if (imagesToRemove) {
+//         //     sh "docker rmi -f ${imagesToRemove.join(' ')}"
+//         //     println "Removed old ${type} images, keeping the last ${lastN}."
+//         // } else {
+//         //     println "All ${type} images are among the last ${lastN} images."
+//         // }
+//     } else {
+//         println "No ${type} images found."
+//     }
+// }
 // def removeOldImages(imageTags, lastN, type) {
 //     if (imageTags && imageTags.size() > 0) {
 //         // Collect build numbers along with tags
