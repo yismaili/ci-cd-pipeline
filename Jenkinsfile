@@ -197,10 +197,10 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-            deleteDir() /* clean up our workspace */
+            deleteDir()
         }
         success {
-            echo 'I succeeded!'
+            echo 'I succeeded :)'
         }
         unstable {
             echo 'I am unstable :/'
