@@ -8,8 +8,8 @@ services:
       - "5432:5432"
     env_file:
       - .env
-    # volumes:
-    #   - postgre:/var/lib/postgresql/data
+    volumes:
+      - postgre:/var/lib/postgresql/data
     networks:
       - app-net
 
