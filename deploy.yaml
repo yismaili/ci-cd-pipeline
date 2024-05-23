@@ -1,11 +1,11 @@
 - name: Configuration and Provisioning of the VM with Ansible
   hosts: all
   gather_facts: no
-  # vars:
-  #   docker_registry: "192.168.100.75:5000"
-  #   app_user: "yoyo"
-  #   app_repo: "https://github.com/yismaili/ci-cd"
-  #   app_dir: "/home/yoyo/app"
+  vars:
+    docker_registry: "192.168.100.75:5000"
+    app_user: "yoyo"
+    app_repo: "https://github.com/yismaili/ci-cd"
+    app_dir: "/home/yoyo/app"
 
   tasks:
     - name: Install required packages

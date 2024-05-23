@@ -3,7 +3,3 @@ all:
     yoyo-host:
       ansible_host: 192.168.100.76
       ansible_user: root
-      docker_registry: "192.168.100.75:5000"
-      app_user: "yoyo"
-      app_repo: "https://github.com/yismaili/ci-cd"
-      app_dir: "/home/yoyo/app"
