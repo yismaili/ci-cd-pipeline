@@ -237,7 +237,7 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
             println "Tag parts: ${parts}"
-            def tagWithoutRepo = parts.length > 1 ? parts[2] : parts[2]
+            def tagWithoutRepo = parts.length > 1 ? parts[2] : parts[0]
             println "Tag without repo: ${tagWithoutRepo}"
             def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
             println "Build number part: ${buildNumberPart}"
@@ -248,8 +248,17 @@ def removeOldImages(imageTags, lastN, type) {
 
         println "Build numbers list: ${buildNumbers}"
 
-        // Sort by build number in ascending order
-        buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
+        // Bubble sort the build numbers in ascending order
+        def n = buildNumbers.size()
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (buildNumbers[j].buildNumber > buildNumbers[j + 1].buildNumber) {
+                    def temp = buildNumbers[j]
+                    buildNumbers[j] = buildNumbers[j + 1]
+                    buildNumbers[j + 1] = temp
+                }
+            }
+        }
 
         println "Sorted build numbers: ${buildNumbers}"
 
