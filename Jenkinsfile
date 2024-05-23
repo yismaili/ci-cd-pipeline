@@ -160,8 +160,8 @@ pipeline {
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
 
-                            println "Backend Tags: ${backendTags}"
-                            println "Frontend Tags: ${frontendTags}"
+                            // println "Backend Tags: ${backendTags}"
+                            // println "Frontend Tags: ${frontendTags}"
                             
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
