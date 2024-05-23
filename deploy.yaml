@@ -67,10 +67,22 @@
         dest: "{{ app_dir }}"
         version: master
 
+    - name: Create a directory named postgres
+      become: yes
+      file:
+        path: "{{ app_dir }}/postgres"
+        state: directory
+        mode: '0755'
+
     - name: Run Docker Compose for building images and running containers
       become: yes
       command: docker-compose up -d
       args:
         chdir: "{{ app_dir }}/deploy/"
 
-
+  handlers:
+    - name: Restart Docker
+      become: yes
+      service:
+        name: docker
+        state: restarted
