@@ -249,7 +249,7 @@ def removeOldImages(imageTags, lastN, type) {
         println "Build numbers list: ${buildNumbers}"
 
         // Sort by build number in ascending order
-        buildNumbers.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        buildNumbers.sort { a, b -> b.buildNumber <=> a.buildNumber }
 
         println "Sorted build numbers: ${buildNumbers}"
 
