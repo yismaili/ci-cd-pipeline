@@ -303,15 +303,15 @@ def removeOldImages(imageTags, lastN, type) {
 
         println "Images to remove: ${imagesToRemove}"
 
-        if (imagesToRemove) {
-            // Remove old images
-            def command = "docker rmi -f ${imagesToRemove.join(' ')}"
-            println "Docker remove command: ${command}"
-            sh command
-            println "Removed old ${type} images, keeping the last ${lastN}."
-        } else {
-            println "All ${type} images are among the last ${lastN} images."
-        }
+        // if (imagesToRemove) {
+        //     // Remove old images
+        //     def command = "docker rmi -f ${imagesToRemove.join(' ')}"
+        //     println "Docker remove command: ${command}"
+        //     sh command
+        //     println "Removed old ${type} images, keeping the last ${lastN}."
+        // } else {
+        //     println "All ${type} images are among the last ${lastN} images."
+        // }
     } else {
         println "No ${type} images found."
     }
