@@ -53,7 +53,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /home/yoyo/app/postgres
+      device: ${PWD}/postgres
 
   frontend-src:
     driver: local
