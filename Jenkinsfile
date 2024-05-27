@@ -31,7 +31,7 @@ pipeline {
                     targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                     currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
                     sh '''
-                        cd / && mkdir env && touch .env
+                        cd / && mkdir -p env && touch env/.env
                         // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
                         // cat latest.txt
                         // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
