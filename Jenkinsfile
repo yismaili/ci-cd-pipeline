@@ -32,11 +32,7 @@ pipeline {
                     currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
                     sh '''
                         sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace
-                        // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > latest.txt
-                        // cat latest.txt
-                        // echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > ${GIT_COMMIT_SHORT}.txt
-                        // echo "${GIT_COMMIT_SHORT}.txt"
-                    '''            
+                    '''
                 }
             }
         }
