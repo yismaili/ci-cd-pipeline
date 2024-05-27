@@ -12,6 +12,7 @@ pipeline {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="CD"
+        ITEMNAME="test2"
     }
 
     stages {
@@ -31,7 +32,7 @@ pipeline {
                     targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                     currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
                     sh '''
-                        sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/"${CUSTOMNAME}"
+                        sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/${env.ITEMNAME}
                     '''
                 }
             }
