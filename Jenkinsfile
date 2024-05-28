@@ -32,7 +32,7 @@ pipeline {
                     targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                     currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
                     sh '''
-                        sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/${env.ITEMNAME}
+                        sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                     '''
                 }
             }
