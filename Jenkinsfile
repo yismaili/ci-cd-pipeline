@@ -46,17 +46,34 @@ pipeline {
         //     }
         // }
 
-        stage('Start Local Docker Registry') {
-            steps {
-                script {
-                    def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
-                    sh'---${isRegistryRunning}---'
-                    if (!isRegistryRunning) {
-                        sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-                    }
-                }
+        // stage('Start Local Docker Registry') {
+        //     steps {
+        //         script {
+        //             def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
+        //             sh'---${isRegistryRunning}---'
+        //             if (!isRegistryRunning) {
+        //                 sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+        //             }
+        //         }
+        //     }
+        // }
+
+stage('Start Local Docker Registry') {
+    steps {
+        script {
+            // Check if the registry container is already running
+            def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
+
+            // Print the value of isRegistryRunning for debugging
+            echo "---${isRegistryRunning}---"
+
+            // Start the registry if it is not running
+            if (!isRegistryRunning) {
+                sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
             }
         }
+    }
+}
 
         stage('Preparing Frontend') {
             steps {
