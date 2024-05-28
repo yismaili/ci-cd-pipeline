@@ -12,7 +12,7 @@ pipeline {
         registry="localhost:5000"
         REGISTRY="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS="CD"
+        STATUS="Deploy"
         ITEMNAME="test2"
     }
 
@@ -199,7 +199,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-            deleteDir()
+           // deleteDir()
         }
         success {
             echo 'I succeeded :)'
