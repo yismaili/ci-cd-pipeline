@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     options {
         timeout(time: 1, unit: 'HOURS')
         timestamps()
@@ -11,7 +10,7 @@ pipeline {
     environment {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS="Deploy"
+        STATUS="Deployment"
         ITEMNAME="test2"
     }
 
@@ -46,11 +45,6 @@ pipeline {
                         script: 'docker ps -q -f name=registry',
                         returnStdout: true
                     ).trim()
-
-                    // Print the value of isRegistryRunning for debugging
-                    echo "---${isRegistryRunning}---"
-
-                    // Start the registry if it is not running
                     if (!isRegistryRunning) {
                         sh 'docker rm registry'
                         sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
@@ -156,12 +150,9 @@ pipeline {
                 steps {
                     script {
                         try {
-                            // Retrieve all backend and frontend image tags
+                            
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
-
-                            // println "Backend Tags: ${backendTags}"
-                            // println "Frontend Tags: ${frontendTags}"
                             
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
