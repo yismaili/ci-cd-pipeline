@@ -10,7 +10,6 @@ pipeline {
 
     environment {
         registry="localhost:5000"
-        REGISTRY="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="Deploy"
         ITEMNAME="test2"
@@ -39,13 +38,13 @@ pipeline {
             }
         }
 
-        stage('Docker Login') {
-            steps {
-                script {
-                    sh './build.sh'
-                }
-            }
-        }
+        // stage('Docker Login') {
+        //     steps {
+        //         script {
+        //             sh './build.sh'
+        //         }
+        //     }
+        // }
 
         stage('Start Local Docker Registry') {
             steps {
@@ -199,7 +198,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-           // deleteDir()
+            deleteDir()
         }
         success {
             echo 'I succeeded :)'
