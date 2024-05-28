@@ -10,6 +10,7 @@ pipeline {
 
     environment {
         registry="localhost:5000"
+        REGISTRY="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         STATUS="CD"
         ITEMNAME="test2"
@@ -129,7 +130,7 @@ pipeline {
                 dir('frontend') {
                     script {
                         sh '''
-                            mkdir -p ${HOME}/backup/frontend
+                            mkdir -p ./../backup/frontend
                             tar czvf ${HOME}/backup/frontend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz . 
                         '''
                     }
@@ -142,7 +143,7 @@ pipeline {
                 dir('backend') {
                     script {
                         sh '''
-                            mkdir -p ${HOME}/backup/backend
+                            mkdir -p ./../backup/backend
                             tar czvf ${HOME}/backup/backend/${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar.gz .
                         '''
                     }
@@ -175,7 +176,10 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose build'
-                   // sh 'docker-compose up'
+                    if (env.STATUS == 'Deploy') {
+                        sh 'docker-compose down'
+                        sh 'docker-compose up -d'
+                    }
                 }
             }
         }
@@ -183,7 +187,7 @@ pipeline {
         stage('Deployment') {
         steps {
             script {
-                if (env.STATUS == 'CD') {
+                if (env.STATUS == 'Deployment') {
                     sh 'ansible-playbook -i inventory.yml deploy.yaml'
                 }
             }
@@ -195,7 +199,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-           // deleteDir()
+            deleteDir()
         }
         success {
             echo 'I succeeded :)'
