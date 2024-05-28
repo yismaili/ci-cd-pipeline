@@ -62,7 +62,7 @@ stage('Start Local Docker Registry') {
     steps {
         script {
             // Check if the registry container is already running
-            def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
+            def isRegistryRunning = sh(script: 'docker ps -q -f name=registry')
 
             // Print the value of isRegistryRunning for debugging
             echo "---${isRegistryRunning}---"
