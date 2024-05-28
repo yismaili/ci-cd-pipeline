@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
-                    if (!isRegistryRunning) {
+                    if (isRegistryRunning) {
                         sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
                     }
                 }
