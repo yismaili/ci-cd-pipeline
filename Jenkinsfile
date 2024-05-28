@@ -38,46 +38,26 @@ pipeline {
             }
         }
 
-        // stage('Docker Login') {
-        //     steps {
-        //         script {
-        //             sh './build.sh'
-        //         }
-        //     }
-        // }
+        stage('Start Local Docker Registry') {
+            steps {
+                script {
+                    // Check if the registry container is already running
+                    def isRegistryRunning = sh(
+                        script: 'docker ps -q -f name=registry',
+                        returnStdout: true
+                    ).trim()
 
-        // stage('Start Local Docker Registry') {
-        //     steps {
-        //         script {
-        //             def isRegistryRunning = sh(script: 'docker ps -q -f name=registry', returnStatus: true) == 0
-        //             sh'---${isRegistryRunning}---'
-        //             if (!isRegistryRunning) {
-        //                 sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-        //             }
-        //         }
-        //     }
-        // }
+                    // Print the value of isRegistryRunning for debugging
+                    echo "---${isRegistryRunning}---"
 
-stage('Start Local Docker Registry') {
-    steps {
-        script {
-            // Check if the registry container is already running
-            def isRegistryRunning = sh(
-                script: 'docker ps -q -f name=registry',
-                returnStdout: true
-            ).trim()
-
-            // Print the value of isRegistryRunning for debugging
-            echo "---${isRegistryRunning}---"
-
-            // Start the registry if it is not running
-            if (!isRegistryRunning) {
-                sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+                    // Start the registry if it is not running
+                    if (!isRegistryRunning) {
+                        sh 'docker rm registry'
+                        sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+                    }
+                }
             }
         }
-    }
-}
-
 
         stage('Preparing Frontend') {
             steps {
