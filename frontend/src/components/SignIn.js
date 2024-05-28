@@ -130,7 +130,7 @@ const SignIn = () => {
             <br />
 
 
-            {/* <div className="inputContainer">
+            <div className="inputContainer">
                 <input
                     className="inputButton"
                     type="button"
@@ -139,7 +139,7 @@ const SignIn = () => {
                 />
             </div>
             
-            <br /> */}
+            <br />
 
 
         </div>
