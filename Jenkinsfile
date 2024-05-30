@@ -19,7 +19,6 @@ pipeline {
         stages {
             stage('Checkout') {
                 steps {
-                    // Corrected variable interpolation for URL and BRANCH
                     git url: "${env. REPO_URL}", branch: "${env.BRANCH}"
                 }
             }
@@ -35,14 +34,6 @@ pipeline {
                     sh '''
                         sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                     '''
-                }
-            }
-        }
-
-        stage('Start Local Docker Registry') {
-            steps {
-                script {
-                    // Check if the registry container is already running
                     def isRegistryRunning = sh(
                         script: 'docker ps -q -f name=registry',
                         returnStdout: true
@@ -90,29 +81,6 @@ pipeline {
                 }
             }
         }
-
-
-        // stage('Pull Images on Target Host') {
-        //     steps {
-        //         script {
-        //             // Pull frontend and backend images from the registry on the target host
-        //             sh "docker pull ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //             sh "docker pull ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //         }
-        //     }
-        // }
-
-        // stage('Deploy on Target Host') {
-        //     steps {
-        //         script {
-        //             // Deploy frontend and backend containers on the target host
-        //             sh "docker run -d --name frontend ${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //             sh "docker run -d --name backend ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //         }
-        //     }
-        // }
-
-
 
         stage('Test') {
             steps {
@@ -206,6 +174,7 @@ pipeline {
         }
     }
 }
+
 def removeOldImages(imageTags, lastN, type) {
     // println "Input imageTags: ${imageTags}"
     // println "Input lastN: ${lastN}"
