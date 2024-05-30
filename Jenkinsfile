@@ -122,13 +122,13 @@ pipeline {
                 script {
                     sh 'docker-compose build'
                     if (env.STATUS == 'Deploy') {
-                        sh 'docker-compose down'
+                       // sh 'docker-compose down'
                         sh 'docker-compose up -d'
                     }
                 }
             }
         }
-        
+
         stage('Remove Unused Docker Images') {
                 steps {
                     script {
