@@ -12,15 +12,15 @@ pipeline {
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
             STATUS = "Deploy"
             ITEMNAME = "test2"
-            URL = "https://github.com/yismaili/ci-cd"
-            BRANCH = "mast"
+            REPO_URL = "https://github.com/yismaili/ci-cd"
+            BRANCH = "master"
         }
 
         stages {
             stage('Checkout') {
                 steps {
                     // Corrected variable interpolation for URL and BRANCH
-                    git url: "${env.URL}", branch: "${env.BRANCH}"
+                    git url: "${env. REPO_URL}", branch: "${env.BRANCH}"
                 }
             }
 
