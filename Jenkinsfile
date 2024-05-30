@@ -10,15 +10,17 @@ pipeline {
     environment {
         registry="localhost:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS="Deployment"
+        STATUS="Deploy"
         ITEMNAME="test2"
+        URL="https://github.com/yismaili/ci-cd"
+        BRANCH="mast"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/yismaili/ci-cd', branch: 'master'
+                git url: 'env.URL', branch: 'env.BRANCH'
             }
         }
 
