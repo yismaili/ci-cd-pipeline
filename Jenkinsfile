@@ -7,22 +7,22 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
 
-    environment {
-        registry="localhost:5000"
-        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS="Deploy"
-        ITEMNAME="test2"
-        URL="https://github.com/yismaili/ci-cd"
-        BRANCH="mast"
-    }
-
-    stages {
-
-        stage('Checkout') {
-            steps {
-                git url: 'env.URL', branch: 'env.BRANCH'
-            }
+        environment {
+            registry = "localhost:5000"
+            GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
+            STATUS = "Deploy"
+            ITEMNAME = "test2"
+            URL = "https://github.com/yismaili/ci-cd"
+            BRANCH = "mast"
         }
+
+        stages {
+            stage('Checkout') {
+                steps {
+                    // Corrected variable interpolation for URL and BRANCH
+                    git url: "${env.URL}", branch: "${env.BRANCH}"
+                }
+            }
 
         stage('Setup') {
             steps {
