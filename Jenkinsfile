@@ -94,7 +94,7 @@ pipeline {
         stage('Send the frontend to the production environment') {
             steps {
                 dir('frontend') {
-                        def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                        //def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                         sh '''
                         echo "Committing and Saving Frontend Image"
                         docker commit $(docker ps -q --filter "ancestor=${frontendTag}") ${frontendTag}
@@ -108,7 +108,7 @@ pipeline {
         stage('Send the backend to the production environment') {
             steps {
                 dir('backend') {
-                        def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                       // def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                         sh '''
                         echo "Committing and Saving Backend Image"
                         docker commit $(docker ps -q --filter "ancestor=${backendTag}") ${backendTag}
