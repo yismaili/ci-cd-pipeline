@@ -12,7 +12,7 @@ pipeline {
     environment {
         registry = "192.168.100.75:5000"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS = "Deploy"
+        STATUS = "Deployment"
         ITEMNAME = "test2"
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "master"
