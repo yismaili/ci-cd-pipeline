@@ -91,16 +91,32 @@ pipeline {
             }
         }
 
-        stage('Send the frontend to the production environment') {
+       stage('Send the frontend to the production environment') {
+              environment {
+                FRONTEND_TAG = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                REMOTE_SERVER = 'root@192.168.100.76'
+                REMOTE_PATH = '/home/'
+            }
             steps {
                 dir('frontend') {
-                        //def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                        sh '''
-                        echo "Committing and Saving Frontend Image"
-                        docker commit $(docker ps -q --filter "ancestor=${frontendTag}") ${frontendTag}
-                        docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${frontendTag}
-                        sudo -u jenkins scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar root@192.168.100.76:/home/
-                        '''
+                    script {
+                        try {
+                            sh """
+                            echo "Committing and Saving Frontend Image"
+                            frontendContainerId=\$(docker ps -q --filter "ancestor=${FRONTEND_TAG}")
+                            if [ -z "\$frontendContainerId" ]; then
+                                echo "Error: No running container found for ${FRONTEND_TAG}"
+                                exit 1
+                            fi
+                            docker commit \$frontendContainerId ${FRONTEND_TAG}
+                            docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
+                            scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            """
+                        } catch (Exception e) {
+                            error "Failed to send frontend to production environment: ${e}"
+                        }
+                    }
                 }
             }
         }
@@ -108,13 +124,23 @@ pipeline {
         stage('Send the backend to the production environment') {
             steps {
                 dir('backend') {
-                       // def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                        sh '''
-                        echo "Committing and Saving Backend Image"
-                        docker commit $(docker ps -q --filter "ancestor=${backendTag}") ${backendTag}
-                        docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${backendTag}
-                        sudo -u jenkins scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar root@192.168.100.76:/home/
-                        '''
+                    script {
+                        try {
+                            sh """
+                            echo "Committing and Saving Backend Image"
+                            backendContainerId=\$(docker ps -q --filter "ancestor=${BACKEND_TAG}")
+                            if [ -z "\$backendContainerId" ]; then
+                                echo "Error: No running container found for ${BACKEND_TAG}"
+                                exit 1
+                            fi
+                            docker commit \$backendContainerId ${BACKEND_TAG}
+                            docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
+                            scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            """
+                        } catch (Exception e) {
+                            error "Failed to send backend to production environment: ${e}"
+                        }
+                    }
                 }
             }
         }
