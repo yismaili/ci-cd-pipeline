@@ -99,6 +99,7 @@ pipeline {
                         echo "Committing and Saving Frontend Image"
                         docker commit $(docker ps -q --filter "ancestor=${frontendTag}") ${frontendTag}
                         docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${frontendTag}
+                        scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar root@192.168.100.76:/home/
                         """
                 }
             }
@@ -112,6 +113,7 @@ pipeline {
                         echo "Committing and Saving Backend Image"
                         docker commit $(docker ps -q --filter "ancestor=${backendTag}") ${backendTag}
                         docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${backendTag}
+                        scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar root@192.168.100.76:/home/
                         """
                 }
             }
