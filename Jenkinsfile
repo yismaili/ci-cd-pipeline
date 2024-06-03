@@ -11,7 +11,7 @@ pipeline {
         environment {
             registry = "localhost:5000"
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-            STATUS = "Deploy"
+            STATUS = "CD"
             ITEMNAME = "test2"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "master"
@@ -95,7 +95,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose build'
-                    if (env.STATUS == 'Deploy') {
+                    if (env.STATUS == 'CI') {
                         sh 'docker-compose down'
                         sh 'docker-compose up -d'
                     }
@@ -111,7 +111,7 @@ pipeline {
                 FRONTENDIMAGE_TAG = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
             }
             steps {
-                if (env.STATUS == 'Deployment') {
+                if (env.STATUS == 'CD') {
                     dir('frontend') {
                         script {
                             try {
@@ -138,7 +138,7 @@ pipeline {
                 DATABASEIMAGE_TAG = "db-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
             }
             steps {
-                 if (env.STATUS == 'Deployment') {
+                 if (env.STATUS == 'CD') {
                     dir('backend') {
                         script {
                             try {
@@ -176,7 +176,7 @@ pipeline {
         stage('Deployment') {
         steps {
             script {
-                if (env.STATUS == 'Deployment') {
+                if (env.STATUS == 'CD') {
                     sh 'ansible-playbook -i inventory.yml deploy.yaml'
                 }
             }
