@@ -121,7 +121,7 @@ pipeline {
                             echo "Saving Frontend Image"
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
                             echo "Transferring Frontend Image"
-                            scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            sudo scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
