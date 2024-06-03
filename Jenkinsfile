@@ -11,7 +11,7 @@ pipeline {
         environment {
             registry = "localhost:5000"
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-            STATUS = "CI"
+            STATUS = "CD"
             ITEMNAME = "test2"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "master"
@@ -120,6 +120,8 @@ pipeline {
                             sh """
                             echo "Saving Frontend Image"
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
+                            echo "Transferring Frontend Image"
+                            scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
@@ -149,6 +151,10 @@ pipeline {
                             echo "Saving Backend Image"
                             sudo docker save -o ${BACKENDIMAGE_TAG}.tar ${BACKEND_TAG}
                             sudo docker save -o ${DATABASEIMAGE_TAG}.tar ${DATABASE_TAG}
+                            echo "Transferring Backend Image"
+                            sudo scp ${BACKENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            echo "Transferring Database Image"
+                            sudo scp ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send backend to production environment: ${e}"
