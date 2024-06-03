@@ -109,7 +109,7 @@ pipeline {
                                 echo "Error: No running container found for ${FRONTEND_TAG}"
                                 exit 1
                             fi
-                            docker commit \$frontendContainerId ${FRONTEND_TAG}
+                            // docker commit \$frontendContainerId ${FRONTEND_TAG}
                             docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
                             // scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
@@ -133,7 +133,7 @@ pipeline {
                                 echo "Error: No running container found for ${BACKEND_TAG}"
                                 exit 1
                             fi
-                            docker commit \$backendContainerId ${BACKEND_TAG}
+                            // docker commit \$backendContainerId ${BACKEND_TAG}
                             docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
                             // scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
