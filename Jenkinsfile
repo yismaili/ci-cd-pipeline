@@ -91,54 +91,6 @@ pipeline {
             }
         }
 
-       stage('Send the frontend to the production environment') {
-            environment {
-                FRONTEND_TAG = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                REMOTE_SERVER = 'root@192.168.100.76'
-                REMOTE_PATH = '/home/'
-            }
-            steps {
-                dir('frontend') {
-                    script {
-                        try {
-                            sh """
-                            echo "Saving Frontend Image"
-                            sudo docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
-                          
-                            """
-                        } catch (Exception e) {
-                            error "Failed to send frontend to production environment: ${e}"
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Send the backend to the production environment') {
-            environment {
-                BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                REMOTE_SERVER = 'root@192.168.100.76'
-                REMOTE_PATH = '/home/'
-            }
-            steps {
-                dir('backend') {
-                    script {
-                        try {
-                            sh """
-                            echo "Saving Backend Image"
-                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
-                         
-                            """
-                        } catch (Exception e) {
-                            error "Failed to send backend to production environment: ${e}"
-                        }
-                    }
-                }
-            }
-        }
-
-
         stage('Build') {
             steps {
                 script {
@@ -151,6 +103,58 @@ pipeline {
             }
         }
 
+       stage('Send the frontend to the production environment') {
+            environment {
+                FRONTEND_TAG = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                REMOTE_SERVER = 'root@192.168.100.76'
+                REMOTE_PATH = '/home/'
+                FRONTENDIMAGE_TAG = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+            }
+            steps {
+                if (env.STATUS == 'Deployment') {
+                    dir('frontend') {
+                        script {
+                            try {
+                                sh """
+                                echo "Saving Frontend Image"
+                                sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
+                                """
+                            } catch (Exception e) {
+                                error "Failed to send frontend to production environment: ${e}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Send the backend to the production environment') {
+            environment {
+                BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                REMOTE_SERVER = 'root@192.168.100.76'
+                REMOTE_PATH = '/home/'
+                BACKENDIMAGE_TAG = "backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                DATABASE_TAG = "postgres:latest"
+                DATABASEIMAGE_TAG = "db-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+            }
+            steps {
+                 if (env.STATUS == 'Deployment') {
+                    dir('backend') {
+                        script {
+                            try {
+                                sh """
+                                echo "Saving Backend Image"
+                                sudo docker save -o ${BACKENDIMAGE_TAG}.tar ${BACKEND_TAG}
+                                sudo docker save -o ${DATABASEIMAGE_TAG}.tar ${DATABASE_TAG}
+                                """
+                            } catch (Exception e) {
+                                error "Failed to send backend to production environment: ${e}"
+                            }
+                        }
+                    }
+                 }
+            }
+        }
         stage('Remove Unused Docker Images') {
                 steps {
                     script {
