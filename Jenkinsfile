@@ -104,7 +104,7 @@ pipeline {
                         try {
                             sh """
                             echo "Saving Frontend Image"
-                            docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
+                            sudo docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
                             // scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
@@ -122,7 +122,7 @@ pipeline {
                         try {
                             sh """
                             echo "Saving Backend Image"
-                            docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
+                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
                             // scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
