@@ -121,7 +121,7 @@ pipeline {
                             echo "Saving Frontend Image"
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
                             echo "Transferring Frontend Image"
-                            sudo scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            sudo scp -i jenkins ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
@@ -154,7 +154,7 @@ pipeline {
                             echo "Transferring Backend Image"
                             sudo scp ${BACKENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             echo "Transferring Database Image"
-                            sudo scp ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            sudo scp -i jenkins ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send backend to production environment: ${e}"
