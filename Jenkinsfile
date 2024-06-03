@@ -123,7 +123,7 @@ pipeline {
                             sudo chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
                             sudo chmod 644 ${FRONTENDIMAGE_TAG}.tar
                             echo "Transferring Frontend Image"
-                            sudo scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
@@ -158,9 +158,9 @@ pipeline {
                             sudo chown jenkins:jenkins ${DATABASEIMAGE_TAG}.tar
                             sudo chmod 644 ${DATABASEIMAGE_TAG}.tar
                             echo "Transferring Backend Image"
-                            sudo scp ${BACKENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            scp ${BACKENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             echo "Transferring Database Image"
-                            sudo scp ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            scp ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send backend to production environment: ${e}"
