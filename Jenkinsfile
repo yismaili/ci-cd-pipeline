@@ -104,7 +104,7 @@ pipeline {
                         try {
                             sh """
                             echo "Saving Frontend Image"
-                            sudo docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
+                            docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
                            
                             """
                         } catch (Exception e) {
@@ -122,7 +122,7 @@ pipeline {
                         try {
                             sh """
                             echo "Saving Backend Image"
-                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
+                            docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
                             
                             """
                         } catch (Exception e) {
