@@ -122,7 +122,7 @@ pipeline {
                         try {
                             sh """
                             echo "Saving Backend Image"
-                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
+                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
                          
                             """
                         } catch (Exception e) {
