@@ -92,7 +92,7 @@ pipeline {
         }
 
        stage('Send the frontend to the production environment') {
-              environment {
+            environment {
                 FRONTEND_TAG = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                 BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                 REMOTE_SERVER = 'root@192.168.100.76'
@@ -116,13 +116,18 @@ pipeline {
         }
 
         stage('Send the backend to the production environment') {
+            environment {
+                BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                REMOTE_SERVER = 'root@192.168.100.76'
+                REMOTE_PATH = '/home/'
+            }
             steps {
                 dir('backend') {
                     script {
                         try {
                             sh """
                             echo "Saving Backend Image"
-                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}
+                            sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
                          
                             """
                         } catch (Exception e) {
