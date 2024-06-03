@@ -105,7 +105,7 @@ pipeline {
                             sh """
                             echo "Saving Frontend Image"
                             sudo docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
-                            // scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                           
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
@@ -123,7 +123,7 @@ pipeline {
                             sh """
                             echo "Saving Backend Image"
                             sudo docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
-                            // scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            
                             """
                         } catch (Exception e) {
                             error "Failed to send backend to production environment: ${e}"
