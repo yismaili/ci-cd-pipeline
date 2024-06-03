@@ -103,12 +103,7 @@ pipeline {
                     script {
                         try {
                             sh """
-                            echo "Committing and Saving Frontend Image"
-                            frontendContainerId=\$(docker ps -q --filter "ancestor=${FRONTEND_TAG}")
-                            if [ -z "\$frontendContainerId" ]; then
-                                echo "Error: No running container found for ${FRONTEND_TAG}"
-                                exit 1
-                            fi
+                            echo "Saving Frontend Image"
                             docker save -o frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${FRONTEND_TAG}
                             // scp frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
@@ -126,12 +121,7 @@ pipeline {
                     script {
                         try {
                             sh """
-                            echo "Committing and Saving Backend Image"
-                            backendContainerId=\$(docker ps -q --filter "ancestor=${BACKEND_TAG}")
-                            if [ -z "\$backendContainerId" ]; then
-                                echo "Error: No running container found for ${BACKEND_TAG}"
-                                exit 1
-                            fi
+                            echo "Saving Backend Image"
                             docker save -o backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${BACKEND_TAG}
                             // scp backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
