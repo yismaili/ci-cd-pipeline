@@ -120,11 +120,11 @@ pipeline {
                             sh """
                             echo "Saving Frontend Image"
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
-                            //sudo chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
-                            sudo chmod 644 ${FRONTENDIMAGE_TAG}.tar
+                            chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
+                            chmod 644 ${FRONTENDIMAGE_TAG}.tar
                             ls -la 
-                            // echo "Transferring Frontend Image"
-                            // scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            echo "Transferring Frontend Image"
+                            scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
