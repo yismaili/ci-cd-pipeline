@@ -120,8 +120,8 @@ pipeline {
                             sh """
                             echo "Saving Frontend Image"
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
-                            sudo chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
-                            sudo -u jenkins chmod 644 ${FRONTENDIMAGE_TAG}.tar
+                            //sudo chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
+                            sudo chmod 644 ${FRONTENDIMAGE_TAG}.tar
                             ls -la 
                             // echo "Transferring Frontend Image"
                             // scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
