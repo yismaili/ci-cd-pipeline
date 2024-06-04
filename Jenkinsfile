@@ -122,8 +122,9 @@ pipeline {
                             sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
                             sudo chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
                             sudo chmod 644 ${FRONTENDIMAGE_TAG}.tar
-                            echo "Transferring Frontend Image"
-                            scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
+                            ls -la 
+                            // echo "Transferring Frontend Image"
+                            // scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
                             """
                         } catch (Exception e) {
                             error "Failed to send frontend to production environment: ${e}"
