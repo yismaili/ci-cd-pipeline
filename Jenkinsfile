@@ -15,7 +15,6 @@ pipeline {
             ITEMNAME = "test2"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "master"
-            nexus artefact
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
             NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
         }
