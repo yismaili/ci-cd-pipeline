@@ -96,94 +96,63 @@ pipeline {
                 }
             }
 
-            // stage('Tag and Push Backend Image to Nexus') {
-            //         steps {
-            //             script {
-            //                 def backendTag = "${REGISTRY}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-            //                 def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+            stage('Tag and Push Backend Image to Nexus') {
+                    steps {
+                        script {
+                            def backendTag = "${REGISTRY}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
-            //                 // Tag the backend image
-            //                 //sh "docker tag ${backendTag} ${nexusBackendTag}"
+                            // Tag the backend image
+                            sh "docker tag ${backendTag} ${nexusBackendTag}"
 
-            //                 // Log in to the Docker registry
-            //                 withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-            //                     // Push the backend image
-            //                     sh "docker push ${nexusBackendTag}"
-            //                 }
-            //             }
-            //         }
-            //     }
-
-            //     stage('Tag and Push Frontend Image to Nexus') {
-            //         steps {
-            //             script {
-            //                 def frontendTag = "${REGISTRY}/${env.APPNAME}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-            //                 def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-
-            //                 // Tag the frontend image
-            //                 sh "docker tag ${frontendTag} ${nexusFrontendTag}"
-
-            //                 // Log in to the Docker registry
-            //                 withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-            //                     // Push the frontend image
-            //                     sh "docker push ${nexusFrontendTag}"
-            //                 }
-            //             }
-            //         }
-            //     }
-
-
-             stage('Tag and Push Backend Image to Nexus') {
-            steps {
-                script {
-                    try {
-                        def backendTag = "${registry}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        sh "docker tag ${backendTag} ${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        withDockerRegistry([url: "http://${NEXUS_ARTEFACT_URL}", credentialsId: NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker push ${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            // Log in to the Docker registry
+                            println "----${backendTag}----"
+                            withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                                // Push the backend image
+                                    println "----hi----"
+                                sh "docker push ${nexusBackendTag}"
+                            }
                         }
-                    } catch (Exception e) {
-                        error "Failed to tag and push backend image to Nexus: ${e.message}"
                     }
                 }
-            }
-        }
 
-        stage('Tag and Push Frontend Image to Nexus') {
-            steps {
-                script {
-                    try {
-                        def frontendTag = "${registry}/${env.APPNAME}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        sh "docker tag ${frontendTag} ${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        withDockerRegistry([url: "http://${NEXUS_ARTEFACT_URL}", credentialsId: NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker push ${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                stage('Tag and Push Frontend Image to Nexus') {
+                    steps {
+                        script {
+                            def frontendTag = "${REGISTRY}/${env.APPNAME}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+                            // Tag the frontend image
+                            sh "docker tag ${frontendTag} ${nexusFrontendTag}"
+
+                            // Log in to the Docker registry
+                            withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                                // Push the frontend image
+                                sh "docker push ${nexusFrontendTag}"
+                            }
                         }
-                    } catch (Exception e) {
-                        error "Failed to tag and push frontend image to Nexus: ${e.message}"
                     }
                 }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                script {
-                    sh 'echo "for testing application"'
+            
+                stage('Test') {
+                    steps {
+                        script {
+                            sh 'echo "for testing application"'
+                        }
+                    }
                 }
-            }
-        }
 
-        stage('Build') {
-            steps {
-                script {
-                    sh 'docker-compose build'
-                    if (env.STATUS == 'CI') {
-                        sh 'docker-compose down'
-                        sh 'docker-compose up -d'
+                stage('Build') {
+                    steps {
+                        script {
+                            sh 'docker-compose build'
+                            if (env.STATUS == 'CI') {
+                                sh 'docker-compose down'
+                                sh 'docker-compose up -d'
+                            }
+                        }
                     }
                 }
-            }
-        }
 
         // stage('Send the frontend to the production environment') {
         //     environment {
