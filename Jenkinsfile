@@ -15,6 +15,9 @@ pipeline {
             ITEMNAME = "test2"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "master"
+            nexus artefact
+            NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
+            NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
         }
 
         stages {
@@ -78,6 +81,42 @@ pipeline {
                         echo "BACKEND_IMAGE=${backendTag}" >> .env
                         echo "Push to Registry - End"
                         """
+                    }
+                }
+            }
+        }
+
+       stage('Tag and Push Backend Image to Nexus') {
+            steps {
+                script {
+                    def backendTag = "${REGISTRY}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                    def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+                    // Tag the backend image
+                    sh "docker tag ${backendTag} ${nexusBackendTag}"
+
+                    // Log in to the Docker registry
+                    withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                        // Push the backend image
+                        sh "docker push ${nexusBackendTag}"
+                    }
+                }
+            }
+        }
+
+        stage('Tag and Push Frontend Image to Nexus') {
+            steps {
+                script {
+                    def frontendTag = "${REGISTRY}/${env.APPNAME}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                    def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+                    // Tag the frontend image
+                    sh "docker tag ${frontendTag} ${nexusFrontendTag}"
+
+                    // Log in to the Docker registry
+                    withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                        // Push the frontend image
+                        sh "docker push ${nexusFrontendTag}"
                     }
                 }
             }
