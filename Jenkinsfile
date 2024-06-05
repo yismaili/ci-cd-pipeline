@@ -11,7 +11,7 @@ pipeline {
         environment {
             registry = "localhost:5000"
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-            STATUS = "CD"
+            STATUS = "CI"
             ITEMNAME = "test2"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "master"
@@ -48,14 +48,14 @@ pipeline {
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
-                        def isRegistryRunning = sh(
-                            script: 'docker ps -q -f name=registry',
-                            returnStdout: true
-                        ).trim()
-                        if (!isRegistryRunning) {
-                            sh 'docker rm registry'
-                            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-                        }
+                        // def isRegistryRunning = sh(
+                        //     script: 'docker ps -q -f name=registry',
+                        //     returnStdout: true
+                        // ).trim()
+                        // if (!isRegistryRunning) {
+                        //     sh 'docker rm registry'
+                        //     sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+                        // }
                     }
                 }
             }
@@ -64,14 +64,14 @@ pipeline {
                 steps {
                     script {
                         dir('frontend') {
-                            def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def frontendTag = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
-                            docker push ${frontendTag}
+                           
                             cd ..
                             echo "FRONTEND_IMAGE=${frontendTag}" >> .env
-                            echo "Push to Registry - End"
+                            
                             """
                         }
                     }
@@ -82,14 +82,14 @@ pipeline {
                 steps {
                     script {
                         dir('backend') {
-                            def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def backendTag = "backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
-                            docker push ${backendTag}
+                          
                             cd ..
                             echo "BACKEND_IMAGE=${backendTag}" >> .env
-                            echo "Push to Registry - End"
+                           
                             """
                         }
                     }
@@ -99,7 +99,7 @@ pipeline {
             stage('Tag and Push Backend Image to Nexus') {
                     steps {
                         script {
-                            def backendTag = "${REGISTRY}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def backendTag = "backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                             def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the backend image
@@ -118,7 +118,7 @@ pipeline {
                 stage('Tag and Push Frontend Image to Nexus') {
                     steps {
                         script {
-                            def frontendTag = "${REGISTRY}/${env.APPNAME}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def frontendTag = "frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                             def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the frontend image
