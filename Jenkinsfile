@@ -17,12 +17,23 @@ pipeline {
             BRANCH = "master"
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
             NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
+            GIT_CREDENTIALS_ID = 'github-pat'
         }
 
         stages {
+            
             stage('Checkout') {
                 steps {
-                    git url: "${env. REPO_URL}", branch: "${env.BRANCH}"
+                    script {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: env.BRANCH]],
+                            userRemoteConfigs: [[
+                                url: env.REPO_URL,
+                                credentialsId: env.GIT_CREDENTIALS_ID
+                            ]]
+                        ])
+                    }
                 }
             }
 
