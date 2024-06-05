@@ -107,10 +107,10 @@ pipeline {
 
                             // Log in to the Docker registry
                             println "----${backendTag}----"
-                            // withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            //     // Push the backend image
-                            //     sh "docker push ${nexusBackendTag}"
-                            // }
+                            withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                                // Push the backend image
+                                sh "docker push ${nexusBackendTag}"
+                            }
                         }
                     }
                 }
