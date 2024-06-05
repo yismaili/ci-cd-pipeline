@@ -95,14 +95,14 @@ pipeline {
             stage('Tag and Push Backend Image to Nexus') {
                     steps {
                         script {
-                            def backendTag = "$backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                           // def backendTag = "$backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                            // def nexusBackendTag = "${NEXUS_ARTEFACT_URL}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the backend image
                           //  sh "docker tag ${backendTag} ${nexusBackendTag}"
 
                             // // Log in to the Docker registry
-                            println "----${backendTag}----"
+                            println "----hi----"
                             // withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             //     // Push the backend image
                             //         println "----hi----"
