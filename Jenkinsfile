@@ -48,14 +48,14 @@ pipeline {
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
-                        // def isRegistryRunning = sh(
-                        //     script: 'docker ps -q -f name=registry',
-                        //     returnStdout: true
-                        // ).trim()
-                        // if (!isRegistryRunning) {
-                        //     sh 'docker rm registry'
-                        //     sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-                        // }
+                        def isRegistryRunning = sh(
+                            script: 'docker ps -q -f name=registry',
+                            returnStdout: true
+                        ).trim()
+                        if (!isRegistryRunning) {
+                            sh 'docker rm registry'
+                            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+                        }
                     }
                 }
             }
@@ -64,12 +64,14 @@ pipeline {
                 steps {
                     script {
                         dir('frontend') {
-                            def frontendTag = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def frontendTag = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
+                            docker push ${frontendTag}
                             cd ..
                             echo "FRONTEND_IMAGE=${frontendTag}" >> .env
+                            echo "Push to Registry - End"
                             """
                         }
                     }
@@ -80,12 +82,14 @@ pipeline {
                 steps {
                     script {
                         dir('backend') {
-                            def backendTag = "backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def backendTag = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
+                            docker push ${backendTag}
                             cd ..
                             echo "BACKEND_IMAGE=${backendTag}" >> .env
+                            echo "Push to Registry - End"
                             """
                         }
                     }
@@ -95,17 +99,16 @@ pipeline {
             stage('Tag and Push Backend Image to Nexus') {
                     steps {
                         script {
-                           // def backendTag = "$backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                           // def nexusBackendTag = "${NEXUS_ARTEFACT_URL}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def backendTag = "${REGISTRY}/${env.APPNAME}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the backend image
-                          //  sh "docker tag ${backendTag} ${nexusBackendTag}"
+                            sh "docker tag ${backendTag} ${nexusBackendTag}"
 
-                            // // Log in to the Docker registry
-                            println "----hi----"
+                            // Log in to the Docker registry
+                            println "----${backendTag}----"
                             // withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             //     // Push the backend image
-                            //         println "----hi----"
                             //     sh "docker push ${nexusBackendTag}"
                             // }
                         }
