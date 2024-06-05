@@ -68,10 +68,8 @@ pipeline {
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
-                            // docker push ${frontendTag}
                             cd ..
                             echo "FRONTEND_IMAGE=${frontendTag}" >> .env
-                            // echo "Push to Registry - End"
                             """
                         }
                     }
