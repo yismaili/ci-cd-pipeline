@@ -84,10 +84,8 @@ pipeline {
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
-                            // docker push ${backendTag}
                             cd ..
                             echo "BACKEND_IMAGE=${backendTag}" >> .env
-                            // echo "Push to Registry - End"
                             """
                         }
                     }
