@@ -93,17 +93,17 @@ pipeline {
                 }
             }
 
-            stage('Build') {
-                steps {
-                    script {
-                        sh 'docker-compose build'
-                        // if (env.STATUS == 'CI') {
-                        //     sh 'docker-compose down'
-                        //     sh 'docker-compose up -d'
-                        // }
-                    }
-                }
-            }
+            // stage('Build') {
+            //     steps {
+            //         script {
+            //             sh 'docker-compose build'
+            //             // if (env.STATUS == 'CI') {
+            //             //     sh 'docker-compose down'
+            //             //     sh 'docker-compose up -d'
+            //             // }
+            //         }
+            //     }
+            // }
 
             stage('Tag and Push Backend Image to Nexus') {
                 steps {
@@ -169,7 +169,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-            //deleteDir()
+            deleteDir()
         }
         success {
             echo 'I succeeded :)'
