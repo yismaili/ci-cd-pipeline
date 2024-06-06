@@ -111,11 +111,12 @@ pipeline {
                         def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
-                        sh "docker tag ${backendTag} ${backendTag}"
+                        sh "docker tag ${backendTag} ${nexusBackendTag}"
 
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker push ${backendTag}"
+                            sh "docker push ${nexusBackendTag}"
                         }
+                        sh "docker rmi ${nexusBackendTag}"
                     }
                 }
             }
