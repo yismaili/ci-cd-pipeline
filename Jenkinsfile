@@ -9,7 +9,7 @@ pipeline {
     }
 
         environment {
-            registry = "localhost:5000"
+            // registry = "localhost:5000"
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
             STATUS = "CI"
             ITEMNAME = "test2"
@@ -68,7 +68,6 @@ pipeline {
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
-                           
                             cd ..
                             echo "FRONTEND_IMAGE=${frontendTag}" >> .env
                             
@@ -86,7 +85,6 @@ pipeline {
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
-                          
                             cd ..
                             echo "BACKEND_IMAGE=${backendTag}" >> .env
                            
