@@ -97,10 +97,10 @@ pipeline {
                 steps {
                     script {
                         sh 'docker-compose build'
-                        // if (env.STATUS == 'CI') {
-                        //     sh 'docker-compose down'
-                        //     sh 'docker-compose up -d'
-                        // }
+                        if (env.STATUS == 'CI') {
+                            sh 'docker-compose down'
+                            sh 'docker-compose up -d'
+                        }
                     }
                 }
             }
