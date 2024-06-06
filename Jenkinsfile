@@ -17,6 +17,8 @@ pipeline {
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
             NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
             GIT_CREDENTIALS_ID = 'github-pat'
+            REPOSITORY_FRONTEND = 'ci-cd/frontend'
+            REPOSITORY_BACKEND = 'ci-cd/backend'
         }
 
         stages {
@@ -55,7 +57,7 @@ pipeline {
                 steps {
                     script {
                         dir('frontend') {
-                            def frontendTag = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
@@ -71,7 +73,7 @@ pipeline {
                 steps {
                     script {
                         dir('backend') {
-                            def backendTag = "backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
+                            def backendTag = "${REPOSITORY_BACKEND}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
