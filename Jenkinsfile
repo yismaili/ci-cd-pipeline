@@ -9,7 +9,6 @@ pipeline {
     }
 
         environment {
-            // registry = "localhost:5000"
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
             STATUS = "CI"
             ITEMNAME = "test2"
@@ -48,14 +47,6 @@ pipeline {
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
-                        // def isRegistryRunning = sh(
-                        //     script: 'docker ps -q -f name=registry',
-                        //     returnStdout: true
-                        // ).trim()
-                        // if (!isRegistryRunning) {
-                        //     sh 'docker rm registry'
-                        //     sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
-                        // }
                     }
                 }
             }
@@ -70,7 +61,6 @@ pipeline {
                             docker build -t ${frontendTag} .
                             cd ..
                             echo "FRONTEND_IMAGE=${frontendTag}" >> .env
-                            
                             """
                         }
                     }
@@ -87,145 +77,69 @@ pipeline {
                             docker build -t ${backendTag} .
                             cd ..
                             echo "BACKEND_IMAGE=${backendTag}" >> .env
-                           
                             """
                         }
                     }
                 }
             }
 
+            stage('Test') {
+                steps {
+                    script {
+                        sh 'echo ":/"'
+                    }
+                }
+            }
+
+            stage('Build') {
+                steps {
+                    script {
+                        sh 'docker-compose build'
+                        if (env.STATUS == 'CI') {
+                            sh 'docker-compose down'
+                            sh 'docker-compose up -d'
+                        }
+                    }
+                }
+            }
+
             stage('Tag and Push Backend Image to Nexus') {
-                    steps {
-                        script {
-                            def backendTag = "backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                steps {
+                    script {
+                        def backendTag = "backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
-                            // Tag the backend image
-                            sh "docker tag ${backendTag} ${nexusBackendTag}"
+                        sh "docker tag ${backendTag} ${nexusBackendTag}"
 
-                            // Log in to the Docker registry
-                            println "----${backendTag}----"
-                            withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                                // Push the backend image
-                                sh "docker push ${nexusBackendTag}"
-                            }
+                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                            sh "docker push ${nexusBackendTag}"
                         }
                     }
                 }
+            }
 
-                stage('Tag and Push Frontend Image to Nexus') {
-                    steps {
-                        script {
-                            def frontendTag = "frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+            stage('Tag and Push Frontend Image to Nexus') {
+                steps {
+                    script {
+                        def frontendTag = "frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
-                            // Tag the frontend image
-                            sh "docker tag ${frontendTag} ${nexusFrontendTag}"
+                        sh "docker tag ${frontendTag} ${nexusFrontendTag}"
 
-                            // Log in to the Docker registry
-                            withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                                // Push the frontend image
-                                sh "docker push ${nexusFrontendTag}"
-                            }
+                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                            sh "docker push ${nexusFrontendTag}"
                         }
                     }
                 }
-            
-                stage('Test') {
-                    steps {
-                        script {
-                            sh 'echo "for testing application"'
-                        }
-                    }
-                }
+            }
 
-                stage('Build') {
-                    steps {
-                        script {
-                            sh 'docker-compose build'
-                            if (env.STATUS == 'CI') {
-                                sh 'docker-compose down'
-                                sh 'docker-compose up -d'
-                            }
-                        }
-                    }
-                }
-
-        // stage('Send the frontend to the production environment') {
-        //     environment {
-        //         FRONTEND_TAG = "${REGISTRY}/${APPNAME}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //         REMOTE_SERVER = 'root@192.168.100.76'
-        //         REMOTE_PATH = '/home/'
-        //         FRONTENDIMAGE_TAG = "frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //     }
-        //     when {
-        //         expression { env.STATUS == 'CD' }
-        //     }
-        //     steps {
-        //         dir('frontend') {
-        //             script {
-        //                 try {
-        //                     sh """
-        //                     echo "Saving Frontend Image"
-        //                     sudo docker save -o ${FRONTENDIMAGE_TAG}.tar ${FRONTEND_TAG}
-        //                     chown jenkins:jenkins ${FRONTENDIMAGE_TAG}.tar
-        //                     chmod 644 ${FRONTENDIMAGE_TAG}.tar
-        //                     ls -la 
-        //                     echo "Transferring Frontend Image"
-        //                     scp ${FRONTENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
-        //                     """
-        //                 } catch (Exception e) {
-        //                     error "Failed to send frontend to production environment: ${e}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        // stage('Send the backend to the production environment') {
-        //     environment {
-        //         BACKEND_TAG = "${REGISTRY}/${APPNAME}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //         REMOTE_SERVER = 'root@192.168.100.76'
-        //         REMOTE_PATH = '/home/'
-        //         BACKENDIMAGE_TAG = "backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //         DATABASE_TAG = "postgres:latest"
-        //         DATABASEIMAGE_TAG = "db-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-        //     }
-        //     when {
-        //         expression { env.STATUS == 'CD' }
-        //     }
-        //     steps {
-        //         dir('backend') {
-        //             script {
-        //                 try {
-        //                     sh """
-        //                     echo "Saving Backend Image"
-        //                     sudo docker save -o ${BACKENDIMAGE_TAG}.tar ${BACKEND_TAG}
-        //                     sudo docker save -o ${DATABASEIMAGE_TAG}.tar ${DATABASE_TAG}
-        //                     sudo chown jenkins:jenkins ${BACKENDIMAGE_TAG}.tar
-        //                     sudo chmod 644 ${BACKENDIMAGE_TAG}.tar
-        //                     sudo chown jenkins:jenkins ${DATABASEIMAGE_TAG}.tar
-        //                     sudo chmod 644 ${DATABASEIMAGE_TAG}.tar
-        //                     echo "Transferring Backend Image"
-        //                     scp ${BACKENDIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
-        //                     echo "Transferring Database Image"
-        //                     scp ${DATABASEIMAGE_TAG}.tar ${REMOTE_SERVER}:${REMOTE_PATH}
-        //                     """
-        //                 } catch (Exception e) {
-        //                     error "Failed to send backend to production environment: ${e}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        stage('Remove Unused Docker Images') {
+            stage('Remove Unused Docker Images') {
                 steps {
                     script {
                         try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${registry}/${APPNAME}:frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep 'backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep 'frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
@@ -238,15 +152,14 @@ pipeline {
             }
 
         stage('Deployment') {
-        steps {
-            script {
-                if (env.STATUS == 'CD') {
-                    sh 'ansible-playbook -i inventory.yml deploy.yaml'
+            steps {
+                script {
+                    if (env.STATUS == 'CD') {
+                        sh 'ansible-playbook -i inventory.yml deploy.yaml'
+                    }
                 }
             }
         }
-    }
-
     }
 
     post {
@@ -267,9 +180,9 @@ pipeline {
 }
 
 def removeOldImages(imageTags, lastN, type) {
-    // println "Input imageTags: ${imageTags}"
-    // println "Input lastN: ${lastN}"
-    // println "Input type: ${type}"
+    println "Input imageTags: ${imageTags}"
+    println "Input lastN: ${lastN}"
+    println "Input type: ${type}"
 
     if (imageTags) {
         // split build numbers from image the tags
