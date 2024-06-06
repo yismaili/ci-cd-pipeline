@@ -138,8 +138,8 @@ pipeline {
                     script {
                         try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep 'backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep 'frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
@@ -159,7 +159,7 @@ pipeline {
                     }
                 }
             }
-        }
+         }
     }
 
     post {
