@@ -108,7 +108,7 @@ pipeline {
             stage('Tag and Push Backend Image to Nexus') {
                 steps {
                     script {
-                        def backendTag = "backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                         sh "docker tag ${backendTag} ${nexusBackendTag}"
@@ -123,7 +123,7 @@ pipeline {
             stage('Tag and Push Frontend Image to Nexus') {
                 steps {
                     script {
-                        def frontendTag = "frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                         sh "docker tag ${frontendTag} ${nexusFrontendTag}"
@@ -140,8 +140,8 @@ pipeline {
                     script {
                         try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/backend' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/frontend' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
                             // println "Input imageTags: ${backendTags}"
                             // println "Input imageTags: ${frontendTags}"
