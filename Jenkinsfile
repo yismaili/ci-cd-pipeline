@@ -93,17 +93,17 @@ pipeline {
                 }
             }
 
-            // stage('Build') {
-            //     steps {
-            //         script {
-            //             sh 'docker-compose build'
-            //             // if (env.STATUS == 'CI') {
-            //             //     sh 'docker-compose down'
-            //             //     sh 'docker-compose up -d'
-            //             // }
-            //         }
-            //     }
-            // }
+            stage('Build') {
+                steps {
+                    script {
+                        sh 'docker-compose build'
+                        // if (env.STATUS == 'CI') {
+                        //     sh 'docker-compose down'
+                        //     sh 'docker-compose up -d'
+                        // }
+                    }
+                }
+            }
 
             stage('Tag and Push Backend Image to Nexus') {
                 steps {
@@ -111,7 +111,7 @@ pipeline {
                         def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
-                        sh "docker tag ${backendTag} ${nexusBackendTag}"
+                        sh "docker tag ${backendTag}"
 
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker push ${nexusBackendTag}"
