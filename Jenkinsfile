@@ -98,7 +98,7 @@ pipeline {
                     steps {
                         script {
                             def backendTag = "backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the backend image
                             sh "docker tag ${backendTag} ${nexusBackendTag}"
@@ -117,7 +117,7 @@ pipeline {
                     steps {
                         script {
                             def frontendTag = "frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
 
                             // Tag the frontend image
                             sh "docker tag ${frontendTag} ${nexusFrontendTag}"
