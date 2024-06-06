@@ -132,6 +132,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker push ${nexusFrontendTag}"
                         }
+                        sh "docker rmi ${nexusFrontendTag}"
                     }
                 }
             }
