@@ -133,24 +133,94 @@ pipeline {
                 }
             }
 
-            stage('Remove Unused Docker Images') {
-                steps {
-                    script {
-                        try {
+            // stage('Remove Unused Docker Images') {
+            //     steps {
+            //         script {
+            //             try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+            //                 def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+            //                 def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                            removeOldImages(backendTags, 3, "backend")
-                            removeOldImages(frontendTags, 3, "frontend")
+            //                 removeOldImages(backendTags, 3, "backend")
+            //                 removeOldImages(frontendTags, 3, "frontend")
 
-                        } catch (Exception e) {
-                            println "Error during image cleanup: ${e.message}"
+            //             } catch (Exception e) {
+            //                 println "Error during image cleanup: ${e.message}"
+            //             }
+            //         }
+            //     }
+            // }
+
+
+stage('Remove Unused Docker Images') {
+            steps {
+                script {
+                    def removeOldImages = { imageTags, lastN, type ->
+                        println "Input imageTags: ${imageTags}"
+                        println "Input lastN: ${lastN}"
+                        println "Input type: ${type}"
+
+                        if (imageTags) {
+                            // Split build numbers from image tags
+                            def buildNumbers = imageTags.collect { tag ->
+                                def parts = tag.split(':')
+                                def tagWithoutRepo = parts.length > 1 ? parts[2] : parts[0]
+                                def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
+                                def buildNumber = buildNumberPart?.toInteger()
+                                [tag: tag, buildNumber: buildNumber]
+                            }.findAll { it.buildNumber != null } // Remove entries with null build number
+
+                            // Sort the build numbers
+                            def n = buildNumbers.size()
+                            for (int i = 0; i < n - 1; i++) {
+                                for (int j = 0; j < n - i - 1; j++) {
+                                    if (buildNumbers[j].buildNumber > buildNumbers[j + 1].buildNumber) {
+                                        def temp = buildNumbers[j]
+                                        buildNumbers[j] = buildNumbers[j + 1]
+                                        buildNumbers[j + 1] = temp
+                                    }
+                                }
+                            }
+
+                            // Determine images to remove
+                            def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
+
+                            if (imagesToRemove) {
+                                // Remove old images
+                                def command = "docker rmi -f ${imagesToRemove.join(' ')}"
+                                println "Docker remove command: ${command}"
+                                sh command
+                                println "Removed old ${type} images, keeping the last ${lastN}."
+                            } else {
+                                println "All ${type} images are among the last ${lastN} images."
+                            }
+                        } else {
+                            println "No ${type} images found."
                         }
+                    }
+
+                    try {
+                        def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/backend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+                        def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '192.168.100.75:8585/ci-cd/frontend-' || true", returnStdout: true).trim().split('\n').findAll { it }
+
+                        if (backendTags) {
+                            removeOldImages(backendTags, 3, "backend")
+                        } else {
+                            println "No backend images found."
+                        }
+
+                        if (frontendTags) {
+                            removeOldImages(frontendTags, 3, "frontend")
+                        } else {
+                            println "No frontend images found."
+                        }
+
+                    } catch (Exception e) {
+                        println "Error during image cleanup: ${e.message}"
                     }
                 }
             }
-
+        }
         stage('Deployment') {
             steps {
                 script {
