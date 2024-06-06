@@ -185,75 +185,13 @@ pipeline {
     }
 }
 
-// def removeOldImages(imageTags, lastN, type) {
-//     println "Input imageTags: ${imageTags}"
-//     println "Input lastN: ${lastN}"
-//     println "Input type: ${type}"
-
-//     if (imageTags) {
-//        // Split build numbers from image tags
-//         def buildNumbers = imageTags.collect { tag ->
-//             try {
-//                 def parts = tag.split(':')
-//                 println "Tag parts: ${parts}"
-//                 def tagWithoutRepo = parts[1]
-//                 println "Tag without repo: ${tagWithoutRepo}"
-//                 def part_numbers = tagWithoutRepo.split('-')
-//                 def buildNumberPart = part_numbers[2]
-//                 println "Build number part: ${buildNumberPart}"
-//                 def buildNumber = buildNumberPart?.toInteger()
-//                 println "Build number: ${buildNumber}"
-//                 [tag: tag, buildNumber: buildNumber]
-//             } catch (Exception e) {
-//                 println "Error parsing tag: ${tag}, error: ${e.message}"
-//                 [tag: tag, buildNumber: null]
-//             }
-//         }.findAll { it.buildNumber != null } // Remove entries with null build number
-
-
-//         println "Build numbers list: ${buildNumbers}"
-
-//         //  sort the build numbers by order
-//         def n = buildNumbers.size()
-//         for (int i = 0; i < n - 1; i++) {
-//             for (int j = 0; j < n - i - 1; j++) {
-//                 if (buildNumbers[j].buildNumber > buildNumbers[j + 1].buildNumber) {
-//                     def temp = buildNumbers[j]
-//                     buildNumbers[j] = buildNumbers[j + 1]
-//                     buildNumbers[j + 1] = temp
-//                 }
-//             }
-//         }
-
-//         //println "Sorted build numbers: ${buildNumbers}"
-
-//         // Determine images to remove
-//         def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
-
-//         //println "Images to remove: ${imagesToRemove}"
-
-//         if (imagesToRemove) {
-//             // Remove old images
-//             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
-//             println "Docker remove command: ${command}"
-//             sh command
-//             println "Removed old ${type} images, keeping the last ${lastN}."
-//         } else {
-//             println "All ${type} images are among the last ${lastN} images."
-//         }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
-
-
 def removeOldImages(imageTags, lastN, type) {
     println "Input imageTags: ${imageTags}"
     println "Input lastN: ${lastN}"
     println "Input type: ${type}"
 
     if (imageTags) {
-        // Split build numbers from image tags
+       // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
             try {
                 def parts = tag.split(':')
@@ -272,17 +210,27 @@ def removeOldImages(imageTags, lastN, type) {
             }
         }.findAll { it.buildNumber != null } // Remove entries with null build number
 
+
         println "Build numbers list: ${buildNumbers}"
 
-        // Sort the build numbers by order using Groovy's built-in sort
-        buildNumbers = buildNumbers.sort { a, b -> a.buildNumber <=> b.buildNumber }
+        //  sort the build numbers by order
+        def n = buildNumbers.size()
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (buildNumbers[j].buildNumber > buildNumbers[j + 1].buildNumber) {
+                    def temp = buildNumbers[j]
+                    buildNumbers[j] = buildNumbers[j + 1]
+                    buildNumbers[j + 1] = temp
+                }
+            }
+        }
 
-        println "Sorted build numbers: ${buildNumbers}"
+        //println "Sorted build numbers: ${buildNumbers}"
 
         // Determine images to remove
         def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
-        println "Images to remove: ${imagesToRemove}"
+        //println "Images to remove: ${imagesToRemove}"
 
         if (imagesToRemove) {
             // Remove old images
