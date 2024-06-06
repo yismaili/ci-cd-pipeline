@@ -142,7 +142,7 @@ pipeline {
                     script {
                         try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
                             // println "Input imageTags: ${backendTags}"
