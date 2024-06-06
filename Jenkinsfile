@@ -192,17 +192,17 @@ def removeOldImages(imageTags, lastN, type) {
         // split build numbers from image the tags
         def buildNumbers = imageTags.collect { tag ->
             def parts = tag.split(':')
-            // println "Tag parts: ${parts}"
+            println "Tag parts: ${parts}"
             def tagWithoutRepo = parts.length > 1 ? parts[2] : parts[0]
-            // println "Tag without repo: ${tagWithoutRepo}"
+            println "Tag without repo: ${tagWithoutRepo}"
             def buildNumberPart = tagWithoutRepo.tokenize('-').find { it.isNumber() }
-            // println "Build number part: ${buildNumberPart}"
+             println "Build number part: ${buildNumberPart}"
             def buildNumber = buildNumberPart?.toInteger()
-            // println "Build number: ${buildNumber}"
+            println "Build number: ${buildNumber}"
             [tag: tag, buildNumber: buildNumber]
         }.findAll { it.buildNumber != null } // Remove entrie with null build number
 
-       // println "Build numbers list: ${buildNumbers}"
+        println "Build numbers list: ${buildNumbers}"
 
         //  sort the build numbers by order
         def n = buildNumbers.size()
