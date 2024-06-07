@@ -16,6 +16,7 @@ pipeline {
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
+        string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
     }
 
     environment {
@@ -29,6 +30,7 @@ pipeline {
         GIT_CREDENTIALS_ID = "${params.GIT_CREDENTIALS_ID}"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
+        IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
     }
 
         stages {
@@ -155,8 +157,8 @@ pipeline {
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                            removeOldImages(backendTags, 3, "backend")
-                            removeOldImages(frontendTags, 3, "frontend")
+                            removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
 
                         } catch (Exception e) {
                             println "Error during image cleanup: ${e.message}"
