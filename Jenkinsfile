@@ -10,18 +10,18 @@ pipeline {
 
     parameters {
         string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        string(name: 'REPO_URL', defaultValue: 'https://github.com/yismaili/ci-cd', description: 'Repository URL')
+        string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
         string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: 'nexus-credentials-id', description: 'Nexus credentials ID')
-        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'GIT_CREDENTIALS_ID', defaultValue: 'github-pat', description: 'Git credentials ID')
+        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
     }
 
     environment {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        STATUS = "CI"
+        BUILD_STATUS = "${params.BUILD_STATUS}"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "${params.REPO_URL}"
         BRANCH = "${params.BRANCH}"
@@ -108,7 +108,7 @@ pipeline {
                 steps {
                     script {
                         sh 'docker-compose build'
-                        if (env.STATUS == 'CI') {
+                        if (env.BUILD_STATUS == 'CI') {
                             sh 'docker-compose down'
                             sh 'docker-compose up -d'
                         }
@@ -169,7 +169,7 @@ pipeline {
             stage('Deployment') {
                 steps {
                     script {
-                        if (env.STATUS == 'CD') {
+                        if (env.BUILD_STATUS == 'CD') {
                             sh 'ansible-playbook -i inventory.yml deploy.yaml'
                         }
                     }
