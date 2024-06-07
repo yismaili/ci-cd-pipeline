@@ -97,10 +97,10 @@ pipeline {
                 steps {
                     script {
                         sh 'docker-compose build'
-                        if (env.STATUS == 'CI') {
-                            sh 'docker-compose down'
-                            sh 'docker-compose up -d'
-                        }
+                        // if (env.STATUS == 'CI') {
+                        //     sh 'docker-compose down'
+                        //     sh 'docker-compose up -d'
+                        // }
                     }
                 }
             }
@@ -145,6 +145,8 @@ pipeline {
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
+                            // println "Input imageTags: ${backendTags}"
+                            // println "Input imageTags: ${frontendTags}"
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
 
