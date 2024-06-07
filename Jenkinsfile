@@ -21,6 +21,11 @@ pipeline {
             REPOSITORY_BACKEND = 'ci-cd/backend'
         }
 
+        parameters {
+        string(name: 'GREETING', defaultValue: 'Hello', description: 'Enter your greeting')
+        choice(name: 'ENVIRONMENT', choices: ['Development', 'Testing', 'Production'], description: 'Select the environment')
+        }
+
         stages {
             
             stage('Checkout') {
