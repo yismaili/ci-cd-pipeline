@@ -8,17 +8,28 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
 
+        parameters {
+            string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
+            string(name: 'REPO_URL', defaultValue: 'https://github.com/yismaili/ci-cd', description: 'Repository URL')
+            string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
+            string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: 'nexus-credentials-id', description: 'Nexus credentials ID')
+            string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
+            string(name: 'GIT_CREDENTIALS_ID', defaultValue: 'github-pat', description: 'Git credentials ID')
+            string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
+            string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
+        }
+
         environment {
             GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
             STATUS = "CI"
-            ITEMNAME = "test2"
-            REPO_URL = "https://github.com/yismaili/ci-cd"
-            BRANCH = "master"
-            NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
-            NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
-            GIT_CREDENTIALS_ID = 'github-pat'
-            REPOSITORY_FRONTEND = 'ci-cd/frontend'
-            REPOSITORY_BACKEND = 'ci-cd/backend'
+            ITEMNAME = "${params.ITEMNAME}"
+            REPO_URL = "${params.REPO_URL}"
+            BRANCH = "${params.BRANCH}"
+            NEXUS_ARTEFACT_CREDENTIALS = "${params.NEXUS_ARTEFACT_CREDENTIALS}"
+            NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
+            GIT_CREDENTIALS_ID = "${params.GIT_CREDENTIALS_ID}"
+            REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
+            REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         }
 
         parameters {
