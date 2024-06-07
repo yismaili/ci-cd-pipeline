@@ -145,8 +145,6 @@ pipeline {
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                            // println "Input imageTags: ${backendTags}"
-                            // println "Input imageTags: ${frontendTags}"
                             removeOldImages(backendTags, 3, "backend")
                             removeOldImages(frontendTags, 3, "frontend")
 
@@ -157,16 +155,16 @@ pipeline {
                 }
             }
 
-        stage('Deployment') {
-            steps {
-                script {
-                    if (env.STATUS == 'CD') {
-                        sh 'ansible-playbook -i inventory.yml deploy.yaml'
+            stage('Deployment') {
+                steps {
+                    script {
+                        if (env.STATUS == 'CD') {
+                            sh 'ansible-playbook -i inventory.yml deploy.yaml'
+                        }
                     }
                 }
             }
-         }
-    }
+        }
 
     post {
         always {
@@ -195,23 +193,21 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             try {
                 def parts = tag.split(':')
-                println "Tag parts: ${parts}"
+                //println "Tag parts: ${parts}"
                 def tagWithoutRepo = parts[1]
-                println "Tag without repo: ${tagWithoutRepo}"
+                //println "Tag without repo: ${tagWithoutRepo}"
                 def part_numbers = tagWithoutRepo.split('-')
                 def buildNumberPart = part_numbers[2]
-                println "Build number part: ${buildNumberPart}"
+                //println "Build number part: ${buildNumberPart}"
                 def buildNumber = buildNumberPart?.toInteger()
-                println "Build number: ${buildNumber}"
+               // println "Build number: ${buildNumber}"
                 [tag: tag, buildNumber: buildNumber]
             } catch (Exception e) {
                 println "Error parsing tag: ${tag}, error: ${e.message}"
                 [tag: tag, buildNumber: null]
             }
-        }.findAll { it.buildNumber != null } // Remove entries with null build number
-
-
-        println "Build numbers list: ${buildNumbers}"
+        }.findAll { it.buildNumber != null }
+       // println "Build numbers list: ${buildNumbers}"
 
         //  sort the build numbers by order
         def n = buildNumbers.size()
@@ -224,16 +220,13 @@ def removeOldImages(imageTags, lastN, type) {
                 }
             }
         }
-
         //println "Sorted build numbers: ${buildNumbers}"
-
         // Determine images to remove
         def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
         //println "Images to remove: ${imagesToRemove}"
 
         if (imagesToRemove) {
-            // Remove old images
             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
             println "Docker remove command: ${command}"
             sh command
