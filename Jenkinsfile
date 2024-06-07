@@ -7,8 +7,7 @@ pipeline {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
-
-    parameters {
+     parameters {
         string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
         string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
@@ -21,9 +20,9 @@ pipeline {
 
     environment {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        BUILD_STATUS = "${params.BUILD_STATUS}"
+        BUILD_STATUS = "CI"
         ITEMNAME = "${params.ITEMNAME}"
-        REPO_URL = "${params.REPO_URL}"
+        REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
         NEXUS_ARTEFACT_CREDENTIALS = "${params.NEXUS_ARTEFACT_CREDENTIALS}"
         NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
