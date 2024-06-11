@@ -9,19 +9,19 @@ pipeline {
     }
      parameters {
         string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
+        // string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
         string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: 'nexus-credentials-id', description: 'Nexus credentials ID')
         string(name: 'GIT_CREDENTIALS_ID', defaultValue: 'github-pat', description: 'Git credentials ID')
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-        string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
+        booleanParam(name: 'CLEAN_ALL', defaultValue: false, description: 'Clean all images and containers')
     }
 
     environment {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        BUILD_STATUS = "CI"
+        // BUILD_STATUS = "CI"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
@@ -30,7 +30,7 @@ pipeline {
         GIT_CREDENTIALS_ID = "${params.GIT_CREDENTIALS_ID}"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
-        IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
+        IMAGES_TO_KEEP = "3"
     }
 
         stages {
@@ -105,18 +105,6 @@ pipeline {
                 }
             }
 
-            // stage('Build') {
-            //     steps {
-            //         script {
-            //             sh 'docker-compose build'
-            //             if (env.BUILD_STATUS == 'CI') {
-            //                 sh 'docker-compose down'
-            //                 sh 'docker-compose up -d'
-            //             }
-            //         }
-            //     }
-            // }
-
             stage('Tag and Push Backend Image to Nexus') {
                 steps {
                     script {
@@ -157,8 +145,14 @@ pipeline {
                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                            removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+                            if (params.CLEAN_ALL) {
+                                sh "docker rm -f \$(docker ps -aq) || true"
+                                sh "docker rmi -f \$(docker images -aq) || true"
+                                println "Cleaned all Docker images and containers."
+                            } else {
+                                removeOldImages(backendTags, env.IMAGES_TO_KEEP.toInteger(), "backend")
+                                removeOldImages(frontendTags, env.IMAGES_TO_KEEP.toInteger(), "frontend")
+                            }
 
                         } catch (Exception e) {
                             println "Error during image cleanup: ${e.message}"
@@ -166,16 +160,6 @@ pipeline {
                     }
                 }
             }
-
-            // stage('Deployment') {
-            //     steps {
-            //         script {
-            //             if (env.BUILD_STATUS == 'CD') {
-            //                 sh 'ansible-playbook -i inventory.yml deploy.yaml'
-            //             }
-            //         }
-            //     }
-            // }
         }
 
     post {
@@ -196,32 +180,23 @@ pipeline {
 }
 
 def removeOldImages(imageTags, lastN, type) {
-    println "Input imageTags: ${imageTags}"
-    println "Input lastN: ${lastN}"
-    println "Input type: ${type}"
-
     if (imageTags) {
-       // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
             try {
+
                 def parts = tag.split(':')
-                //println "Tag parts: ${parts}"
                 def tagWithoutRepo = parts[1]
-                //println "Tag without repo: ${tagWithoutRepo}"
                 def part_numbers = tagWithoutRepo.split('-')
                 def buildNumberPart = part_numbers[2]
-                //println "Build number part: ${buildNumberPart}"
                 def buildNumber = buildNumberPart?.toInteger()
-               // println "Build number: ${buildNumber}"
                 [tag: tag, buildNumber: buildNumber]
             } catch (Exception e) {
+
                 println "Error parsing tag: ${tag}, error: ${e.message}"
                 [tag: tag, buildNumber: null]
             }
         }.findAll { it.buildNumber != null }
-       // println "Build numbers list: ${buildNumbers}"
 
-        //  sort the build numbers by order
         def n = buildNumbers.size()
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
@@ -232,11 +207,8 @@ def removeOldImages(imageTags, lastN, type) {
                 }
             }
         }
-        //println "Sorted build numbers: ${buildNumbers}"
-        // Determine images to remove
-        def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
-        //println "Images to remove: ${imagesToRemove}"
+        def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
         if (imagesToRemove) {
             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
