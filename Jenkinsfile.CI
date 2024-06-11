@@ -221,182 +221,113 @@
 // }
 
 
-pipeline {
-    agent any
-    options {
-        timeout(time: 1, unit: 'HOURS')
-        timestamps()
-        disableConcurrentBuilds()
-        buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
+// Jenkinsfile.CI
+
+stage('Setup') {
+    steps {
+        script {
+            env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            env.CUSTOMNAME = env.BRANCH.split("/")[1]
+            env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+            currentBuild.displayName = "${env.CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
+            sh '''
+                sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.${ITEMNAME}
+            '''
+        }
     }
-    parameters {
-        string(name: 'ITEMNAME', defaultValue: 'TEST', description: 'Item name')
-        string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-        string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-        string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-        booleanParam(name: 'CLEAN_ALL', defaultValue: false, description: 'Clean all images and containers')
-        string(name: 'SCRIPT_PATH', defaultValue: 'Jenkinsfile.CI', description: 'Path to the Jenkins script')
-        string(name: 'GIT_CREDENTIALS_ID', defaultValue: '', description: 'Git credentials ID')
-        string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: '', description: 'Nexus artifact credentials')
-    }
+}
 
-    environment {
-        REPO_URL = "https://github.com/yismaili/ci-cd"
-        IMAGES_TO_KEEP = "3"
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    def scriptPath = "${params.SCRIPT_PATH}"
-                    echo "Using script path: ${scriptPath}"
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "${params.BRANCH}"]],
-                        userRemoteConfigs: [[url: "${env.REPO_URL}", credentialsId: "${params.GIT_CREDENTIALS_ID}"]]
-                    ])
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
-                    try {
-                        def scriptPath = "${params.SCRIPT_PATH}"
-                        load scriptPath
-                    } catch (Exception e) {
-                        error "Failed to load script: ${e.message}"
-                    }
-                }
-            }
-        }
-
-        stage('Setup') {
-            steps {
-                script {
-                    env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    env.CUSTOMNAME = env.BRANCH.split("/")[1]
-                    env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                    currentBuild.displayName = "${env.CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
-                    sh '''
-                        sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.${ITEMNAME}
-                    '''
-                }
-            }
-        }
-
-        stage('Preparing Frontend') {
-            steps {
-                script {
-                    dir('frontend') {
-                        def frontendTag = "${params.REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        sh """
-                        echo "Preparing Frontend"
-                        docker build -t ${frontendTag} .
-                        cd ..
-                        echo "FRONTEND_IMAGE=${frontendTag}" >> .env
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Preparing Backend') {
-            steps {
-                script {
-                    dir('backend') {
-                        def backendTag = "${params.REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        sh """
-                        echo "Preparing Backend"
-                        docker build -t ${backendTag} .
-                        cd ..
-                        echo "BACKEND_IMAGE=${backendTag}" >> .env
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                script {
-                    sh 'echo ":/"'
-                }
-            }
-        }
-
-        stage('Tag and Push Backend Image to Nexus') {
-            steps {
-                script {
-                    def backendTag = "${params.REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                    def nexusBackendTag = "${params.NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-
-                    sh "docker tag ${backendTag} ${nexusBackendTag}"
-
-                    withDockerRegistry([url: "http://${params.NEXUS_ARTEFACT_URL}", credentialsId: params.NEXUS_ARTEFACT_CREDENTIALS]) {
-                        sh "docker push ${nexusBackendTag}"
-                    }
-                    sh "docker rmi ${nexusBackendTag}"
-                }
-            }
-        }
-
-        stage('Tag and Push Frontend Image to Nexus') {
-            steps {
-                script {
-                    def frontendTag = "${params.REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                    def nexusFrontendTag = "${params.NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-
-                    sh "docker tag ${frontendTag} ${nexusFrontendTag}"
-
-                    withDockerRegistry([url: "http://${params.NEXUS_ARTEFACT_URL}", credentialsId: params.NEXUS_ARTEFACT_CREDENTIALS]) {
-                        sh "docker push ${nexusFrontendTag}"
-                    }
-                    sh "docker rmi ${nexusFrontendTag}"
-                }
-            }
-        }
-
-        stage('Remove Unused Docker Images') {
-            steps {
-                script {
-                    try {
-                        def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${params.REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-                        def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${params.REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-
-                        if (params.CLEAN_ALL) {
-                            sh "docker rm -f \$(docker ps -aq) || true"
-                            sh "docker rmi -f \$(docker images -aq) || true"
-                            println "Cleaned all Docker images and containers."
-                        } else {
-                            removeOldImages(backendTags, env.IMAGES_TO_KEEP.toInteger(), "backend")
-                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP.toInteger(), "frontend")
-                        }
-
-                    } catch (Exception e) {
-                        println "Error during image cleanup: ${e.message}"
-                    }
-                }
+stage('Preparing Frontend') {
+    steps {
+        script {
+            dir('frontend') {
+                def frontendTag = "${params.REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                sh """
+                echo "Preparing Frontend"
+                docker build -t ${frontendTag} .
+                cd ..
+                echo "FRONTEND_IMAGE=${frontendTag}" >> .env
+                """
             }
         }
     }
+}
 
-    post {
-        always {
-            echo 'One way or another, I have finished'
-            deleteDir()
+stage('Preparing Backend') {
+    steps {
+        script {
+            dir('backend') {
+                def backendTag = "${params.REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                sh """
+                echo "Preparing Backend"
+                docker build -t ${backendTag} .
+                cd ..
+                echo "BACKEND_IMAGE=${backendTag}" >> .env
+                """
+            }
         }
-        success {
-            echo 'I succeeded :)'
+    }
+}
+
+stage('Test') {
+    steps {
+        script {
+            sh 'echo ":/"'
         }
-        unstable {
-            echo 'I am unstable :/'
+    }
+}
+
+stage('Tag and Push Backend Image to Nexus') {
+    steps {
+        script {
+            def backendTag = "${params.REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+            def nexusBackendTag = "${params.NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+            sh "docker tag ${backendTag} ${nexusBackendTag}"
+
+            withDockerRegistry([url: "http://${params.NEXUS_ARTEFACT_URL}", credentialsId: params.NEXUS_ARTEFACT_CREDENTIALS]) {
+                sh "docker push ${nexusBackendTag}"
+            }
+            sh "docker rmi ${nexusBackendTag}"
         }
-        failure {
-            echo 'I failed :('
+    }
+}
+
+stage('Tag and Push Frontend Image to Nexus') {
+    steps {
+        script {
+            def frontendTag = "${params.REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+            def nexusFrontendTag = "${params.NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+            sh "docker tag ${frontendTag} ${nexusFrontendTag}"
+
+            withDockerRegistry([url: "http://${params.NEXUS_ARTEFACT_URL}", credentialsId: params.NEXUS_ARTEFACT_CREDENTIALS]) {
+                sh "docker push ${nexusFrontendTag}"
+            }
+            sh "docker rmi ${nexusFrontendTag}"
+        }
+    }
+}
+
+stage('Remove Unused Docker Images') {
+    steps {
+        script {
+            try {
+                def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${params.REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${params.REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+
+                if (params.CLEAN_ALL) {
+                    sh "docker rm -f \$(docker ps -aq) || true"
+                    sh "docker rmi -f \$(docker images -aq) || true"
+                    println "Cleaned all Docker images and containers."
+                } else {
+                    removeOldImages(backendTags, env.IMAGES_TO_KEEP.toInteger(), "backend")
+                    removeOldImages(frontendTags, env.IMAGES_TO_KEEP.toInteger(), "frontend")
+                }
+
+            } catch (Exception e) {
+                println "Error during image cleanup: ${e.message}"
+            }
         }
     }
 }
