@@ -8,11 +8,8 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
      parameters {
-        string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        // string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
+        string(name: 'ITEMNAME', defaultValue: 'TEST', description: 'Item name')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        // string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: 'nexus-credentials-id', description: 'Nexus credentials ID')
-        // string(name: 'GIT_CREDENTIALS_ID', defaultValue: 'github-pat', description: 'Git credentials ID')
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
@@ -21,7 +18,6 @@ pipeline {
 
     environment {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        // BUILD_STATUS = "CI"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
