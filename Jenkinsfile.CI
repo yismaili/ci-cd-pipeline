@@ -34,18 +34,41 @@ pipeline {
             
             stage('Checkout') {
                 steps {
+                    // script {
+                    //     checkout([
+                    //         $class: 'GitSCM',
+                    //         branches: [[name: env.BRANCH]],
+                    //         userRemoteConfigs: [[
+                    //             url: env.REPO_URL,
+                    //             credentialsId: env.GIT_CREDENTIALS_ID
+                    //         ]]
+                    //     ])
+                    // }
                     script {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: env.BRANCH]],
-                            userRemoteConfigs: [[
-                                url: env.REPO_URL,
-                                credentialsId: env.GIT_CREDENTIALS_ID
-                            ]]
-                        ])
-                    }
+            // Use the script path parameter
+            def scriptPath = "${params.SCRIPT_PATH}"
+            echo "Using script path: ${scriptPath}"
+            
+            // Checkout the code
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: "${params.BRANCH}"]],
+                userRemoteConfigs: [[url: "${env.REPO_URL}", credentialsId: "${env.GIT_CREDENTIALS_ID}"]]
+            ])
+        }
                 }
             }
+
+            stage('Build') {
+    steps {
+        script {
+            // Call the Jenkins script file
+            def scriptPath = "${params.SCRIPT_PATH}"
+            load scriptPath
+        }
+    }
+}
+
 
             stage('Setup') {
                 steps {
