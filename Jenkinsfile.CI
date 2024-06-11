@@ -14,6 +14,7 @@ pipeline {
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
         booleanParam(name: 'CLEAN_ALL', defaultValue: false, description: 'Clean all images and containers')
+        string(name: 'SCRIPT_PATH', defaultValue: 'Jenkinsfile.CI', description: 'Path to the Jenkins script')
     }
 
     environment {
@@ -27,6 +28,7 @@ pipeline {
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "3"
+        SCRIPT_PATH = "${params.SCRIPT_PATH}"
     }
 
         stages {
@@ -42,6 +44,15 @@ pipeline {
                                 credentialsId: env.GIT_CREDENTIALS_ID
                             ]]
                         ])
+                    }
+                }
+            }
+            
+            stage('Load Script') {
+                steps {
+                    script {
+                        def scriptFile = load env.SCRIPT_PATH
+                        scriptFile.runPipeline() // Assuming the script has a method called `runPipeline`
                     }
                 }
             }
