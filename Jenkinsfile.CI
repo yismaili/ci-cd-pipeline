@@ -48,15 +48,6 @@ pipeline {
                 }
             }
             
-            stage('Load Script') {
-                steps {
-                    script {
-                        def scriptFile = load env.SCRIPT_PATH
-                        scriptFile.runPipeline() // Assuming the script has a method called `runPipeline`
-                    }
-                }
-            }
-
             stage('Setup') {
                 steps {
                     script {
