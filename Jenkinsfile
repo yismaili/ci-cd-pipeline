@@ -264,9 +264,9 @@ pipeline {
             steps {
                 script {
                     if (params.PIPELINE_TYPE == 'ci') {
-                        load 'Jenkinsfile.ci'
+                        load 'Jenkinsfile.CI'
                     } else if (params.PIPELINE_TYPE == 'cd') {
-                        load 'Jenkinsfile.cd'
+                        load 'Jenkinsfile.CI'
                     } else {
                         error "Unsupported PIPELINE_TYPE: ${params.PIPELINE_TYPE}"
                     }
