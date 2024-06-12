@@ -54,6 +54,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusBackendTag}"
                         }
+                            echo "BACKEND_IMAGE=${nexusBackendTag}" >> .env
                     }
                 }
             }
@@ -66,6 +67,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusFrontendTag}"
                         }
+                            echo "FRONTEND_IMAGE=${nexusFrontendTag}" >> .env
                     }
                 }
             }
