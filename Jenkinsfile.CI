@@ -14,7 +14,7 @@ pipeline {
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
         booleanParam(name: 'CLEAN_ALL', defaultValue: false, description: 'Clean all images and containers')
-       // string(name: 'SCRIPT_PATH', defaultValue: 'Jenkinsfile.CI', description: 'Path to the Jenkins script')
+        string(name: 'SCRIPT_PATH', defaultValue: 'Jenkinsfile.CI', description: 'Path to the Jenkins script')
     }
 
     environment {
