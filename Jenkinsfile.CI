@@ -54,7 +54,7 @@ pipeline {
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
+                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
