@@ -34,30 +34,10 @@ pipeline {
     }
 
         stages {
-            
-            stage('Checkout') {
-                steps {
-                    script {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: env.BRANCH]],
-                            userRemoteConfigs: [[
-                                url: env.REPO_URL,
-                                credentialsId: env.GIT_CREDENTIALS_ID
-                            ]]
-                        ])
-                    }
-                }
-            }
 
             stage('Setup') {
                 steps {
-                    script {
-                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        targetFolderArray = env.GIT_BRANCH.split("/")
-                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}" 
+                    script { 
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
@@ -65,33 +45,25 @@ pipeline {
                 }
             }
 
-            stage('Preparing Frontend') {
+            stage('Pull Backend Image From Nexus') {
                 steps {
                     script {
-                        dir('frontend') {
-                            def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                            sh """
-                            echo "Preparing Frontend"
-                            docker build -t ${frontendTag} .
-                            cd ..
-                            echo "FRONTEND_IMAGE=${frontendTag}" >> .env
-                            """
+                        def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                            sh "docker pull ${nexusBackendTag}"
                         }
                     }
                 }
             }
 
-            stage('Preparing Backend') {
+            stage('Pull Frontend Image From Nexus') {
                 steps {
                     script {
-                        dir('backend') {
-                            def backendTag = "${REPOSITORY_BACKEND}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
-                            sh """
-                            echo "Preparing Backend"
-                            docker build -t ${backendTag} .
-                            cd ..
-                            echo "BACKEND_IMAGE=${backendTag}" >> .env
-                            """
+                        def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+
+                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                            sh "docker pull ${nexusFrontendTag}"
                         }
                     }
                 }
@@ -101,50 +73,6 @@ pipeline {
                 steps {
                     script {
                         sh 'echo ":/"'
-                    }
-                }
-            }
-
-            // stage('Build') {
-            //     steps {
-            //         script {
-            //             sh 'docker-compose build'
-            //             if (env.BUILD_STATUS == 'CI') {
-            //                 sh 'docker-compose down'
-            //                 sh 'docker-compose up -d'
-            //             }
-            //         }
-            //     }
-            // }
-
-            stage('Tag and Push Backend Image to Nexus') {
-                steps {
-                    script {
-                        def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-
-                        sh "docker tag ${backendTag} ${nexusBackendTag}"
-
-                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker push ${nexusBackendTag}"
-                        }
-                        sh "docker rmi ${nexusBackendTag}"
-                    }
-                }
-            }
-
-            stage('Tag and Push Frontend Image to Nexus') {
-                steps {
-                    script {
-                        def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                        def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-
-                        sh "docker tag ${frontendTag} ${nexusFrontendTag}"
-
-                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker push ${nexusFrontendTag}"
-                        }
-                        sh "docker rmi ${nexusFrontendTag}"
                     }
                 }
             }
@@ -166,6 +94,17 @@ pipeline {
                     }
                 }
             }
+
+            stage('Deployment') {
+                steps {
+                    script {
+                        if (env.BUILD_STATUS == 'CD') {
+                            sh 'docker-compose up --build'
+                        }
+                    }
+                }
+            }
+
 
             // stage('Deployment') {
             //     steps {
@@ -196,10 +135,6 @@ pipeline {
 }
 
 def removeOldImages(imageTags, lastN, type) {
-    println "Input imageTags: ${imageTags}"
-    println "Input lastN: ${lastN}"
-    println "Input type: ${type}"
-
     if (imageTags) {
        // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
