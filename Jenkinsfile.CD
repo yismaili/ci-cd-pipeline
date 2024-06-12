@@ -20,8 +20,8 @@ pipeline {
     }
 
     environment {
-        GIT_COMMIT_SHORT = '16adef1'
-        BUILD_NUMBER = '364'
+        GIT_COMMIT_SHORT = '1034e0b'
+        BUILD_NUMBER = '379'
         BUILD_STATUS = "CD"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
