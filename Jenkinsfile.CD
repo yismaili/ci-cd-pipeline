@@ -96,7 +96,8 @@ pipeline {
                 steps {
                     script {
                         if (env.BUILD_STATUS == 'CD') {
-                            sh 'docker-compose up --build'
+                            sh 'docker-compose build'
+                            sh 'docker-compose up -d'
                         }
                     }
                 }
