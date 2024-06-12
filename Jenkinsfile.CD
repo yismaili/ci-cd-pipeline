@@ -58,6 +58,7 @@ pipeline {
                             sh "docker pull ${nexusBackendTag}"
                         }
                         sh "echo END_IMAGE=${nexusBackendTag} >> .env"
+                        sh "export BACKEND_IMAGE=${nexusBackendTag}"
                     }
                 }
             }
@@ -69,6 +70,7 @@ pipeline {
                             sh "docker pull ${nexusFrontendTag}"
                         }
                         sh "echo END_IMAGE=${nexusFrontendTag} >> .env"
+                        sh "export FRONTEND_IMAGE=${nexusFrontendTag}"
                     }
                 }
             }
