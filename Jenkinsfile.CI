@@ -18,16 +18,16 @@ pipeline {
     }
 
     environment {
-       // GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
-        NEXUS_ARTEFACT_CREDENTIALS = "${params.NEXUS_ARTEFACT_CREDENTIALS}"
+        NEXUS_ARTEFACT_CREDENTIALS = "nexus-credentials-id"
         NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
-        GIT_CREDENTIALS_ID = "${params.GIT_CREDENTIALS_ID}"
+        GIT_CREDENTIALS_ID = "github-pat"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "3"
+        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
+        ITEMNAME = "${params.ITEMNAME}"
     }
 
         stages {
