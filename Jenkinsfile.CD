@@ -20,7 +20,8 @@ pipeline {
     }
 
     environment {
-        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
+        GIT_COMMIT_SHORT = '16adef1'
+        BUILD_NUMBER = '364'
         BUILD_STATUS = "CD"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
