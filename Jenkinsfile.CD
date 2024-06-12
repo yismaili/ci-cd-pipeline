@@ -37,13 +37,19 @@ pipeline {
         stages {
             stage('Setup') {
                 steps {
-                    script { 
+                    script {
+                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        targetFolderArray = env.GIT_BRANCH.split("/")
+                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
                         '''
                     }
                 }
             }
+
             stage('Pull Backend Image From Nexus') {
                 steps {
                     script {
