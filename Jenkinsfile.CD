@@ -57,8 +57,8 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusBackendTag}"
                         }
-                        sh "echo END_IMAGE=${nexusBackendTag} >> .env"
-                        sh "export BACKEND_IMAGE=${nexusBackendTag}"
+                        sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
+                        
                     }
                 }
             }
@@ -69,8 +69,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusFrontendTag}"
                         }
-                        sh "echo END_IMAGE=${nexusFrontendTag} >> .env"
-                        sh "export FRONTEND_IMAGE=${nexusFrontendTag}"
+                        sh "echo BACKEND_IMAGE=${nexusFrontendTag} >> .env"
                     }
                 }
             }
@@ -126,7 +125,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-           // deleteDir()
+            deleteDir()
         }
         success {
             echo 'I succeeded :)'
