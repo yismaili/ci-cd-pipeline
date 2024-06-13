@@ -9,10 +9,9 @@ pipeline {
     }
      parameters {
         string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        string(name: 'BUILD_STATUS', defaultValue: 'CI', description: 'Build status')
+        string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
+        string(name: 'BUILD_NUMBER', defaultValue: '1034e0b', description: 'Build number')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        string(name: 'NEXUS_ARTEFACT_CREDENTIALS', defaultValue: 'nexus-credentials-id', description: 'Nexus credentials ID')
-        string(name: 'GIT_CREDENTIALS_ID', defaultValue: 'github-pat', description: 'Git credentials ID')
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
         string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
