@@ -19,7 +19,7 @@ pipeline {
     }
 
     environment {
-        GIT_COMMIT_SHORT = '${params.GIT_COMMIT_SHORT}'
+        GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
         BUILD_NUMBER = "${params.BUILD_NUMBER}"
         BUILD_STATUS = "CD"
         ITEMNAME = "${params.ITEMNAME}"
