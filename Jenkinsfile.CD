@@ -25,9 +25,9 @@ pipeline {
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
-        NEXUS_ARTEFACT_CREDENTIALS = "${params.NEXUS_ARTEFACT_CREDENTIALS}"
+        NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
+        GIT_CREDENTIALS_ID = 'github-pat'
         NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
-        GIT_CREDENTIALS_ID = "${params.GIT_CREDENTIALS_ID}"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
