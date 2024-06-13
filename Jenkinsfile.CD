@@ -1,3 +1,4 @@
+@Library('my-shared-library') _
 
 pipeline {
     agent any
@@ -19,8 +20,9 @@ pipeline {
     }
 
     environment {
-        GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
-        BUILD_NUMBER = "${params.BUILD_NUMBER}"
+        vars = globalVars()
+        GIT_COMMIT_SHORT = vars.GIT_COMMIT_SHORT
+        BUILD_NUMBER = vars.BUILD_NUMBER
         BUILD_STATUS = "CD"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
