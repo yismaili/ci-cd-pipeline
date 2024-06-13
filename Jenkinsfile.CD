@@ -6,21 +6,11 @@ pipeline {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
-     parameters {
-        string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
-        string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
-        string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-        string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-        string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-        string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
-    }
-
     environment {
-        vars = globalVars()
-        GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
-        BUILD_NUMBER = "${params.BUILD_NUMBER}"
+        // GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
+        // BUILD_NUMBER = "${params.BUILD_NUMBER}"
+        GIT_COMMIT_SHORT = "${env.GIT_COMMIT_SHORT ?: '1034e0b'}"
+        BUILD_NUMBER = "${env.BUILD_NUMBER ?: '379'}"
         BUILD_STATUS = "CD"
         ITEMNAME = "${params.ITEMNAME}"
         REPO_URL = "https://github.com/yismaili/ci-cd"
@@ -32,6 +22,20 @@ pipeline {
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
     }
+     parameters {
+        string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
+        // string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
+        // string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
+
+        string(name: 'GIT_COMMIT_SHORT', defaultValue: "${env.GIT_COMMIT_SHORT}", description: 'Git commit short')
+        string(name: 'BUILD_NUMBER', defaultValue: "${env.BUILD_NUMBER}", description: 'Build number')
+        string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
+        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
+        string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
+        string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
+        string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
+    }
+
 
         stages {
             stage('Setup') {
