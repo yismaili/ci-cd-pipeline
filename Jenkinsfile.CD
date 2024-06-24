@@ -58,7 +58,6 @@ pipeline {
                         unstash 'docker-image-info'
                         def dockerImageInfo = readFile('docker-image-info.txt').trim()
                         env.DOCKER_IMAGE = dockerImageInfo
-                        println "Docker image info: ${dockerImageInfo}"
                     }
                 }
             }
@@ -66,7 +65,7 @@ pipeline {
             stage('Pull Backend Image From Nexus') {
                 steps {
                     script {
-                        def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusBackendTag}"
                         }
@@ -78,7 +77,7 @@ pipeline {
             stage('Pull Frontend Image From Nexus') {
                 steps {
                     script {
-                        def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker pull ${nexusFrontendTag}"
                         }
