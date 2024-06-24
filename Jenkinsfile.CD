@@ -50,6 +50,16 @@ pipeline {
                 }
             }
 
+            stage('Retrieve Docker Image Info') {
+                steps {
+                    script {
+                        unstash '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt'
+                        def dockerImageInfo = readFile('/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt').trim()
+                        env.DOCKER_IMAGE = dockerImageInfo
+                    }
+                }
+            }
+
             stage('Pull Backend Image From Nexus') {
                 steps {
                     script {
