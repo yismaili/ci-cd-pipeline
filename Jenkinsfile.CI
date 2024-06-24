@@ -60,7 +60,7 @@ pipeline {
                             sudo mkdir -p /var/lib/jenkins/workspace/docker-image-info
                         '''
                         writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}:${env.BUILD_NUMBER}"
-                        archiveArtifacts artifacts: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', allowEmptyArchive: false
+                       // archiveArtifacts artifacts: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', allowEmptyArchive: false
                     }
                 }
             }
