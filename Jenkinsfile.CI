@@ -57,9 +57,14 @@ pipeline {
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh '''
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
-                            export GIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
-                            export BUILD_NUMBER=${BUILD_NUMBER}
+                            // export GIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
+                            // export BUILD_NUMBER=${BUILD_NUMBER}
+                            mkdir -p /var/lib/jenkins/workspace/docker-image-info
+                            echo "${GIT_COMMIT_SHORT}-${BUILD_NUMBER}" > /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt
+                            cat /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt 
                         '''
+                        writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}:${env.BUILD_NUMBER}"
+                        archiveArtifacts artifacts: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', allowEmptyArchive: false
 
                     }
                 }
