@@ -44,7 +44,7 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/env.ITEMNAME
+                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
                         '''
                     }
                 }
