@@ -53,10 +53,10 @@ pipeline {
             stage('Retrieve Docker Image Info') {
                 steps {
                     script {
-                        unstash 'docker-image-info.txt'
+                        unstash 'docker-image-info'
                         def dockerImageInfo = readFile('docker-image-info.txt').trim()
                         env.DOCKER_IMAGE = dockerImageInfo
-                        println "docker images ${dockerImageInfo}"
+                        println "Docker image info: ${dockerImageInfo}"
                     }
                 }
             }
