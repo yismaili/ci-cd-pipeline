@@ -163,21 +163,21 @@ def removeOldImages(imageTags, lastN, type) {
         def buildNumbers = imageTags.collect { tag ->
             try {
                 def parts = tag.split(':')
-                //println "Tag parts: ${parts}"
+                println "Tag parts: ${parts}"
                 def tagWithoutRepo = parts[1]
-                //println "Tag without repo: ${tagWithoutRepo}"
+                println "Tag without repo: ${tagWithoutRepo}"
                 def part_numbers = tagWithoutRepo.split('-')
                 def buildNumberPart = part_numbers[2]
-                //println "Build number part: ${buildNumberPart}"
+                println "Build number part: ${buildNumberPart}"
                 def buildNumber = buildNumberPart?.toInteger()
-               // println "Build number: ${buildNumber}"
+               println "Build number: ${buildNumber}"
                 [tag: tag, buildNumber: buildNumber]
             } catch (Exception e) {
                 println "Error parsing tag: ${tag}, error: ${e.message}"
                 [tag: tag, buildNumber: null]
             }
         }.findAll { it.buildNumber != null }
-       // println "Build numbers list: ${buildNumbers}"
+       println "Build numbers list: ${buildNumbers}"
 
         //  sort the build numbers by order
         def n = buildNumbers.size()
