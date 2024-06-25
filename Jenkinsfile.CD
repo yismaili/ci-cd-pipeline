@@ -121,12 +121,12 @@ pipeline {
     }
     steps {
         script {
-            sshagent(credentials: ['production-ssh-credentials-id']) {
-                // Define the backend and frontend image tags
-                def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-                def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
+            // Define the backend and frontend image tags
+            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
 
-                // Execute SSH commands to login to Nexus and pull Docker images
+            // Execute SSH commands to login to Nexus and pull Docker images
+            sshagent(credentials: [env.NEXUS_ARTEFACT_CREDENTIALS, 'production-ssh-credentials-id']) {
                 sh """
                 ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
                     echo "Logging into Nexus..."
