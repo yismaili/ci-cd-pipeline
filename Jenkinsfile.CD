@@ -112,22 +112,22 @@ pipeline {
             //     }
             // }
 
-            stage('Remove Unused Docker Images') {
-                steps {
-                    script {
-                        try {
-                            def images = sh(script: 'docker images --format "{{.Repository}}:{{.Tag}}"', returnStdout: true).trim().split('\n')
-                            images.each { image ->
-                                if (image.startsWith("ci-cd/backend") || image.startsWith("ci-cd/frontend")) {
-                                    sh "docker rmi ${image}"
-                                }
-                            }
-                        } catch (Exception e) {
-                            echo "Error during image cleanup: ${e}"
-                        }
-                    }
-                }
-            }
+            // stage('Remove Unused Docker Images') {
+            //     steps {
+            //         script {
+            //             try {
+            //                 def images = sh(script: 'docker images --format "{{.Repository}}:{{.Tag}}"', returnStdout: true).trim().split('\n')
+            //                 images.each { image ->
+            //                     if (image.startsWith("ci-cd/backend") || image.startsWith("ci-cd/frontend")) {
+            //                         sh "docker rmi ${image}"
+            //                     }
+            //                 }
+            //             } catch (Exception e) {
+            //                 echo "Error during image cleanup: ${e}"
+            //             }
+            //         }
+            //     }
+            // }
 
             
             stage('Deployment') {
