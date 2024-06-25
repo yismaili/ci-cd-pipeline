@@ -1,362 +1,208 @@
-// pipeline {
-//     agent any
-//     options {
-//         timeout(time: 1, unit: 'HOURS')
-//         timestamps()
-//         disableConcurrentBuilds()
-//         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
-//     }
-//         parameters {
-//             string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-//             string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
-//             string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
-
-//             // string(name: 'GIT_COMMIT_SHORT', defaultValue: '5107796', description: 'Git commit short')
-//             // string(name: 'BUILD_NUMBER', defaultValue: '403', description: 'Build number')
-//             string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-//             string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-//             string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-//             string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-//             string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
-//         }
-//         environment {
-//             GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
-//             BUILD_NUMBER = "${params.BUILD_NUMBER}"
-//             BUILD_STATUS = "CD"
-//             ITEMNAME = "${params.ITEMNAME}"
-//             REPO_URL = "https://github.com/yismaili/ci-cd"
-//             BRANCH = "${params.BRANCH}"
-//             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
-//             GIT_CREDENTIALS_ID = 'github-pat'
-//             NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
-//             REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
-//             REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
-//             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
-//             PRODUCTION_SERVER = 'root@192.168.100.76'
-//             DENTIALS_ID = 'production-ssh-credentials-id'
-//         }
-
-//         stages {
-//             stage('Setup') {
-//                 steps {
-//                     script {
-//                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-//                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-//                         targetFolderArray = env.GIT_BRANCH.split("/")
-//                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-//                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
-//                         sh '''
-//                             sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
-//                             sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
-//                         '''
-//                         // Stash docker-image-info.txt
-//                         stash includes: 'docker-image-info.txt', name: 'docker-image-info'
-//                     }
-//                 }
-//             }
-
-//             stage('Retrieve Docker Image Info') {
-//                 steps {
-//                     script {
-//                         unstash 'docker-image-info'
-//                         def dockerImageInfo = readFile('docker-image-info.txt').trim()
-//                         env.DOCKER_IMAGE = dockerImageInfo
-//                     }
-//                 }
-//             }
-
-//             stage('Pull Backend Image From Nexus') {
-//                 steps {
-//                     script {
-//                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-//                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-//                             sh "docker pull ${nexusBackendTag}"
-//                         }
-//                         sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
-                        
-//                     }
-//                 }
-//             }
-//             stage('Pull Frontend Image From Nexus') {
-//                 steps {
-//                     script {
-//                         def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
-//                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-//                             sh "docker pull ${nexusFrontendTag}"
-//                         }
-//                         sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
-//                     }
-//                 }
-//             }
-//             stage('Test') {
-//                 steps {
-//                     script {
-//                         sh 'echo ":/"'
-//                     }
-//                 }
-//             }
-
-//             stage('Remove Unused Docker Images') {
-//                 steps {
-//                     script {
-//                         try {
-                            
-//                             def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-//                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            
-//                             removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-//                             removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
-
-//                         } catch (Exception e) {
-//                             println "Error during image cleanup: ${e.message}"
-//                         }
-//                     }
-//                 }
-//             }
-
-            
-//             stage('Deployment') {
-//                 steps {
-//                     script {
-//                         if (env.BUILD_STATUS == 'CD') {
-//                             sh 'docker-compose down'
-//                             sh 'docker-compose build'
-//                             sh 'docker-compose up -d'
-//                         }
-//                     }
-//                 }
-//             }
-
-
-//             // stage('Deployment') {
-//             //     steps {
-//             //         script {
-//             //             if (env.BUILD_STATUS == 'CD') {
-//             //                 sh 'ansible-playbook -i inventory.yml deploy.yaml'
-//             //             }
-//             //         }
-//             //     }
-//             // }
-//         }
-
-//     post {
-//         always {
-//             echo 'One way or another, I have finished'
-//             deleteDir()
-//         }
-//         success {
-//             echo 'I succeeded :)'
-//         }
-//         unstable {
-//             echo 'I am unstable :/'
-//         }
-//         failure {
-//             echo 'I failed :('
-//         }
-//     }
-// }
-
-// def removeOldImages(imageTags, lastN, type) {
-//     // println "Input imageTags: ${imageTags}"
-//     // println "Input lastN: ${lastN}"
-//     // println "Input type: ${type}"
-//     if (imageTags) {
-//        // Split build numbers from image tags
-//         def buildNumbers = imageTags.collect { tag ->
-//             try {
-//                 def parts = tag.split(':')
-//               //  println "Tag parts: ${parts}"
-//                 def tagWithoutRepo = parts[2]
-//               //  println "Tag without repo: ${tagWithoutRepo}"
-//                 def part_numbers = tagWithoutRepo.split('-')
-//                 def buildNumberPart = part_numbers[2]
-//                // println "Build number part: ${buildNumberPart}"
-//                 def buildNumber = buildNumberPart?.toInteger()
-//               // println "Build number: ${buildNumber}"
-//                 [tag: tag, buildNumber: buildNumber]
-//             } catch (Exception e) {
-//                 println "Error parsing tag: ${tag}, error: ${e.message}"
-//                 [tag: tag, buildNumber: null]
-//             }
-//         }.findAll { it.buildNumber != null }
-//        //println "Build numbers list: ${buildNumbers}"
-
-//         //  sort the build numbers by order
-//         def n = buildNumbers.size()
-//         for (int i = 0; i < n - 1; i++) {
-//             for (int j = 0; j < n - i - 1; j++) {
-//                 if (buildNumbers[j].buildNumber > buildNumbers[j + 1].buildNumber) {
-//                     def temp = buildNumbers[j]
-//                     buildNumbers[j] = buildNumbers[j + 1]
-//                     buildNumbers[j + 1] = temp
-//                 }
-//             }
-//         }
-//         // println "Sorted build numbers: ${buildNumbers}"
-//         // Determine images to remove
-//        def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
-
-//         // println "Images to remove: ${imagesToRemove}"
-
-//         if (imagesToRemove) {
-//             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
-//             println "Docker remove command: ${command}"
-//             sh command
-//             println "Removed old ${type} images, keeping the last ${lastN}."
-//         } else {
-//             println "All ${type} images are among the last ${lastN} images."
-//         }
-//     } else {
-//         println "No ${type} images found."
-//     }
-// }
-
-
-
-
-
 pipeline {
     agent any
-    
     options {
         timeout(time: 1, unit: 'HOURS')
         timestamps()
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
+        parameters {
+            string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
+            string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
+            string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
 
-    parameters {
-        string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-        string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
-        string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
-        string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-        string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-        string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-        string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
-    }
-
-    environment {
-        GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
-        BUILD_NUMBER = "${params.BUILD_NUMBER}"
-        BUILD_STATUS = "CD"
-        ITEMNAME = "${params.ITEMNAME}"
-        REPO_URL = "https://github.com/yismaili/ci-cd"
-        BRANCH = "${params.BRANCH}"
-        NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
-        GIT_CREDENTIALS_ID = 'github-pat'
-        NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
-        REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
-        REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
-        IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
-        PRODUCTION_SERVER = 'root@192.168.100.76'
-        CREDENTIALS_ID = 'production-ssh-credentials-id'
-    }
-
-    stages {
-        stage('Setup') {
-            steps {
-                script {
-                    env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                    env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                    targetFolderArray = env.GIT_BRANCH.split("/")
-                    targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                    currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD"
-                    // Copy docker-image-info.txt to workspace/test2/
-                    sh '''
-                        sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
-                        sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
-                    '''
-                    // Stash docker-image-info.txt
-                    stash includes: 'docker-image-info.txt', name: 'docker-image-info'
-                }
-            }
+            // string(name: 'GIT_COMMIT_SHORT', defaultValue: '5107796', description: 'Git commit short')
+            // string(name: 'BUILD_NUMBER', defaultValue: '403', description: 'Build number')
+            string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
+            string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
+            string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
+            string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
+            string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
+        }
+        environment {
+            GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
+            BUILD_NUMBER = "${params.BUILD_NUMBER}"
+            BUILD_STATUS = "CD"
+            ITEMNAME = "${params.ITEMNAME}"
+            REPO_URL = "https://github.com/yismaili/ci-cd"
+            BRANCH = "${params.BRANCH}"
+            NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
+            GIT_CREDENTIALS_ID = 'github-pat'
+            NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
+            REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
+            REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
+            IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
+            PRODUCTION_SERVER = 'root@192.168.100.76'
+            DENTIALS_ID = 'production-ssh-credentials-id'
         }
 
-        stage('Retrieve Docker Image Info') {
-            steps {
-                script {
-                    unstash 'docker-image-info'
-                    def dockerImageInfo = readFile('docker-image-info.txt').trim()
-                    env.DOCKER_IMAGE = dockerImageInfo
+        stages {
+            stage('Setup') {
+                steps {
+                    script {
+                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        targetFolderArray = env.GIT_BRANCH.split("/")
+                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
+                        sh '''
+                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                        '''
+                        // Stash docker-image-info.txt
+                        stash includes: 'docker-image-info.txt', name: 'docker-image-info'
+                    }
                 }
             }
-        }
 
-        stage('Test') {
-            steps {
-                script {
-                    sh 'echo ":/"'
+            stage('Retrieve Docker Image Info') {
+                steps {
+                    script {
+                        unstash 'docker-image-info'
+                        def dockerImageInfo = readFile('docker-image-info.txt').trim()
+                        env.DOCKER_IMAGE = dockerImageInfo
+                    }
                 }
             }
-        }
 
-        // stage('Remove Unused Docker Images') {
-        //     steps {
-        //         script {
-        //             try {
-        //                 def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-        //                 def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+            // stage('Pull Backend Image From Nexus') {
+            //     steps {
+            //         script {
+            //             def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+            //                 sh "docker pull ${nexusBackendTag}"
+            //             }
+            //             sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
+                        
+            //         }
+            //     }
+            // }
+            // stage('Pull Frontend Image From Nexus') {
+            //     steps {
+            //         script {
+            //             def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
+            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+            //                 sh "docker pull ${nexusFrontendTag}"
+            //             }
+            //             sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
+            //         }
+            //     }
+            // }
+            stage('Test') {
+                steps {
+                    script {
+                        sh 'echo ":/"'
+                    }
+                }
+            }
 
-        //                 removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-        //                 removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
-        //             } catch (Exception e) {
-        //                 echo "Error during image cleanup: ${e.message}"
-        //             }
-        //         }
-        //     }
-        // }
+            stage('Remove Unused Docker Images') {
+                steps {
+                    script {
+                        try {
+                            
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            
+                            removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
 
-        stage('Deployment') {
+                        } catch (Exception e) {
+                            println "Error during image cleanup: ${e.message}"
+                        }
+                    }
+                }
+            }
+
+            
+           stage('Deploy to Production') {
             when {
                 expression { env.BUILD_STATUS == 'CD' }
             }
             steps {
                 script {
-                    // SSH into production server and deploy using docker-compose
                     sshagent(credentials: ['production-ssh-credentials-id']) {
-                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'cd /path/to/your/app && docker-compose down'"
-                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'cd /path/to/your/app && docker-compose build'"
-                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'cd /path/to/your/app && docker-compose up -d'"
+                        // Pull the Docker images from Nexus
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
+                        
+                        // Stop and remove existing containers
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_BACKEND} || true && docker rm ${REPOSITORY_BACKEND} || true'"
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_FRONTEND} || true && docker rm ${REPOSITORY_FRONTEND} || true'"
+                        
+                        // Run new containers
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_BACKEND} ${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
+                        sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_FRONTEND} ${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}:${GIT_COMMIT_SHORT}-${BUILD_NUMBER}'"
                     }
                 }
             }
         }
-    }
+            // stage('Deployment') {
+            //     steps {
+            //         script {
+            //             if (env.BUILD_STATUS == 'CD') {
+            //                 sh 'docker-compose down'
+            //                 sh 'docker-compose build'
+            //                 sh 'docker-compose up -d'
+            //             }
+            //         }
+            //     }
+            // }
+
+            // stage('Deployment') {
+            //     steps {
+            //         script {
+            //             if (env.BUILD_STATUS == 'CD') {
+            //                 sh 'ansible-playbook -i inventory.yml deploy.yaml'
+            //             }
+            //         }
+            //     }
+            // }
+        }
 
     post {
         always {
-            echo 'Pipeline execution completed.'
+            echo 'One way or another, I have finished'
             deleteDir()
         }
         success {
-            echo 'Deployment successful.'
+            echo 'I succeeded :)'
         }
         unstable {
-            echo 'Pipeline execution unstable.'
+            echo 'I am unstable :/'
         }
         failure {
-            echo 'Pipeline execution failed.'
+            echo 'I failed :('
         }
     }
 }
 
 def removeOldImages(imageTags, lastN, type) {
+    // println "Input imageTags: ${imageTags}"
+    // println "Input lastN: ${lastN}"
+    // println "Input type: ${type}"
     if (imageTags) {
+       // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
             try {
                 def parts = tag.split(':')
-                def tagWithoutRepo = parts[1]
+              //  println "Tag parts: ${parts}"
+                def tagWithoutRepo = parts[2]
+              //  println "Tag without repo: ${tagWithoutRepo}"
                 def part_numbers = tagWithoutRepo.split('-')
                 def buildNumberPart = part_numbers[2]
+               // println "Build number part: ${buildNumberPart}"
                 def buildNumber = buildNumberPart?.toInteger()
+              // println "Build number: ${buildNumber}"
                 [tag: tag, buildNumber: buildNumber]
             } catch (Exception e) {
-                echo "Error parsing tag: ${tag}, error: ${e.message}"
+                println "Error parsing tag: ${tag}, error: ${e.message}"
                 [tag: tag, buildNumber: null]
             }
         }.findAll { it.buildNumber != null }
+       //println "Build numbers list: ${buildNumbers}"
 
+        //  sort the build numbers by order
         def n = buildNumbers.size()
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
@@ -367,17 +213,21 @@ def removeOldImages(imageTags, lastN, type) {
                 }
             }
         }
+        // println "Sorted build numbers: ${buildNumbers}"
+        // Determine images to remove
+       def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
 
-        def imagesToRemove = buildNumbers.take(buildNumbers.size() - lastN).collect { it.tag }
+        // println "Images to remove: ${imagesToRemove}"
 
         if (imagesToRemove) {
             def command = "docker rmi -f ${imagesToRemove.join(' ')}"
-            echo "Removing old ${type} images: ${imagesToRemove}"
+            println "Docker remove command: ${command}"
             sh command
+            println "Removed old ${type} images, keeping the last ${lastN}."
         } else {
-            echo "No ${type} images to remove."
+            println "All ${type} images are among the last ${lastN} images."
         }
     } else {
-        echo "No ${type} images found."
+        println "No ${type} images found."
     }
 }
