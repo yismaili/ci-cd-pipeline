@@ -32,6 +32,8 @@ pipeline {
             REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
             REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
+            PRODUCTION_SERVER = 'root@192.168.100.76'
+            SSH_CREDENTIALS_ID_PROD = 'production-ssh-credentials-id'
         }
 
         stages {
@@ -67,25 +69,60 @@ pipeline {
                 steps {
                     script {
                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker pull ${nexusBackendTag}"
+                        sshagent([env.SSH_CREDENTIALS_ID_PROD]) {
+                            sh """
+                                ssh ${env.PRODUCTION_SERVER} << EOF
+                                // docker login -u \$(cat ${env.NEXUS_USERNAME_FILE}) -p \$(cat ${env.NEXUS_PASSWORD_FILE}) ${NEXUS_ARTEFACT_URL}
+                                docker pull ${nexusBackendTag}
+                                echo BACKEND_IMAGE=${nexusBackendTag} >> ./.env
+                                EOF
+                            """
                         }
-                        sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
-                        
                     }
                 }
             }
+
             stage('Pull Frontend Image From Nexus') {
                 steps {
                     script {
                         def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
-                        withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-                            sh "docker pull ${nexusFrontendTag}"
+                        sshagent([env.SSH_CREDENTIALS_ID_PROD]) {
+                            sh """
+                                ssh ${env.PRODUCTION_SERVER} << EOF
+                                // docker login -u \$(cat ${env.NEXUS_USERNAME_FILE}) -p \$(cat ${env.NEXUS_PASSWORD_FILE}) ${NEXUS_ARTEFACT_URL}
+                                docker pull ${nexusFrontendTag}
+                                echo FRONTEND_IMAGE=${nexusFrontendTag} >> ./.env
+                                EOF
+                            """
                         }
-                        sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
                     }
                 }
             }
+            // stage('Pull Backend Image From Nexus') {
+            //     steps {
+            //         script {
+            //             def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+            //                 sh "docker pull ${nexusBackendTag}"
+            //             }
+            //             sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
+                        
+            //         }
+            //     }
+            // }
+            // stage('Pull Frontend Image From Nexus') {
+            //     steps {
+            //         script {
+            //             def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
+            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
+            //                 sh "docker pull ${nexusFrontendTag}"
+            //             }
+            //             sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
+            //         }
+            //     }
+            // }
+
+            
             stage('Test') {
                 steps {
                     script {
@@ -113,17 +150,17 @@ pipeline {
             }
 
             
-            stage('Deployment') {
-                steps {
-                    script {
-                        if (env.BUILD_STATUS == 'CD') {
-                            sh 'docker-compose down'
-                            sh 'docker-compose build'
-                            sh 'docker-compose up -d'
-                        }
-                    }
-                }
-            }
+            // stage('Deployment') {
+            //     steps {
+            //         script {
+            //             if (env.BUILD_STATUS == 'CD') {
+            //                 sh 'docker-compose down'
+            //                 sh 'docker-compose build'
+            //                 sh 'docker-compose up -d'
+            //             }
+            //         }
+            //     }
+            // }
 
 
             // stage('Deployment') {
@@ -135,6 +172,24 @@ pipeline {
             //         }
             //     }
             // }
+            stage('Deployment') {
+                steps {
+                    script {
+                        if (env.BUILD_STATUS == 'CD') {
+                            sshagent([env.SSH_CREDENTIALS_ID_PROD]) {
+                                sh """
+                                    ssh ${env.PRODUCTION_SERVER} << EOF
+                                    cd /path/to/deployment
+                                    docker-compose down
+                                    docker-compose build
+                                    docker-compose up -d
+                                    EOF
+                                """
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     post {
@@ -155,9 +210,9 @@ pipeline {
 }
 
 def removeOldImages(imageTags, lastN, type) {
-    println "Input imageTags: ${imageTags}"
-    println "Input lastN: ${lastN}"
-    println "Input type: ${type}"
+    // println "Input imageTags: ${imageTags}"
+    // println "Input lastN: ${lastN}"
+    // println "Input type: ${type}"
     if (imageTags) {
        // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
