@@ -99,17 +99,18 @@ pipeline {
             stage('Remove Unused Docker Images') {
                 steps {
                     script {
-                        try {
+                        // try {
                             
-                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                        //     def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                        //     def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                            removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+                        //     removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                        //     removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
 
-                        } catch (Exception e) {
-                            println "Error during image cleanup: ${e.message}"
-                        }
+                        // } catch (Exception e) {
+                        //     println "Error during image cleanup: ${e.message}"
+                        // }
+                        sh 'echo "hi"'
                     }
                 }
             }
