@@ -72,7 +72,6 @@ pipeline {
                         sshagent([env.SSH_CREDENTIALS_ID_PROD]) {
                             sh """
                                 ssh ${env.PRODUCTION_SERVER} << EOF
-                                // docker login -u \$(cat ${env.NEXUS_USERNAME_FILE}) -p \$(cat ${env.NEXUS_PASSWORD_FILE}) ${NEXUS_ARTEFACT_URL}
                                 docker pull ${nexusBackendTag}
                                 echo BACKEND_IMAGE=${nexusBackendTag} >> ./.env
                                 EOF
@@ -89,7 +88,6 @@ pipeline {
                         sshagent([env.SSH_CREDENTIALS_ID_PROD]) {
                             sh """
                                 ssh ${env.PRODUCTION_SERVER} << EOF
-                                // docker login -u \$(cat ${env.NEXUS_USERNAME_FILE}) -p \$(cat ${env.NEXUS_PASSWORD_FILE}) ${NEXUS_ARTEFACT_URL}
                                 docker pull ${nexusFrontendTag}
                                 echo FRONTEND_IMAGE=${nexusFrontendTag} >> ./.env
                                 EOF
