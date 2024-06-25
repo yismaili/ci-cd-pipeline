@@ -94,46 +94,30 @@ pipeline {
                 }
             }
 
-            // stage('Remove Unused Docker Images') {
-            //     steps {
-            //         script {
-            //             try {
+            stage('Remove Unused Docker Images') {
+                steps {
+                    script {
+                        try {
                             
-            //                 def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-            //                 def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+                            def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-            //                 removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-            //                 removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+                            removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                            removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
 
-            //             } catch (Exception e) {
-            //                 println "Error during image cleanup: ${e.message}"
-            //             }
-            //         }
-            //     }
-            // }
-
-            // stage('Remove Unused Docker Images') {
-            //     steps {
-            //         script {
-            //             try {
-            //                 def images = sh(script: 'docker images --format "{{.Repository}}:{{.Tag}}"', returnStdout: true).trim().split('\n')
-            //                 images.each { image ->
-            //                     if (image.startsWith("ci-cd/backend") || image.startsWith("ci-cd/frontend")) {
-            //                         sh "docker rmi ${image}"
-            //                     }
-            //                 }
-            //             } catch (Exception e) {
-            //                 echo "Error during image cleanup: ${e}"
-            //             }
-            //         }
-            //     }
-            // }
+                        } catch (Exception e) {
+                            println "Error during image cleanup: ${e.message}"
+                        }
+                    }
+                }
+            }
 
             
             stage('Deployment') {
                 steps {
                     script {
                         if (env.BUILD_STATUS == 'CD') {
+                            sh 'docker-compose down'
                             sh 'docker-compose build'
                             sh 'docker-compose up -d'
                         }
@@ -171,6 +155,9 @@ pipeline {
 }
 
 def removeOldImages(imageTags, lastN, type) {
+    println "Input imageTags: ${imageTags}"
+    println "Input lastN: ${lastN}"
+    println "Input type: ${type}"
     if (imageTags) {
        // Split build numbers from image tags
         def buildNumbers = imageTags.collect { tag ->
