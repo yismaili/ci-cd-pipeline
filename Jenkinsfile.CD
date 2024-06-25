@@ -164,7 +164,7 @@ def removeOldImages(imageTags, lastN, type) {
             try {
                 def parts = tag.split(':')
                 println "Tag parts: ${parts}"
-                def tagWithoutRepo = parts[1]
+                def tagWithoutRepo = parts[2]
                 println "Tag without repo: ${tagWithoutRepo}"
                 def part_numbers = tagWithoutRepo.split('-')
                 def buildNumberPart = part_numbers[2]
