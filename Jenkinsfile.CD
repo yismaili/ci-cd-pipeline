@@ -115,47 +115,47 @@ pipeline {
                 }
             }
 
-            stage('Deploy to Production') {
-    when {
-        expression { env.BUILD_STATUS == 'CD' }
-    }
-    steps {
-        script {
-            // Define the backend and frontend image tags
-            def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-            def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
-
-            // Execute SSH commands to login to Nexus and pull Docker images
-            sshagent(credentials: [env.NEXUS_ARTEFACT_CREDENTIALS, 'production-ssh-credentials-id']) {
-                sh """
-                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
-                    echo "Logging into Nexus..."
-                    docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}
+             stage('Deploy to Production') {
+            when {
+                expression { env.BUILD_STATUS == 'CD' }
+            }
+            steps {
+                script {
+                    // Define the backend and frontend image tags
+                    def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+                    def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
                     
-                    echo "Pulling backend image from Nexus..."
-                    docker pull ${nexusBackendTag}
-                    
-                    echo "Pulling frontend image from Nexus..."
-                    docker pull ${nexusFrontendTag}
-                    
-                    echo "Stopping and removing existing backend container..."
-                    docker stop ${REPOSITORY_BACKEND} || true && docker rm ${REPOSITORY_BACKEND} || true
-                    
-                    echo "Stopping and removing existing frontend container..."
-                    docker stop ${REPOSITORY_FRONTEND} || true && docker rm ${REPOSITORY_FRONTEND} || true
-                    
-                    echo "Running new backend container..."
-                    docker run -d --name ${REPOSITORY_BACKEND} ${nexusBackendTag}
-                    
-                    echo "Running new frontend container..."
-                    docker run -d --name ${REPOSITORY_FRONTEND} ${nexusFrontendTag}
-                '
-                """
+                    // Execute SSH commands to login to Nexus and pull Docker images
+                    sshagent(credentials: ['production-ssh-credentials-id', env.NEXUS_ARTEFACT_CREDENTIALS]) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
+                            echo "Logging into Nexus..."
+                            docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}
+                            
+                            echo "Pulling backend image from Nexus..."
+                            docker pull ${nexusBackendTag}
+                            
+                            echo "Pulling frontend image from Nexus..."
+                            docker pull ${nexusFrontendTag}
+                            
+                            echo "Stopping and removing existing backend container..."
+                            docker stop ${REPOSITORY_BACKEND} || true && docker rm ${REPOSITORY_BACKEND} || true
+                            
+                            echo "Stopping and removing existing frontend container..."
+                            docker stop ${REPOSITORY_FRONTEND} || true && docker rm ${REPOSITORY_FRONTEND} || true
+                            
+                            echo "Running new backend container..."
+                            docker run -d --name ${REPOSITORY_BACKEND} ${nexusBackendTag}
+                            
+                            echo "Running new frontend container..."
+                            docker run -d --name ${REPOSITORY_FRONTEND} ${nexusFrontendTag}
+                        '
+                        """
+                    }
+                }
             }
         }
     }
-}
-
 
 
 
