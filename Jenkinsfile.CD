@@ -126,30 +126,31 @@ pipeline {
             }
             steps {
                 script {
+
+                    def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+                    def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
+                    sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
+                    sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
+    
                     sshagent(credentials: ['production-ssh-credentials-id']) {
-                        // Perform Docker login on the production server
+
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
                         """
-                        
-                        // Pull the Docker images from Nexus
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusBackendTag}'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'
-                        """
-                        
-                        sh """
-                            scp -o StrictHostKeyChecking=no docker-compose.yaml ${PRODUCTION_SERVER}:/root/docker-compose.yaml
-                        """
-                        
-                        // Run docker-compose commands on the production server
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /root/docker-compose.yaml down'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusFrontendTag}'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /root/docker-compose.yaml up -d'
+                            scp -o StrictHostKeyChecking=no docker-compose.yaml ${PRODUCTION_SERVER}:/home/docker-compose.yaml
+                        """
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yaml down'
+                        """
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/docker-compose.yaml up -d'
                         """
                         // // Stop and remove existing containers
                         // sh """
