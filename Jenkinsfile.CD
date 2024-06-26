@@ -145,14 +145,14 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusFrontendTag}'
                         """
                         sh """
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yaml ${PRODUCTION_SERVER}:/home/docker-compose.yaml
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/docker-compose.yaml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/docker-compose.yml
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yaml down'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yml down'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/docker-compose.yaml up -d'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/docker-compose.yml up -d'
                         """
                         // // Stop and remove existing containers
                         // sh """
