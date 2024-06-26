@@ -141,15 +141,15 @@ pipeline {
                         """
                         
                         sh """
-                            scp -o StrictHostKeyChecking=no docker-compose.yaml root@${PRODUCTION_SERVER}:/root/docker-compose.yaml
+                            scp -o StrictHostKeyChecking=no docker-compose.yaml ${PRODUCTION_SERVER}:/root/docker-compose.yaml
                         """
                         
                         // Run docker-compose commands on the production server
                         sh """
-                            ssh -o StrictHostKeyChecking=no root@${PRODUCTION_SERVER} 'docker-compose -f /root/docker-compose.yaml down'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /root/docker-compose.yaml down'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no root@${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /root/docker-compose.yaml up -d'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /root/docker-compose.yaml up -d'
                         """
                         // // Stop and remove existing containers
                         // sh """
