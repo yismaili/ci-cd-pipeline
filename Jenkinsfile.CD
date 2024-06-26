@@ -139,9 +139,9 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
                         """
                        sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'sudo mkdir -p /home/prod'
-                            scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/test2/docker-compose.yml root@${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/prod/docker-compose.yml up -d'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/prod/.env
                         """
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
