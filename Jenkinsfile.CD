@@ -32,7 +32,7 @@ pipeline {
             REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
             REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
-            PRODUCTION_SERVER = '192.168.100.76'
+            PRODUCTION_SERVER = 'root@192.168.100.76'
             DENTIALS_ID = 'production-ssh-credentials-id'
         }
 
