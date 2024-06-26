@@ -116,73 +116,62 @@ pipeline {
             }
 
            stage('Deploy to Production') {
-    environment {
-        NEXUS_USERNAME = 'admin'
-        // Fetch the Nexus password from Jenkins credentials
-        NEXUS_PASSWORD = 'c9c95cac0f@ismaili'
-    }
-    when {
-        expression { env.BUILD_STATUS == 'CD' }
-    }
-    steps {
-        script {
-            sshagent(credentials: ['production-ssh-credentials-id']) {
-                // Perform Docker login on the production server
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
-                """
-                
-                // Pull the Docker images from Nexus
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'
-                """
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'
-                """
-                
-                // Stop and remove existing containers
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_BACKEND.replaceAll('/', '-')} || true && docker rm ${REPOSITORY_BACKEND.replaceAll('/', '-')} || true'
-                """
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_FRONTEND.replaceAll('/', '-')} || true && docker rm ${REPOSITORY_FRONTEND.replaceAll('/', '-')} || true'
-                """
-                
-                // Run new containers
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_BACKEND.replaceAll('/', '-')} ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'
-                """
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_FRONTEND.replaceAll('/', '-')} ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'
-                """
+            environment {
+                NEXUS_USERNAME = 'admin'
+                // Fetch the Nexus password from Jenkins credentials
+                NEXUS_PASSWORD = 'c9c95cac0f@ismaili'
+            }
+            when {
+                expression { env.BUILD_STATUS == 'CD' }
+            }
+            steps {
+                script {
+                    sshagent(credentials: ['production-ssh-credentials-id']) {
+                        // Perform Docker login on the production server
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
+                        """
+                        
+                        // Pull the Docker images from Nexus
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'
+                        """
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'
+                        """
+                        
+                        sh """
+                            scp -o StrictHostKeyChecking=no docker-compose.yaml root@${PRODUCTION_SERVER}:/root/docker-compose.yaml
+                        """
+                        
+                        // Run docker-compose commands on the production server
+                        sh """
+                            ssh -o StrictHostKeyChecking=no root@${PRODUCTION_SERVER} 'docker-compose -f /root/docker-compose.yaml down'
+                        """
+                        sh """
+                            ssh -o StrictHostKeyChecking=no root@${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /root/docker-compose.yaml up -d'
+                        """
+                        // // Stop and remove existing containers
+                        // sh """
+                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_BACKEND.replaceAll('/', '-')} || true && docker rm ${REPOSITORY_BACKEND.replaceAll('/', '-')} || true'
+                        // """
+                        // sh """
+                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_FRONTEND.replaceAll('/', '-')} || true && docker rm ${REPOSITORY_FRONTEND.replaceAll('/', '-')} || true'
+                        // """
+                        
+                        // // Run new containers
+                        // sh """
+                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_BACKEND.replaceAll('/', '-')} ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'
+                        // """
+                        // sh """
+                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_FRONTEND.replaceAll('/', '-')} ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'
+                        // """
+                    }
+                }
             }
         }
-    }
+
 }
-
-
-            // stage('Deployment') {
-            //     steps {
-            //         script {
-            //             if (env.BUILD_STATUS == 'CD') {
-            //                 sh 'docker-compose down'
-            //                 sh 'docker-compose build'
-            //                 sh 'docker-compose up -d'
-            //             }
-            //         }
-            //     }
-            // }
-
-            // stage('Deployment') {
-            //     steps {
-            //         script {
-            //             if (env.BUILD_STATUS == 'CD') {
-            //                 sh 'ansible-playbook -i inventory.yml deploy.yaml'
-            //             }
-            //         }
-            //     }
-            // }
-        }
 
     post {
         always {
