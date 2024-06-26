@@ -119,7 +119,7 @@ pipeline {
     environment {
         NEXUS_USERNAME = 'admin'
         // Fetch the Nexus password from Jenkins credentials
-        NEXUS_PASSWORD = credentials('nexus-password-id')
+        NEXUS_PASSWORD = 'c9c95cac0f@ismaili'
     }
     when {
         expression { env.BUILD_STATUS == 'CD' }
