@@ -119,7 +119,7 @@ pipeline {
            stage('Deploy to Production') {
             environment {
                 NEXUS_USERNAME = 'admin'
-                // Fetch the Nexus password from Jenkins credentials
+                // I have to fetch the nexus password from jenkins credentials !!!!!!
                 NEXUS_PASSWORD = 'c9c95cac0f@ismaili'
             }
             when {
@@ -138,21 +138,18 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
                         """
-                        // sh """
-                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusBackendTag}'
-                        // """
-                        // sh """
-                        //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusFrontendTag}'
-                        // """
                         sh """
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/docker-compose.yml
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/.env
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/prod/.env
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yml down'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/docker-compose.yml up -d'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/prod/docker-compose.yml up -d'
+                        """
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
                         """
                     }
                 }
