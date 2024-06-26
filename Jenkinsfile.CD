@@ -146,7 +146,7 @@ pipeline {
                         """
                         sh """
                             scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/docker-compose.yml
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/.env
                         """
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yml down'
