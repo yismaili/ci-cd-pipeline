@@ -126,7 +126,7 @@ pipeline {
     }
     steps {
         script {
-            sshagent(credentials: ['production-ssh-credentials-id']) {
+             sshagent(credentials: ['production-ssh-credentials-id']) {
                 // Perform Docker login on the production server
                 sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'"
                 
@@ -135,12 +135,12 @@ pipeline {
                 sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'"
                 
                 // Stop and remove existing containers
-                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_BACKEND} || true && docker rm ${REPOSITORY_BACKEND} || true'"
-                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_FRONTEND} || true && docker rm ${REPOSITORY_FRONTEND} || true'"
+                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_BACKEND//\//-} || true && docker rm ${REPOSITORY_BACKEND//\//-} || true'"
+                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker stop ${REPOSITORY_FRONTEND//\//-} || true && docker rm ${REPOSITORY_FRONTEND//\//-} || true'"
                 
                 // Run new containers
-                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_BACKEND} ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'"
-                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_FRONTEND} ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'"
+                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_BACKEND//\//-} ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'"
+                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker run -d --name ${REPOSITORY_FRONTEND//\//-} ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'"
             }
         }
     }
