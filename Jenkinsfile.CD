@@ -147,7 +147,8 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
                         """
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/prod/docker-compose.yml up -d'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}  docker-compose -f /home/prod/docker-compose.yml up -d'
+                            // ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'DOCKER_IMAGE=${DOCKER_IMAGE} docker-compose -f /home/prod/docker-compose.yml up -d'
                         """
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
