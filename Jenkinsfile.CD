@@ -139,7 +139,7 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
                         """
                         sh """
-                            mkdir -p /home/prod/
+                            sudo mkdir -p /home/prod/
                             scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
                             scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/prod/.env
                         """
