@@ -144,8 +144,8 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${nexusFrontendTag}'
                         """
                         sh """
-                            scp -o StrictHostKeyChecking=no docker-compose.yaml ${PRODUCTION_SERVER}:/home/docker-compose.yaml
-                            scp -o StrictHostKeyChecking=no .env ${PRODUCTION_SERVER}:/home/docker-compose.yaml
+                            scp -o StrictHostKeyChecking=no ./docker-compose.yaml ${PRODUCTION_SERVER}:/home/docker-compose.yaml
+                            scp -o StrictHostKeyChecking=no ./.env ${PRODUCTION_SERVER}:/home/docker-compose.yaml
                         """
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/docker-compose.yaml down'
