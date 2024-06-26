@@ -127,7 +127,9 @@ pipeline {
     steps {
         script {
             sshagent(credentials: ['production-ssh-credentials-id']) {
-                sh "docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}"
+                // Perform Docker login on the production server
+                sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'"
+                
                 // Pull the Docker images from Nexus
                 sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}'"
                 sh "ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker pull ${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}'"
@@ -143,6 +145,7 @@ pipeline {
         }
     }
 }
+
 
 
             // stage('Deployment') {
