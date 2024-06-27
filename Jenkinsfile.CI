@@ -26,7 +26,7 @@ pipeline {
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "2"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        ENV_SPACE = "/var/lib/jenkins/workspace/env"
+        ENV = "/var/lib/jenkins/workspace/env"
         WORKSPACE = "/var/lib/jenkins/workspace"
         DOCKER_IMAGES_INFO = "var/lib/jenkins/workspace/docker-image-info"
     }
@@ -58,7 +58,7 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh '''
-                            sudo cp ${ENV_DIR}/.env ${WORKSPACE}/${jobName}/.env
+                            sudo cp ${ENV}/.env ${WORKSPACE}/${jobName}/.env
                             sudo mkdir -p ${DOCKER_IMAGES_INFO}
                         '''
                         writeFile file: '${DOCKER_IMAGES_INFO}/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
