@@ -25,7 +25,7 @@ pipeline {
         GIT_CREDENTIALS_ID = "github-pat"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
-        IMAGES_TO_KEEP = "3"
+        IMAGES_TO_KEEP = "1"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         ITEMNAME = "${params.ITEMNAME}"
     }
@@ -60,7 +60,6 @@ pipeline {
                             sudo mkdir -p /var/lib/jenkins/workspace/docker-image-info
                         '''
                         writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                       // archiveArtifacts artifacts: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', allowEmptyArchive: false
                     }
                 }
             }
@@ -73,8 +72,6 @@ pipeline {
                             sh """
                             echo "Preparing Frontend"
                             docker build -t ${frontendTag} .
-                            cd ..
-                            echo "FRONTEND_IMAGE=${frontendTag}" >> .env
                             """
                         }
                     }
@@ -89,8 +86,6 @@ pipeline {
                             sh """
                             echo "Preparing Backend"
                             docker build -t ${backendTag} .
-                            cd ..
-                            echo "BACKEND_IMAGE=${backendTag}" >> .env
                             """
                         }
                     }
