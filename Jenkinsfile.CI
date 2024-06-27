@@ -53,11 +53,11 @@ pipeline {
                 steps {
                     script {
                         def jobName = currentBuild.fullDisplayName.split(' ')[0]
-                        env.CUSTOMNAME = env.BRANCH.split("/")[1]
-                        env.APPNAME = sh(script: 'basename -s .git ${env.REPO_URL}', returnStdout: true).trim()
-                        def targetFolderArray = env.BRANCH.split("/")
-                        def targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        currentBuild.displayName = "${env.CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI"
+                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        targetFolderArray = env.GIT_BRANCH.split("/")
+                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh """
                             cp ${env.ENV}.env ${env.WORKSPACE}/${jobName}/.env
                             mkdir -p ${env.DOCKER_IMAGES_INFO}
