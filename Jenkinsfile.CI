@@ -50,6 +50,9 @@ pipeline {
             stage('Setup') {
                 steps {
                     script {
+                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
+println "Job name: ${jobName}"
+
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
