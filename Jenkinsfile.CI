@@ -8,23 +8,18 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
      parameters {
-        string(name: 'ITEMNAME', defaultValue: 'TEST', description: 'Item name')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-        string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-        string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-        string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
         booleanParam(name: 'CLEAN_ALL', defaultValue: false, description: 'Clean all images and containers')
-        string(name: 'SCRIPT_PATH', defaultValue: 'Jenkinsfile.CI', description: 'Path to the Jenkins script')
     }
 
     environment {
         REPO_URL = "https://github.com/yismaili/ci-cd"
         BRANCH = "${params.BRANCH}"
         NEXUS_ARTEFACT_CREDENTIALS = "nexus-credentials-id"
-        NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
+        NEXUS_ARTEFACT_URL = "192.168.100.75:8585"
         GIT_CREDENTIALS_ID = "github-pat"
-        REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
-        REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
+        REPOSITORY_FRONTEND = "ci-cd/frontend"
+        REPOSITORY_BACKEND = "ci-cd/backend"
         IMAGES_TO_KEEP = "2"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         ENV = "/var/lib/jenkins/workspace/env/"
