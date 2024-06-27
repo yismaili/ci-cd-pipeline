@@ -68,9 +68,9 @@ pipeline {
             }
 
             stage('Preparing Frontend') {
-                    when {
-                        expression {!params.CLEAN_ALL}
-                    }
+                when {
+                    expression {!params.CLEAN_ALL}
+                }
                 steps {
                     script {
                         dir('frontend') {
@@ -85,9 +85,9 @@ pipeline {
             }
 
             stage('Preparing Backend') {
-                        when {
-                            expression {!params.CLEAN_ALL}
-                        }
+                when {
+                    expression {!params.CLEAN_ALL}
+                }
                 steps {
                     script {
                         dir('backend') {
@@ -102,9 +102,9 @@ pipeline {
             }
 
             stage('Tag and Push Backend Image to Nexus') {
-                    when {
-                        expression {!params.CLEAN_ALL}
-                    }
+                when {
+                    expression {!params.CLEAN_ALL}
+                }
                 steps {
                     script {
                         def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
@@ -121,9 +121,9 @@ pipeline {
             }
 
             stage('Tag and Push Frontend Image to Nexus') {
-                    when {
-                        expression {!params.CLEAN_ALL}
-                    }
+                when {
+                    expression {!params.CLEAN_ALL}
+                }
                 steps {
                     script {
                         def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
