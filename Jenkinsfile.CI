@@ -25,7 +25,7 @@ pipeline {
         GIT_CREDENTIALS_ID = "github-pat"
         REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
-        IMAGES_TO_KEEP = "1"
+        IMAGES_TO_KEEP = "2"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         ITEMNAME = "${params.ITEMNAME}"
     }
