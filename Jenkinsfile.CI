@@ -148,8 +148,7 @@ pipeline {
                             def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
                             if (params.CLEAN_ALL) {
-                                sh "docker rm -f \$(docker ps -aq) || true"
-                                sh "docker rmi -f \$(docker images -aq) || true"
+                                sh "docker system prune -a -f"
                                 println "Cleaned all Docker images and containers."
                             } else {
                                 removeOldImages(backendTags, env.IMAGES_TO_KEEP.toInteger(), "backend")
