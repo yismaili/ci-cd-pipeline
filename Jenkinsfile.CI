@@ -60,7 +60,7 @@ pipeline {
                             sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/CI_test/.env
                             sudo mkdir -p /var/lib/jenkins/workspace/docker-image-info
                             sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/docker-image-info
-                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/.env
+                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/env
                         '''
                         writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                     }
