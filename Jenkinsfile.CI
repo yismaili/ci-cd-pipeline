@@ -7,7 +7,7 @@ pipeline {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
-     parameters {
+    parameters {
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
@@ -18,53 +18,48 @@ pipeline {
 
     environment {
         REPO_URL = "https://github.com/yismaili/ci-cd"
-        BRANCH = "${params.BRANCH}"
         NEXUS_ARTEFACT_CREDENTIALS = "nexus-credentials-id"
-        NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
         GIT_CREDENTIALS_ID = "github-pat"
-        REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
-        REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "2"
-        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        ENV = "/var/lib/jenkins/workspace/env"
+        ENV = "/var/lib/jenkins/workspace/env/"
         WORKSPACE = "/var/lib/jenkins/workspace"
-        DOCKER_IMAGES_INFO = "var/lib/jenkins/workspace/docker-image-info"
+        DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-image-info"
     }
 
-        stages {
-            
-            stage('Checkout') {
-                steps {
-                    script {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: env.BRANCH]],
-                            userRemoteConfigs: [[
-                                url: env.REPO_URL,
-                                credentialsId: env.GIT_CREDENTIALS_ID
-                            ]]
-                        ])
-                    }
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: params.BRANCH]],
+                        userRemoteConfigs: [[
+                            url: env.REPO_URL,
+                            credentialsId: env.GIT_CREDENTIALS_ID
+                        ]]
+                    ])
+                    env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                 }
             }
+        }
 
-            stage('Setup') {
-                steps {
-                    script {
-                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
-                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        targetFolderArray = env.GIT_BRANCH.split("/")
-                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
-                        sh '''
-                            sudo cp ${ENV}/.env ${WORKSPACE}/${jobName}/.env
-                            sudo mkdir -p ${DOCKER_IMAGES_INFO}
-                        '''
-                        writeFile file: '${DOCKER_IMAGES_INFO}/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                    }
+        stage('Setup') {
+            steps {
+                script {
+                    def jobName = currentBuild.fullDisplayName.split(' ')[0]
+                    env.CUSTOMNAME = env.BRANCH.split("/")[1]
+                    env.APPNAME = sh(script: 'basename -s .git ${env.REPO_URL}', returnStdout: true).trim()
+                    def targetFolderArray = env.BRANCH.split("/")
+                    def targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                    currentBuild.displayName = "${env.CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
+                    sh '''
+                        sudo cp ${ENV}/.env ${WORKSPACE}/${jobName}/.env
+                        sudo mkdir -p ${DOCKER_IMAGES_INFO}
+                    '''
+                    writeFile file: "${DOCKER_IMAGES_INFO}/docker-image-info.txt", text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                 }
             }
+        }
 
             stage('Preparing Frontend') {
                 steps {
