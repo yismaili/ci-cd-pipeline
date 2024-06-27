@@ -59,7 +59,7 @@ println "Job name: ${jobName}"
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh '''
-                            sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/${jobName}
+                            sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/${jobName}/.env
                             sudo mkdir -p /var/lib/jenkins/workspace/docker-image-info
                         '''
                         writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
