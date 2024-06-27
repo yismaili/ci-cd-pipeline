@@ -70,8 +70,8 @@ pipeline {
                         dir('frontend') {
                             def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
-                            echo "Preparing Frontend"
-                            docker build -t ${frontendTag} .
+                                echo "Preparing Frontend"
+                                docker build -t ${frontendTag} .
                             """
                         }
                     }
@@ -84,18 +84,10 @@ pipeline {
                         dir('backend') {
                             def backendTag = "${REPOSITORY_BACKEND}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
-                            echo "Preparing Backend"
-                            docker build -t ${backendTag} .
+                                echo "Preparing Backend"
+                                docker build -t ${backendTag} .
                             """
                         }
-                    }
-                }
-            }
-
-            stage('Test') {
-                steps {
-                    script {
-                        sh 'echo ":/"'
                     }
                 }
             }
@@ -160,7 +152,7 @@ pipeline {
     post {
         always {
             echo 'One way or another, I have finished'
-            //deleteDir()
+            deleteDir()
         }
         success {
             echo 'I succeeded :)'
@@ -178,7 +170,6 @@ def removeOldImages(imageTags, lastN, type) {
     if (imageTags) {
         def buildNumbers = imageTags.collect { tag ->
             try {
-
                 def parts = tag.split(':')
                 def tagWithoutRepo = parts[1]
                 def part_numbers = tagWithoutRepo.split('-')
