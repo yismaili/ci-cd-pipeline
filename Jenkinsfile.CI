@@ -46,9 +46,9 @@ pipeline {
 
             stage('Setup') {
                 steps {
-                    when {
-                        expression {!params.CLEAN_ALL}
-                    }
+                    // when {
+                    //     expression {!params.CLEAN_ALL}
+                    // }
                     script {
                         def jobName = currentBuild.fullDisplayName.split(' ')[0]
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
