@@ -46,6 +46,9 @@ pipeline {
 
             stage('Setup') {
                 steps {
+                    when {
+                        expression {!params.CLEAN_ALL}
+                    }
                     script {
                         def jobName = currentBuild.fullDisplayName.split(' ')[0]
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
@@ -66,6 +69,9 @@ pipeline {
 
             stage('Preparing Frontend') {
                 steps {
+                    when {
+                        expression {!params.CLEAN_ALL}
+                    }
                     script {
                         dir('frontend') {
                             def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
@@ -81,6 +87,9 @@ pipeline {
             stage('Preparing Backend') {
                 steps {
                     script {
+                        when {
+                            expression {!params.CLEAN_ALL}
+                        }
                         dir('backend') {
                             def backendTag = "${REPOSITORY_BACKEND}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
@@ -94,6 +103,9 @@ pipeline {
 
             stage('Tag and Push Backend Image to Nexus') {
                 steps {
+                    when {
+                        expression {!params.CLEAN_ALL}
+                    }
                     script {
                         def backendTag = "${REPOSITORY_BACKEND}:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
@@ -110,6 +122,9 @@ pipeline {
 
             stage('Tag and Push Frontend Image to Nexus') {
                 steps {
+                    when {
+                        expression {!params.CLEAN_ALL}
+                    }
                     script {
                         def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                         def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
