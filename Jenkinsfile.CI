@@ -8,7 +8,6 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
      parameters {
-        string(name: 'ITEMNAME', defaultValue: 'TEST', description: 'Item name')
         string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
         string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
         string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
@@ -27,7 +26,9 @@ pipeline {
         REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
         IMAGES_TO_KEEP = "2"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
-        ITEMNAME = "${params.ITEMNAME}"
+        ENV_SPACE = "/var/lib/jenkins/workspace/env"
+        WORKSPACE = "/var/lib/jenkins/workspace"
+        DOCKER_IMAGES_INFO = "var/lib/jenkins/workspace/docker-image-info"
     }
 
         stages {
@@ -51,18 +52,16 @@ pipeline {
                 steps {
                     script {
                         def jobName = currentBuild.fullDisplayName.split(' ')[0]
-println "Job name: ${jobName}"
-
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CI" 
                         sh '''
-                            sudo cp /var/lib/jenkins/workspace/env/.env /var/lib/jenkins/workspace/${jobName}/.env
-                            sudo mkdir -p /var/lib/jenkins/workspace/docker-image-info
+                            sudo cp ${ENV_DIR}/.env ${WORKSPACE}/${jobName}/.env
+                            sudo mkdir -p ${DOCKER_IMAGES_INFO}
                         '''
-                        writeFile file: '/var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                        writeFile file: '${DOCKER_IMAGES_INFO}/docker-image-info.txt', text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                     }
                 }
             }
@@ -73,8 +72,8 @@ println "Job name: ${jobName}"
                         dir('frontend') {
                             def frontendTag = "${REPOSITORY_FRONTEND}:frontend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
-                            echo "Preparing Frontend"
-                            docker build -t ${frontendTag} .
+                                echo "Preparing Frontend"
+                                docker build -t ${frontendTag} .
                             """
                         }
                     }
@@ -87,8 +86,8 @@ println "Job name: ${jobName}"
                         dir('backend') {
                             def backendTag = "${REPOSITORY_BACKEND}:backend-${GIT_COMMIT_SHORT}-${BUILD_NUMBER}"
                             sh """
-                            echo "Preparing Backend"
-                            docker build -t ${backendTag} .
+                                echo "Preparing Backend"
+                                docker build -t ${backendTag} .
                             """
                         }
                     }
