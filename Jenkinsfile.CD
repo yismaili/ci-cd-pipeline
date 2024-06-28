@@ -35,20 +35,23 @@ pipeline {
             PRODUCTION_SERVER = 'root@192.168.100.76'
             DENTIALS_ID = 'production-ssh-credentials-id'
             WORKSPACE = pwd()
+            DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-image-info"
+            ENV = "/var/lib/jenkins/workspace/env/"
         }
 
         stages {
             stage('Setup') {
                 steps {
                     script {
+                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
-                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                            sudo cp ${env.DOCKER_IMAGES_INFO}/docker-image-info.txt ${env.WORKSPACE}/${jobName}/docker-image-info.txt
+                            // sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
                         '''
                         stash includes: 'docker-image-info.txt', name: 'docker-image-info'
                     }
@@ -65,29 +68,6 @@ pipeline {
                 }
             }
 
-            // stage('Pull Backend Image From Nexus') {
-            //     steps {
-            //         script {
-            //             def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-            //                 sh "docker pull ${nexusBackendTag}"
-            //             }
-            //             sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
-                        
-            //         }
-            //     }
-            // }
-            // stage('Pull Frontend Image From Nexus') {
-            //     steps {
-            //         script {
-            //             def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
-            //             withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
-            //                 sh "docker pull ${nexusFrontendTag}"
-            //             }
-            //             sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
-            //         }
-            //     }
-            // }
             stage('Test') {
                 steps {
                     script {
@@ -96,24 +76,57 @@ pipeline {
                 }
             }
 
-            stage('Remove Unused Docker Images') {
-                steps {
-                    script {
-                        // try {
+            // stage('Remove Unused Docker Images') {
+            //     steps {
+            //         script {
+            //             try {
                             
-                        //     def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
-                        //     def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+            //                 def backendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
+            //                 def frontendTags = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep '${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}' || true", returnStdout: true).trim().split('\n').findAll { it }
                             
-                        //     removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-                        //     removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+            //                 removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+            //                 removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
 
-                        // } catch (Exception e) {
-                        //     println "Error during image cleanup: ${e.message}"
-                        // }
-                        sh 'echo "hi"'
+            //             } catch (Exception e) {
+            //                 println "Error during image cleanup: ${e.message}"
+            //             }
+            //             sh 'echo "hi"'
+            //         }
+            //     }
+            // }
+
+            stage('Remove Unused Docker Images on Production') {
+            steps {
+                script {
+                    sshagent(credentials: ['production-ssh-credentials-id']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}" > backend-images.txt'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}" > frontend-images.txt'
+                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/backend-images.txt ${WORKSPACE}/backend-images.txt
+                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt ${WORKSPACE}/frontend-images.txt
+                        """
+
+                        def backendTags = readFile("${WORKSPACE}/backend-images.txt").trim().split('\n').findAll { it }
+                        def frontendTags = readFile("${WORKSPACE}/frontend-images.txt").trim().split('\n').findAll { it }
+                        
+                        removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                        removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+
+                        writeFile file: "${WORKSPACE}/backend-images.txt", text: backendTags.join('\n')
+                        writeFile file: "${WORKSPACE}/frontend-images.txt", text: frontendTags.join('\n')
+
+                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/backend-images.txt ${PRODUCTION_SERVER}:/home/prod/backend-images.txt
+                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/frontend-images.txt ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt
+
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/backend-images.txt)'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/frontend-images.txt)'
+                        """
                     }
                 }
             }
+        }
+
 
            stage('Deploy to Production') {
             environment {
