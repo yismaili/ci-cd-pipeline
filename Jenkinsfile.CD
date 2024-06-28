@@ -79,13 +79,15 @@ pipeline {
                 }
             }
 
-           stage('Preparing Docker compose file') {
+            stage('Preparing Docker compose file') {
                 steps {
-                    sh """
-                        sed -i 's|FRONTEND_IMAGE|192.168.100.75:8585/ci-cd/backend:backend-452573c-28|g' docker-compose.yml
-                        sed -i 's|BACKEND_IMAGE|192.168.100.75:8585/ci-cd/backend:backend-452573c-28|g' docker-compose.yml
-                    """
-                    sh 'cat docker-compose.yml' // To verify the replacement
+                    script {
+                        sh """
+                            sed -i 's|FRONTEND_IMAGE|${env.FRONTEND_DOCKER_IMAGE}|g' docker-compose.yml
+                            sed -i 's|BACKEND_IMAGE|${env.BACKEND_DOCKER_IMAGE}|g' docker-compose.yml
+                        """
+                        sh 'cat docker-compose.yml' // To verify the replacement
+                    }
                 }
             }
 
