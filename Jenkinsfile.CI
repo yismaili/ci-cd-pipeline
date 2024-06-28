@@ -24,7 +24,9 @@ pipeline {
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short ${GIT_COMMIT}", returnStdout: true).trim()
         ENV = "/var/lib/jenkins/workspace/env/"
         WORKSPACE = "/var/lib/jenkins/workspace"
-        DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-image-info"
+        DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-images-info"
+        BACKEND_IMAGES_INFO = "${DOCKER_IMAGES_INFO}/backend-image.txt"
+        FRONTEND_IMAGES_INFO = "${DOCKER_IMAGES_INFO}/frontend-image.txt"
     }
 
         stages {
@@ -62,7 +64,6 @@ pipeline {
                             chown -R jenkins:jenkins ${env.DOCKER_IMAGES_INFO}
                             chown jenkins:jenkins ${env.ENV}
                         """
-                        writeFile file: "${env.DOCKER_IMAGES_INFO}/docker-image-info.txt", text: "${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                     }
                 }
             }
@@ -115,6 +116,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker push ${nexusBackendTag}"
                         }
+                        writeFile file: "${BACKEND_IMAGES_INFO}", text: "${nexusBackendTag}"
                         sh "docker rmi ${nexusBackendTag}"
                     }
                 }
@@ -134,6 +136,7 @@ pipeline {
                         withDockerRegistry([url: "http://${env.NEXUS_ARTEFACT_URL}", credentialsId: env.NEXUS_ARTEFACT_CREDENTIALS]) {
                             sh "docker push ${nexusFrontendTag}"
                         }
+                        writeFile file: "${FRONTEND_IMAGES_INFO}", text: "${nexusFrontendTag}"
                         sh "docker rmi ${nexusFrontendTag}"
                     }
                 }
