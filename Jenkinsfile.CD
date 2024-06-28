@@ -34,7 +34,7 @@ pipeline {
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
             PRODUCTION_SERVER = 'root@192.168.100.76'
             DENTIALS_ID = 'production-ssh-credentials-id'
-            WORKSPACE = pwd()
+            WORKSPACE = "/var/lib/jenkins/workspace"
             DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-image-info"
             ENV = "/var/lib/jenkins/workspace/env/"
         }
@@ -51,7 +51,7 @@ pipeline {
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
                             sudo cp ${env.DOCKER_IMAGES_INFO}/docker-image-info.txt ${env.WORKSPACE}/${jobName}/docker-image-info.txt
-                            // sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                            sudo chown jenkins:jenkins ${env.WORKSPACE}/${jobName}/docker-image-info.txt
                         '''
                         stash includes: 'docker-image-info.txt', name: 'docker-image-info'
                     }
