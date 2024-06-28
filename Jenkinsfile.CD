@@ -53,11 +53,12 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh """
-                            echo "${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt"
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
+                            cp ${env.ENV} ${WORKSPACE}/${jobName}/.env
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins ${WORKSPACE}/${jobName}/.env
                         """
                         stash includes: "${env.BACKEND_IMAGE_TAG}.txt", name: "${env.BACKEND_IMAGE_TAG}"
                         stash includes: "${env.FRONTEND_IMAGE_TAG}.txt", name: "${env.FRONTEND_IMAGE_TAG}"
@@ -120,6 +121,7 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
                             scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/.env ${PRODUCTION_SERVER}:/home/prod/.env
                         """
                         
                         sh """
