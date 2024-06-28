@@ -96,36 +96,51 @@ pipeline {
             // }
 
             stage('Remove Unused Docker Images on Production') {
-            steps {
-                script {
-                    sshagent(credentials: ['production-ssh-credentials-id']) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}" > backend-images.txt'
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}" > frontend-images.txt'
-                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/backend-images.txt ${WORKSPACE}/backend-images.txt
-                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt ${WORKSPACE}/frontend-images.txt
-                        """
+    steps {
+        script {
+            sshagent(credentials: ['production-ssh-credentials-id']) {
+                sh """
+                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
+                        docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}" > /home/prod/backend-images.txt &&
+                        docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}" > /home/prod/frontend-images.txt
+                    '
+                """
+                sh """
+                    scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/backend-images.txt ${WORKSPACE}/backend-images.txt
+                    scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt ${WORKSPACE}/frontend-images.txt
+                """
+                
+                def backendTags = readFile("${WORKSPACE}/backend-images.txt").trim().split('\n').findAll { it }
+                def frontendTags = readFile("${WORKSPACE}/frontend-images.txt").trim().split('\n').findAll { it }
 
-                        def backendTags = readFile("${WORKSPACE}/backend-images.txt").trim().split('\n').findAll { it }
-                        def frontendTags = readFile("${WORKSPACE}/frontend-images.txt").trim().split('\n').findAll { it }
-                        
-                        removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-                        removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
-
-                        writeFile file: "${WORKSPACE}/backend-images.txt", text: backendTags.join('\n')
-                        writeFile file: "${WORKSPACE}/frontend-images.txt", text: frontendTags.join('\n')
-
-                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/backend-images.txt ${PRODUCTION_SERVER}:/home/prod/backend-images.txt
-                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/frontend-images.txt ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt
-
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/backend-images.txt)'
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/frontend-images.txt)'
-                        """
-                    }
+                // Hypothetical function that removes old images and returns the updated list
+                def removeOldImages = { tags, count, type ->
+                    def sortedTags = tags.sort().reverse()
+                    return sortedTags.take(count)
                 }
+
+                backendTags = removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                frontendTags = removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+
+                writeFile file: "${WORKSPACE}/backend-images.txt", text: backendTags.join('\n')
+                writeFile file: "${WORKSPACE}/frontend-images.txt", text: frontendTags.join('\n')
+
+                sh """
+                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/backend-images.txt ${PRODUCTION_SERVER}:/home/prod/backend-images.txt
+                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/frontend-images.txt ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt
+                """
+
+                sh """
+                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
+                        docker rmi -f \$(cat /home/prod/backend-images.txt) &&
+                        docker rmi -f \$(cat /home/prod/frontend-images.txt)
+                    '
+                """
             }
         }
+    }
+}
+
 
 
            stage('Deploy to Production') {
@@ -172,6 +187,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         always {
