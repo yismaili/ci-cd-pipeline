@@ -49,8 +49,8 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
-                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/CD_test/docker-image-info.txt
+                            // sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
                         '''
                         stash includes: 'docker-image-info.txt', name: 'docker-image-info'
                     }
