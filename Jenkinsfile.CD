@@ -108,13 +108,6 @@ pipeline {
             }
             steps {
                 script {
-                    // def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-                    // def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
-                    
-                    
-                    // sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
-                    // sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
-
                     sshagent(credentials: ['production-ssh-credentials-id']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
@@ -123,7 +116,6 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
                             scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/.env ${PRODUCTION_SERVER}:/home/prod/.env
                         """
                         
                         sh """
