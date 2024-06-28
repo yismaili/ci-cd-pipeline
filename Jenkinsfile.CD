@@ -111,6 +111,7 @@ pipeline {
             }
             steps {
                 script {
+                    def jobName = currentBuild.fullDisplayName.split(' ')[0]
                     sshagent(credentials: ['production-ssh-credentials-id']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
@@ -118,7 +119,7 @@ pipeline {
                         
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
-                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
+                            scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
                         """
                         
                         sh """
