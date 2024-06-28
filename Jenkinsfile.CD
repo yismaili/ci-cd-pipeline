@@ -34,7 +34,7 @@ pipeline {
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
             PRODUCTION_SERVER = 'root@192.168.100.76'
             DENTIALS_ID = 'production-ssh-credentials-id'
-            WORKSPACE = "/var/lib/jenkins/workspace"
+            WORKSPACE = pwd()
             DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-image-info"
             ENV = "/var/lib/jenkins/workspace/env/"
         }
@@ -43,21 +43,20 @@ pipeline {
             stage('Setup') {
                 steps {
                     script {
-                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            sudo cp ${env.DOCKER_IMAGES_INFO}/docker-image-info.txt ${env.WORKSPACE}/CD_test/docker-image-info.txt
-                            //sudo chown jenkins:jenkins ${env.WORKSPACE}/${jobName}/docker-image-info.txt
+                            sudo cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/test2/docker-image-info.txt
+                            sudo chown jenkins:jenkins /var/lib/jenkins/workspace/test2/docker-image-info.txt
                         '''
                         stash includes: 'docker-image-info.txt', name: 'docker-image-info'
                     }
                 }
             }
-
+            
             stage('Retrieve Docker Image Info') {
                 steps {
                     script {
@@ -96,51 +95,36 @@ pipeline {
             // }
 
             stage('Remove Unused Docker Images on Production') {
-    steps {
-        script {
-            sshagent(credentials: ['production-ssh-credentials-id']) {
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
-                        docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}" > /home/prod/backend-images.txt &&
-                        docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}" > /home/prod/frontend-images.txt
-                    '
-                """
-                sh """
-                    scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/backend-images.txt ${WORKSPACE}/backend-images.txt
-                    scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt ${WORKSPACE}/frontend-images.txt
-                """
-                
-                def backendTags = readFile("${WORKSPACE}/backend-images.txt").trim().split('\n').findAll { it }
-                def frontendTags = readFile("${WORKSPACE}/frontend-images.txt").trim().split('\n').findAll { it }
+            steps {
+                script {
+                    sshagent(credentials: ['production-ssh-credentials-id']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_BACKEND}" > backend-images.txt'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker images --format "{{.Repository}}:{{.Tag}}" | grep "${NEXUS_ARTEFACT_URL}/${REPOSITORY_FRONTEND}" > frontend-images.txt'
+                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/backend-images.txt ${WORKSPACE}/backend-images.txt
+                            scp -o StrictHostKeyChecking=no ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt ${WORKSPACE}/frontend-images.txt
+                        """
 
-                // Hypothetical function that removes old images and returns the updated list
-                def removeOldImages = { tags, count, type ->
-                    def sortedTags = tags.sort().reverse()
-                    return sortedTags.take(count)
+                        def backendTags = readFile("${WORKSPACE}/backend-images.txt").trim().split('\n').findAll { it }
+                        def frontendTags = readFile("${WORKSPACE}/frontend-images.txt").trim().split('\n').findAll { it }
+                        
+                        removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
+                        removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
+
+                        writeFile file: "${WORKSPACE}/backend-images.txt", text: backendTags.join('\n')
+                        writeFile file: "${WORKSPACE}/frontend-images.txt", text: frontendTags.join('\n')
+
+                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/backend-images.txt ${PRODUCTION_SERVER}:/home/prod/backend-images.txt
+                        scp -o StrictHostKeyChecking=no ${WORKSPACE}/frontend-images.txt ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt
+
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/backend-images.txt)'
+                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker rmi -f \$(cat /home/prod/frontend-images.txt)'
+                        """
+                    }
                 }
-
-                backendTags = removeOldImages(backendTags, env.IMAGES_TO_KEEP, "backend")
-                frontendTags = removeOldImages(frontendTags, env.IMAGES_TO_KEEP, "frontend")
-
-                writeFile file: "${WORKSPACE}/backend-images.txt", text: backendTags.join('\n')
-                writeFile file: "${WORKSPACE}/frontend-images.txt", text: frontendTags.join('\n')
-
-                sh """
-                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/backend-images.txt ${PRODUCTION_SERVER}:/home/prod/backend-images.txt
-                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/frontend-images.txt ${PRODUCTION_SERVER}:/home/prod/frontend-images.txt
-                """
-
-                sh """
-                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} '
-                        docker rmi -f \$(cat /home/prod/backend-images.txt) &&
-                        docker rmi -f \$(cat /home/prod/frontend-images.txt)
-                    '
-                """
             }
         }
-    }
-}
-
 
 
            stage('Deploy to Production') {
@@ -187,7 +171,8 @@ pipeline {
                 }
             }
         }
-    }
+
+}
 
     post {
         always {
