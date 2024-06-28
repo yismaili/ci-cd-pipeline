@@ -55,7 +55,7 @@ pipeline {
                         sh """
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
-                            cp ${env.ENV} ${WORKSPACE}/${jobName}/.env
+                            cp ${env.ENV}/.env ${WORKSPACE}/${jobName}/.env
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/.env
