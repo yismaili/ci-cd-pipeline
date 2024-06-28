@@ -7,7 +7,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
         parameters {
-            string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
+            // string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
             string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
             string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
 
@@ -23,7 +23,7 @@ pipeline {
             GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
             BUILD_NUMBER = "${params.BUILD_NUMBER}"
             BUILD_STATUS = "CD"
-            ITEMNAME = "${params.ITEMNAME}"
+            // ITEMNAME = "${params.ITEMNAME}"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "${params.BRANCH}"
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
@@ -34,7 +34,7 @@ pipeline {
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
             PRODUCTION_SERVER = 'root@192.168.100.76'
             DENTIALS_ID = 'production-ssh-credentials-id'
-            WORKSPACE = pwd()
+            WORKSPACE = "/var/lib/jenkins/workspace"
             BACKEND_IMAGES_INFO = "${WORKSPACE}/docker-images-info/backend-image.txt"
             FRONTEND_IMAGES_INFO = "${WORKSPACE}/docker-images-info/frontend-image.txt"
             ENV = "/var/lib/jenkins/workspace/env/"
@@ -52,10 +52,10 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${env.BACKEND_IMAGE_TAG}.txt
-                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${env.FRONTEND_IMAGE_TAG}.txt
-                            chown jenkins:jenkins /var/lib/jenkins/workspace/CD_test/${env.BACKEND_IMAGE_TAG}.txt
-                            chown jenkins:jenkins /var/lib/jenkins/workspace/CD_test/${env.FRONTEND_IMAGE_TAG}.txt
+                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
+                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                         '''
                         stash includes: '${env.BACKEND_IMAGE_TAG}.txt', name: '${env.BACKEND_IMAGE_TAG}'
                         stash includes: '${env.FRONTEND_IMAGE_TAG}.txt', name: '${env.FRONTEND_IMAGE_TAG}'
