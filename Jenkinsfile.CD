@@ -74,6 +74,7 @@ pipeline {
                         def backenddockerImageInfo = readFile("${env.BACKEND_IMAGE_TAG}.txt").trim()
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
+
                     }
                 }
             }
@@ -81,8 +82,8 @@ pipeline {
             stage('Preparing Docker compose file') {
                 steps {
                     sh """
-                        sed -i 's/FRONTEND_IMAGE/${FRONTEND_IMAGE_TAG}/g' docker-compose.yml
-                        sed -i 's/BACKEND_IMAGE/${BACKEND_IMAGE_TAG}/g' docker-compose.yml
+                        sed -i 's/FRONTEND_IMAGE/${env.FRONTEND_DOCKER_IMAGE}/g' docker-compose.yml
+                        sed -i 's/BACKEND_IMAGE/${env.BACKEND_DOCKER_IMAGE}/g' docker-compose.yml
                     """
                     sh 'cat docker-compose.yml' // To verify the replacement
                 }
