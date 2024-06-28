@@ -38,6 +38,8 @@ pipeline {
             BACKEND_IMAGES_INFO = "${WORKSPACE}/docker-images-info/backend-image.txt"
             FRONTEND_IMAGES_INFO = "${WORKSPACE}/docker-images-info/frontend-image.txt"
             ENV = "/var/lib/jenkins/workspace/env/"
+            BACKEND_IMAGE_TAG = "backend-image"
+            FRONTEND_IMAGE_TAG = "frontend-image"
         }
 
         stages {
@@ -50,10 +52,13 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
-                            cp /var/lib/jenkins/workspace/docker-image-info/docker-image-info.txt /var/lib/jenkins/workspace/CD_test/docker-image-info.txt
-                            chown jenkins:jenkins /var/lib/jenkins/workspace/CD_test/docker-image-info.txt
+                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${env.BACKEND_IMAGE_TAG}.txt
+                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${env.FRONTEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins /var/lib/jenkins/workspace/CD_test/${env.BACKEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins /var/lib/jenkins/workspace/CD_test/${env.FRONTEND_IMAGE_TAG}.txt
                         '''
-                        stash includes: 'docker-image-info.txt', name: 'docker-image-info'
+                        stash includes: '${env.BACKEND_IMAGE_TAG}.txt', name: '${env.BACKEND_IMAGE_TAG}'
+                        stash includes: '${env.FRONTEND_IMAGE_TAG}.txt', name: '${env.FRONTEND_IMAGE_TAG}'
                     }
                 }
             }
@@ -61,8 +66,8 @@ pipeline {
             stage('Retrieve Docker Image Info') {
                 steps {
                     script {
-                        unstash 'docker-image-info'
-                        def dockerImageInfo = readFile('docker-image-info.txt').trim()
+                        unstash '${env.FRONTEND_IMAGE_TAG}'
+                        def dockerImageInfo = readFile('${env.FRONTEND_IMAGE_TAG}.txt').trim()
                         env.DOCKER_IMAGE = dockerImageInfo
                     }
                 }
