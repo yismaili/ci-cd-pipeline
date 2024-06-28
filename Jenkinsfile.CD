@@ -52,6 +52,7 @@ pipeline {
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh '''
+                            echo "${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt"
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
