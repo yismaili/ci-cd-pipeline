@@ -78,6 +78,16 @@ pipeline {
                 }
             }
 
+            stage('Preparing Docker compose file') {
+                steps {
+                    sh """
+                        sed -i 's/FRONTEND_IMAGE/${FRONTEND_IMAGE_TAG}/g' docker-compose.yml
+                        sed -i 's/BACKEND_IMAGE/${BACKEND_IMAGE_TAG}/g' docker-compose.yml
+                    """
+                    sh 'cat docker-compose.yml' // To verify the replacement
+                }
+            }
+
             stage('Test') {
                 steps {
                     script {
@@ -97,12 +107,12 @@ pipeline {
             }
             steps {
                 script {
-                    def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
-                    def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
+                    // def nexusBackendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-${env.DOCKER_IMAGE}"
+                    // def nexusFrontendTag = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-${env.DOCKER_IMAGE}"
                     
                     
-                    sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
-                    sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
+                    // sh "echo BACKEND_IMAGE=${nexusBackendTag} >> .env"
+                    // sh "echo FRONTEND_IMAGE=${nexusFrontendTag} >> .env"
 
                     sshagent(credentials: ['production-ssh-credentials-id']) {
                         sh """

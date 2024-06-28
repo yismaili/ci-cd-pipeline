@@ -14,7 +14,7 @@ services:
       - app-net
 
   backend:
-    image: ${BACKEND_IMAGE}
+    image: BACKEND_IMAGE
     container_name: backend
     env_file:
       - .env
@@ -27,7 +27,7 @@ services:
       - app-net
 
   frontend:
-    image: ${FRONTEND_IMAGE}
+    image: FRONTEND_IMAGE
     container_name: frontend
     restart: always
     depends_on:
