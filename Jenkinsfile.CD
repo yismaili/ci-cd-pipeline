@@ -9,22 +9,18 @@ pipeline {
         parameters {
             string(name: 'GIT_COMMIT_SHORT', defaultValue: 'null', description: 'Git commit short')
             string(name: 'BUILD_NUMBER', defaultValue: 'null', description: 'Build number')
-            booleanParam(name: 'FORCE_IMAGES', defaultValue: false, description: 'force images')
+            booleanParam(name: 'FORCE_IMAGES', defaultValue: false, description: 'Force Images')
             string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
-            string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
-            string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
-            string(name: 'REPOSITORY_BACKEND', defaultValue: 'ci-cd/backend', description: 'Backend repository')
-            string(name: 'IMAGES_TO_KEEP', defaultValue: '3', description: 'Number of Docker images to keep')
         }
         environment {
-            GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
             BUILD_NUMBER = "${params.BUILD_NUMBER}"
+            GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
             BUILD_STATUS = "CD"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "${params.BRANCH}"
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
             GIT_CREDENTIALS_ID = 'github-pat'
-            NEXUS_ARTEFACT_URL = "${params.NEXUS_ARTEFACT_URL}"
+            NEXUS_ARTEFACT_URL = '192.168.100.75:8585'
             REPOSITORY_FRONTEND = "${params.REPOSITORY_FRONTEND}"
             REPOSITORY_BACKEND = "${params.REPOSITORY_BACKEND}"
             IMAGES_TO_KEEP = "${params.IMAGES_TO_KEEP}"
@@ -40,6 +36,8 @@ pipeline {
             BUILD_NUMBER_INFO = "${WORKSPACE}/build-number.txt"
             GIT_COMMIT_SHORT_ = "git-commit-short"
             BUILD_NUMBER_ = "build-number"
+            BACKEND_IMAGE_URL = "${NEXUS_ARTEFACT_URL}/ci-cd/backend:backend-"
+            FRONTEND_IMAGE_URL = "${NEXUS_ARTEFACT_URL}/ci-cd/frontend:frontend-"
         }
 
         stages {
@@ -51,9 +49,9 @@ pipeline {
                 steps {
                     script {
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        targetFolderArray = env.GIT_BRANCH.split("/")
-                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        // env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        // targetFolderArray = env.GIT_BRANCH.split("/")
+                        // targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                     }
                 }
@@ -63,17 +61,13 @@ pipeline {
                 steps {
                     script {
                         def jobName = currentBuild.fullDisplayName.split(' ')[0]
-                        // env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        // env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        // targetFolderArray = env.GIT_BRANCH.split("/")
-                        // targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        // currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh """
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             cp ${env.FRONTEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                             cp ${env.ENV}/.env ${WORKSPACE}/${jobName}/.env
                             cp ${env.GIT_COMMIT_SHORT_INFO} ${WORKSPACE}/${jobName}/${env.GIT_COMMIT_SHORT_}.txt
                             cp ${env.BUILD_NUMBER_INFO} ${WORKSPACE}/${jobName}/${env.BUILD_NUMBER_}.txt
+
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.GIT_COMMIT_SHORT_}.txt
@@ -98,19 +92,18 @@ pipeline {
                         unstash "${env.BACKEND_IMAGE_TAG}"
                         unstash "${env.GIT_COMMIT_SHORT_}"
                         unstash "${env.BUILD_NUMBER_}"
+
                         def frontenddockerImageInfo = readFile("${env.FRONTEND_IMAGE_TAG}.txt").trim()
                         def backenddockerImageInfo = readFile("${env.BACKEND_IMAGE_TAG}.txt").trim()
                         def gitcommitshort = readFile("${env.GIT_COMMIT_SHORT_}.txt").trim()
                         def buildnumber = readFile("${env.BUILD_NUMBER_}.txt").trim()
+
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
                         env.GIT_COMMIT_SHORT = gitcommitshort
                         env.BUILD_NUMBER = buildnumber
-                                // println "${env.GIT_COMMIT_SHORT} : ${env.BUILD_NUMBER}"
+
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        // env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        // targetFolderArray = env.GIT_BRANCH.split("/")
-                        // targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${gitcommitshort}-${buildnumber}/CD"
                     }
                 }
@@ -119,11 +112,16 @@ pipeline {
             stage('Preparing Docker compose file') {
                 steps {
                     script {
+                        if (params.FORCE_IMAGES)
+                        {
+                            def frontenddockerimage = "${FRONTEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
+                            def backenddockerImage = "${BACKEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
+                        }
+                        
                         sh """
                             sed -i 's|FRONTEND_IMAGE|${env.FRONTEND_DOCKER_IMAGE}|g' docker-compose.yml
                             sed -i 's|BACKEND_IMAGE|${env.BACKEND_DOCKER_IMAGE}|g' docker-compose.yml
                         """
-                        // sh 'cat docker-compose.yml'
                     }
                 }
             }
