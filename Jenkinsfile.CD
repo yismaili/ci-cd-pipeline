@@ -100,11 +100,13 @@ pipeline {
                         unstash "${env.BUILD_NUMBER_}"
                         def frontenddockerImageInfo = readFile("${env.FRONTEND_IMAGE_TAG}.txt").trim()
                         def backenddockerImageInfo = readFile("${env.BACKEND_IMAGE_TAG}.txt").trim()
-                        env.GIT_COMMIT_SHORT = readFile("${env.GIT_COMMIT_SHORT_}.txt").trim()
-                        env.BUILD_NUMBER = readFile("${env.BUILD_NUMBER_}.txt").trim()
+                        def gitcommitshort = readFile("${env.GIT_COMMIT_SHORT_}.txt").trim()
+                        def buildnumber = readFile("${env.BUILD_NUMBER_}.txt").trim()
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
-
+                        env.GIT_COMMIT_SHORT = gitcommitshort
+                        env.BUILD_NUMBER = buildnumber
+                                println "${gitcommitshort} : ${buildnumber}"
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD"
                     }
