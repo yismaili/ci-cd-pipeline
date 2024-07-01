@@ -128,9 +128,9 @@ pipeline {
                                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml up -d'
                                 """
                                 
-                                // sh """
-                                //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
-                                // """
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/.env'
+                                """
                             }
                         }
                     }
