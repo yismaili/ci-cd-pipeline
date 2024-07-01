@@ -112,17 +112,15 @@ pipeline {
             stage('Preparing Docker compose file') {
                 steps {
                     script {
-                        if (params.FORCE_IMAGES)
-                        {
+                        if (params.FORCE_IMAGES) {
                             def frontenddockerimage = "${FRONTEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
                             def backenddockerImage = "${BACKEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
-                             sh """
+                            sh """
                                 sed -i "s|FRONTEND_IMAGE|${frontenddockerimage}|g" docker-compose.yml
                                 sed -i "s|BACKEND_IMAGE|${backenddockerImage}|g" docker-compose.yml
                                 cat docker-compose.yml
                             """
-                        }
-                        else {
+                        } else {
                             sh """
                                 sed -i 's|FRONTEND_IMAGE|${env.FRONTEND_DOCKER_IMAGE}|g' docker-compose.yml
                                 sed -i 's|BACKEND_IMAGE|${env.BACKEND_DOCKER_IMAGE}|g' docker-compose.yml
@@ -131,7 +129,6 @@ pipeline {
                     }
                 }
             }
-
 
             stage('Test') {
                 steps {
