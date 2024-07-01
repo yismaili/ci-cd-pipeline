@@ -116,13 +116,19 @@ pipeline {
                         {
                             def frontenddockerimage = "${FRONTEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
                             def backenddockerImage = "${BACKEND_IMAGE_URL}${GIT_COMMIT_SHORT_}${BUILD_NUMBER_}"
+                             sh """
+                                sed -i 's|FRONTEND_IMAGE|${frontenddockerimage}|g' docker-compose.yml
+                                sed -i 's|BACKEND_IMAGE|${backenddockerImage}|g' docker-compose.yml
+                                cat docker-compose.yml
+                            """
                         }
-                        
-                        sh """
-                            sed -i 's|FRONTEND_IMAGE|${env.FRONTEND_DOCKER_IMAGE}|g' docker-compose.yml
-                            sed -i 's|BACKEND_IMAGE|${env.BACKEND_DOCKER_IMAGE}|g' docker-compose.yml
-                            cat docker-compose.yml
-                        """
+                        else {
+                            sh """
+                                sed -i 's|FRONTEND_IMAGE|${env.FRONTEND_DOCKER_IMAGE}|g' docker-compose.yml
+                                sed -i 's|BACKEND_IMAGE|${env.BACKEND_DOCKER_IMAGE}|g' docker-compose.yml
+                                echo "hi"
+                            """
+                        }
                     }
                 }
             }
