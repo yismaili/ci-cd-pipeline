@@ -106,12 +106,12 @@ pipeline {
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
                         env.GIT_COMMIT_SHORT = gitcommitshort
                         env.BUILD_NUMBER = buildnumber
-                                println "${env.GIT_COMMIT_SHORT} : ${env.BUILD_NUMBER}"
+                                // println "${env.GIT_COMMIT_SHORT} : ${env.BUILD_NUMBER}"
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
-                        env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
-                        targetFolderArray = env.GIT_BRANCH.split("/")
-                        targetFolder = targetFolderArray[targetFolderArray.size() - 1]
-                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD"
+                        // env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        // targetFolderArray = env.GIT_BRANCH.split("/")
+                        // targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        currentBuild.displayName = "${CUSTOMNAME}/${gitcommitshort}-${buildnumber}/CD"
                     }
                 }
             }
