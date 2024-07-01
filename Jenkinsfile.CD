@@ -101,80 +101,42 @@ pipeline {
                 }
             }
 
-        //    stage('Deploy to Production') {
-        //      environment {
-        //         NEXUS_USERNAME = credentials('nexus-credentials-id').username
-        //         NEXUS_PASSWORD = credentials('nexus-credentials-id').password
-        //     }
-        //     when {
-        //         expression { env.BUILD_STATUS == 'CD' }
-        //     }
-        //     steps {
-        //         script {
-        //             def jobName = currentBuild.fullDisplayName.split(' ')[0]
-        //             sshagent(credentials: ['production-ssh-credentials-id']) {
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
-        //                 """
-                        
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
-        //                     scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
-        //                     scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/.env ${PRODUCTION_SERVER}:/home/prod/.env
-        //                 """
-                        
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
-        //                 """
-                        
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml up -d'
-        //                 """
-                        
-        //                 sh """
-        //                     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
-
-        stage('Deploy to Production') {
-            when {
-                expression { env.BUILD_STATUS == 'CD' }
-            }
-            steps {
-                script {
-                    def jobName = currentBuild.fullDisplayName.split(' ')[0]
-                    withCredentials([usernamePassword(credentialsId: 'nexus-credentials-id', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                        sshagent(credentials: ['production-ssh-credentials-id']) {
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
-                            """
-                            
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
-                                scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
-                                scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/.env ${PRODUCTION_SERVER}:/home/prod/.env
-                            """
-                            
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
-                            """
-                            
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml up -d'
-                            """
-                            
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
-                            """
+            stage('Deploy to Production') {
+                when {
+                    expression { env.BUILD_STATUS == 'CD' }
+                }
+                steps {
+                    script {
+                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
+                        withCredentials([usernamePassword(credentialsId: 'nexus-credentials-id', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            sshagent(credentials: ['production-ssh-credentials-id']) {
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker login ${NEXUS_ARTEFACT_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}'
+                                """
+                                
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'mkdir -p /home/prod'
+                                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/docker-compose.yml ${PRODUCTION_SERVER}:/home/prod/docker-compose.yml
+                                    scp -o StrictHostKeyChecking=no ${WORKSPACE}/${jobName}/.env ${PRODUCTION_SERVER}:/home/prod/.env
+                                """
+                                
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml down'
+                                """
+                                
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'docker-compose -f /home/prod/docker-compose.yml up -d'
+                                """
+                                
+                                // sh """
+                                //     ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} 'rm -rf /home/prod/'
+                                // """
+                            }
                         }
                     }
                 }
-            }
         }
-}
+    }
 
     post {
         always {
