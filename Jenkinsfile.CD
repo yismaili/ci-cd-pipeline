@@ -38,6 +38,8 @@ pipeline {
             FRONTEND_IMAGE_TAG = "frontend-image"
             GIT_COMMIT_SHORT_INFO = "${WORKSPACE}/git-commit-short.txt"
             BUILD_NUMBER_INFO = "${WORKSPACE}/build-number.txt"
+            GIT_COMMIT_SHORT = "git-commit-short"
+            BUILD_NUMBER_ = "build-number"
         }
 
         stages {
@@ -68,14 +70,20 @@ pipeline {
                         // currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh """
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
-                            cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
+                            cp ${env.FRONTEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
                             cp ${env.ENV}/.env ${WORKSPACE}/${jobName}/.env
+                            cp ${env.GIT_COMMIT_SHORT_INFO} ${WORKSPACE}/${jobName}/${env.GIT_COMMIT_SHORT_INFO}.txt
+                            cp ${env.BUILD_NUMBER_INFO} ${WORKSPACE}/${jobName}/${env.BUILD_NUMBER_}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
+                            chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.GIT_COMMIT_SHORT_INFO}.txt
+                            chown jenkins:jenkins ${WORKSPACE}/${jobName}/${env.BUILD_NUMBER_}.txt
                             chown jenkins:jenkins ${WORKSPACE}/${jobName}/.env
                         """
                         stash includes: "${env.BACKEND_IMAGE_TAG}.txt", name: "${env.BACKEND_IMAGE_TAG}"
                         stash includes: "${env.FRONTEND_IMAGE_TAG}.txt", name: "${env.FRONTEND_IMAGE_TAG}"
+                        stash includes: "${env.GIT_COMMIT_SHORT_INFO}.txt", name: "${env.GIT_COMMIT_SHORT_INFO}"
+                        stash includes: "${env.BUILD_NUMBER_}.txt", name: "${env.BUILD_NUMBER_}"
                     }
                 }
             }
@@ -88,8 +96,12 @@ pipeline {
                     script {
                         unstash "${env.FRONTEND_IMAGE_TAG}"
                         unstash "${env.BACKEND_IMAGE_TAG}"
+                        unstash "${env.GIT_COMMIT_SHORT_INFO}"
+                        unstash "${env.BUILD_NUMBER_}"
                         def frontenddockerImageInfo = readFile("${env.FRONTEND_IMAGE_TAG}.txt").trim()
                         def backenddockerImageInfo = readFile("${env.BACKEND_IMAGE_TAG}.txt").trim()
+                        env.GIT_COMMIT_SHORT = readFile("${env.GIT_COMMIT_SHORT_INFO}.txt").trim()
+                        env.BUILD_NUMBER = readFile("${env.BUILD_NUMBER_}.txt").trim()
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
 
