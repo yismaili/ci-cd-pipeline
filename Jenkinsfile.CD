@@ -102,10 +102,9 @@ pipeline {
             }
 
            stage('Deploy to Production') {
-            environment {
-                NEXUS_USERNAME = 'admin'
-                // I have to fetch the nexus password from jenkins credentials !!!!!!
-                NEXUS_PASSWORD = 'c9c95cac0f@ismaili'
+             environment {
+                NEXUS_USERNAME = credentials('nexus-credentials-id').username
+                NEXUS_PASSWORD = credentials('nexus-credentials-id').password
             }
             when {
                 expression { env.BUILD_STATUS == 'CD' }
