@@ -27,6 +27,8 @@ pipeline {
         DOCKER_IMAGES_INFO = "${WORKSPACE}/docker-images-info"
         BACKEND_IMAGES_INFO = "${DOCKER_IMAGES_INFO}/backend-image.txt"
         FRONTEND_IMAGES_INFO = "${DOCKER_IMAGES_INFO}/frontend-image.txt"
+        GIT_COMMIT_SHORT_INFO = "${WORKSPACE}/git-commit-short.txt"
+        BUILD_NUMBER_INFO = "${WORKSPACE}/build-number.txt"
     }
 
         stages {
@@ -64,6 +66,8 @@ pipeline {
                             chown -R jenkins:jenkins ${env.DOCKER_IMAGES_INFO}
                             chown jenkins:jenkins ${env.ENV}
                         """
+                        writeFile file: "${GIT_COMMIT_SHORT_INFO}", text: "${env.GIT_COMMIT_SHORT}"
+                        writeFile file: "${BUILD_NUMBER_INFO}", text: "${env.BUILD_NUMBER}"
                     }
                 }
             }

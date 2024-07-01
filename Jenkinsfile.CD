@@ -7,12 +7,9 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
     }
         parameters {
-            // string(name: 'ITEMNAME', defaultValue: 'test2', description: 'Item name')
-            string(name: 'GIT_COMMIT_SHORT', defaultValue: '1034e0b', description: 'Git commit short')
-            string(name: 'BUILD_NUMBER', defaultValue: '379', description: 'Build number')
-
-            // string(name: 'GIT_COMMIT_SHORT', defaultValue: '5107796', description: 'Git commit short')
-            // string(name: 'BUILD_NUMBER', defaultValue: '403', description: 'Build number')
+            string(name: 'GIT_COMMIT_SHORT', defaultValue: 'null', description: 'Git commit short')
+            string(name: 'BUILD_NUMBER', defaultValue: 'null', description: 'Build number')
+            booleanParam(name: 'FORCE_IMAGES', defaultValue: false, description: 'force images')
             string(name: 'BRANCH', defaultValue: 'master', description: 'Branch name')
             string(name: 'NEXUS_ARTEFACT_URL', defaultValue: '192.168.100.75:8585', description: 'Nexus artifact URL')
             string(name: 'REPOSITORY_FRONTEND', defaultValue: 'ci-cd/frontend', description: 'Frontend repository')
@@ -23,7 +20,6 @@ pipeline {
             GIT_COMMIT_SHORT = "${params.GIT_COMMIT_SHORT}"
             BUILD_NUMBER = "${params.BUILD_NUMBER}"
             BUILD_STATUS = "CD"
-            // ITEMNAME = "${params.ITEMNAME}"
             REPO_URL = "https://github.com/yismaili/ci-cd"
             BRANCH = "${params.BRANCH}"
             NEXUS_ARTEFACT_CREDENTIALS = 'nexus-credentials-id'
@@ -40,18 +36,36 @@ pipeline {
             ENV = "/var/lib/jenkins/workspace/env/"
             BACKEND_IMAGE_TAG = "backend-image"
             FRONTEND_IMAGE_TAG = "frontend-image"
+            GIT_COMMIT_SHORT_INFO = "${WORKSPACE}/git-commit-short.txt"
+            BUILD_NUMBER_INFO = "${WORKSPACE}/build-number.txt"
         }
 
         stages {
+
             stage('Setup') {
+                when {
+                    expression {params.FORCE_IMAGES}
+                }
                 steps {
                     script {
-                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
                         targetFolderArray = env.GIT_BRANCH.split("/")
                         targetFolder = targetFolderArray[targetFolderArray.size() - 1]
                         currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
+                    }
+                }
+            }
+
+            stage('Capy Docker Images Info') {
+                steps {
+                    script {
+                        def jobName = currentBuild.fullDisplayName.split(' ')[0]
+                        // env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        // env.APPNAME = sh(script: 'basename -s .git ${GIT_URL}', returnStdout: true).trim()
+                        // targetFolderArray = env.GIT_BRANCH.split("/")
+                        // targetFolder = targetFolderArray[targetFolderArray.size() - 1]
+                        // currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD" 
                         sh """
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.BACKEND_IMAGE_TAG}.txt
                             cp ${env.BACKEND_IMAGES_INFO} ${WORKSPACE}/${jobName}/${env.FRONTEND_IMAGE_TAG}.txt
@@ -67,6 +81,9 @@ pipeline {
             }
 
             stage('Retrieve Docker Image Info') {
+                when {
+                    expression {!params.FORCE_IMAGES}
+                }
                 steps {
                     script {
                         unstash "${env.FRONTEND_IMAGE_TAG}"
@@ -76,6 +93,8 @@ pipeline {
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
 
+                        env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
+                        currentBuild.displayName = "${CUSTOMNAME}/${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}/CD"
                     }
                 }
             }
