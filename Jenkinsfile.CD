@@ -100,8 +100,8 @@ pipeline {
 
                         env.FRONTEND_DOCKER_IMAGE = frontenddockerImageInfo
                         env.BACKEND_DOCKER_IMAGE = backenddockerImageInfo
-                        env.GIT_COMMIT_SHORT_T = gitcommitshort
-                        env.BUILD_NUMBER_T = buildnumber
+                        // env.GIT_COMMIT_SHORT_T = gitcommitshort
+                        // env.BUILD_NUMBER_T = buildnumber
 
                         env.CUSTOMNAME = env.GIT_BRANCH.split("/")[1]
                         currentBuild.displayName = "${CUSTOMNAME}/${gitcommitshort}-${buildnumber}/CD"
@@ -115,11 +115,11 @@ pipeline {
                         if (params.FORCE_IMAGES) {
                             def frontenddockerimage = "${FRONTEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                             def backenddockerimage = "${BACKEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
-                            println "${frontenddockerimage} : ${backenddockerimage}"
+
                             sh """
                                 sed -i "s|FRONTEND_IMAGE|${frontenddockerimage}|g" docker-compose.yml
                                 sed -i "s|BACKEND_IMAGE|${backenddockerimage}|g" docker-compose.yml
-                                cat docker-compose.yml
+                                // cat docker-compose.yml
                             """
                         } else {
                             sh """
