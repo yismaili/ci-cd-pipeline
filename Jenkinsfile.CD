@@ -113,8 +113,8 @@ pipeline {
                 steps {
                     script {
                         if (params.FORCE_IMAGES) {
-                            def frontenddockerimage = "${FRONTEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}${env.BUILD_NUMBER}"
-                            def backenddockerimage = "${BACKEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}${env.BUILD_NUMBER}"
+                            def frontenddockerimage = "${FRONTEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
+                            def backenddockerimage = "${BACKEND_IMAGE_URL}${env.GIT_COMMIT_SHORT}-${env.BUILD_NUMBER}"
                             println "${frontenddockerimage} : ${backenddockerimage}"
                             sh """
                                 sed -i "s|FRONTEND_IMAGE|${frontenddockerimage}|g" docker-compose.yml
